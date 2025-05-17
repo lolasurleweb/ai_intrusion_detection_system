@@ -8,9 +8,12 @@ from src.data.preprocessing import (
     scale_and_save_splits,
     TARGET_COL                 
 )
-from src.models.train_tabnet import (
+from src.utils.io import (
     load_classic,
-    load_time,
+    load_time
+)
+from src.models.train_tabnet import (
+    train_and_evaluate
 )
 
 def preprocess():
@@ -65,7 +68,7 @@ def load_time_splits():
 
 def main():
     parser = argparse.ArgumentParser(description="Cybersecurity ML-Pipeline")
-    parser.add_argument("step", choices=["preprocess", "load_classic", "load_time"],
+    parser.add_argument("step", choices=["preprocess", "load_classic", "load_time", "train_tabnet"],
                         help="Wähle den Teil der Pipeline, den du ausführen willst.")
     args = parser.parse_args()
 
@@ -75,6 +78,8 @@ def main():
         load_classic_splits()
     elif args.step == "load_time":
         load_time_splits()
+    elif args.step == "train_tabnet":
+        train_and_evaluate()
 
 if __name__ == "__main__":
     main()

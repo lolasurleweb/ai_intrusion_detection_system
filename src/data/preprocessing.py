@@ -26,7 +26,8 @@ def log_transform(df: pd.DataFrame, col: str) -> pd.DataFrame:
     return df
 
 def encode_categorical(df: pd.DataFrame) -> pd.DataFrame:
-    return pd.get_dummies(df, columns=CATEGORICAL_FEATURES, drop_first=True)
+    df_encoded = pd.get_dummies(df, columns=CATEGORICAL_FEATURES, drop_first=True)
+    return df_encoded.astype({col: float for col in df_encoded.select_dtypes('bool').columns})
 
 
 def scale_numerical(df: pd.DataFrame, scaler: StandardScaler = None, fit=True):
