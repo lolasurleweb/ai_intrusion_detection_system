@@ -12,8 +12,8 @@ from src.utils.io import (
     load_classic,
     load_time
 )
-from src.models.train_tabnet import (
-    train_and_evaluate
+from src.training.train_tabnet import (
+    run_training
 )
 
 def preprocess():
@@ -68,7 +68,7 @@ def load_time_splits():
 
 def main():
     parser = argparse.ArgumentParser(description="Cybersecurity ML-Pipeline")
-    parser.add_argument("step", choices=["preprocess", "load_classic", "load_time", "train_tabnet"],
+    parser.add_argument("step", choices=["preprocess", "load_classic", "load_time", "run_training"],
                         help="Wähle den Teil der Pipeline, den du ausführen willst.")
     args = parser.parse_args()
 
@@ -78,8 +78,8 @@ def main():
         load_classic_splits()
     elif args.step == "load_time":
         load_time_splits()
-    elif args.step == "train_tabnet":
-        train_and_evaluate()
+    elif args.step == "run_training":
+        run_training()
 
 if __name__ == "__main__":
     main()
