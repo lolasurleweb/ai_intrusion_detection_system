@@ -1,20 +1,23 @@
 import pandas as pd
 from pathlib import Path
 
-def load_train_val_test(data_dir='data/processed'):
+def split_xy(df):
+    return df.drop(columns=["attack_detected", "session_id"], errors='ignore'), df["attack_detected"]
+
+def load_classic(data_dir='data/processed'):
     data_dir = Path(data_dir)
 
-    train_df = pd.read_csv(data_dir / "train_data.csv")
-    val_df = pd.read_csv(data_dir / "val_data.csv")
-    test_df = pd.read_csv(data_dir / "test_data.csv")
+    df_train = pd.read_csv(data_dir / "train.csv")
+    df_val   = pd.read_csv(data_dir / "val.csv")
+    df_test  = pd.read_csv(data_dir / "test.csv")
 
-    X_train = train_df.drop(columns=["attack_detected"])
-    y_train = train_df["attack_detected"]
+    return split_xy(df_train), split_xy(df_val), split_xy(df_test)
 
-    X_val = val_df.drop(columns=["attack_detected"])
-    y_val = val_df["attack_detected"]
+def load_time(data_dir='data/processed'):
+    data_dir = Path(data_dir)
 
-    X_test = test_df.drop(columns=["attack_detected"])
-    y_test = test_df["attack_detected"]
+    df_early = pd.read_csv(data_dir / "early.csv")
+    df_mid   = pd.read_csv(data_dir / "mid.csv")
+    df_late  = pd.read_csv(data_dir / "late.csv")
 
-    return (X_train, y_train), (X_val, y_val), (X_test, y_test)
+    return split_xy(df_early), split_xy(df_mid), split_xy(df_late)
