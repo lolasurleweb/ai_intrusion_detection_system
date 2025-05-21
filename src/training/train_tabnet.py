@@ -3,14 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 from pytorch_tabnet.tab_model import TabNetClassifier
-from sklearn.metrics import f1_score, precision_score, recall_score
+from sklearn.metrics import confusion_matrix
 from src.utils.io import load_classic
 import json
 from src.training.evaluate_tabnet import evaluate_tabnet_model
-
-import numpy as np
-from sklearn.metrics import confusion_matrix
-import matplotlib.pyplot as plt
 
 def compute_optimal_threshold_by_cost_function(y_true, y_proba, alpha, beta, save_plot_path=None):
     thresholds = np.linspace(0.0, 1.0, 200)

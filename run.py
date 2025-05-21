@@ -15,6 +15,8 @@ from src.utils.io import (
 from src.training.train_tabnet import (
     run_training
 )
+from src.utils.seeding import set_seed
+
 
 def preprocess():
     print("[1] Lade und bereinige Daten...")
@@ -79,6 +81,7 @@ def main():
     elif args.step == "load_time":
         load_time_splits()
     elif args.step == "run_training":
+        set_seed(42)
         run_training()
 
 if __name__ == "__main__":
