@@ -49,17 +49,14 @@ def create_classic_split(df: pd.DataFrame):
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
-def create_time_split(df: pd.DataFrame):
-    df_sorted = df.sort_values("session_id").reset_index(drop=True)
-    n = len(df_sorted)
-    early = df_sorted.iloc[:int(n * 0.33)].copy()
-    mid   = df_sorted.iloc[int(n * 0.33):int(n * 0.66)].copy()
-    late  = df_sorted.iloc[int(n * 0.66):].copy()
+def create_time_split(df: pd.DataFrame, seed=42):
+    y = df[TARGET_COL]
+    X = df.drop(columns=[TARGET_COL, 'session_id'])
 
-    def xy(part):
-        return part.drop(columns=[TARGET_COL, 'session_id']), part[TARGET_COL]
+    X_temp, X_late, y_temp, y_late = train_test_split(X, y, test_size=1/3, stratify=y, random_state=seed)
+    X_early, X_mid, y_early, y_mid = train_test_split(X_temp, y_temp, test_size=0.5, stratify=y_temp, random_state=seed)
 
-    return xy(early), xy(mid), xy(late)
+    return (X_early, y_early), (X_mid, y_mid), (X_late, y_late)
 
 def scale_and_save_splits(splits: dict, path_prefix='data/processed/'):
     for name, (X, y) in splits.items():
