@@ -9,6 +9,7 @@ import json
 from src.training.evaluate_tabnet import evaluate_tabnet_model
 import uuid
 from datetime import datetime
+from itertools import product
 
 def compute_optimal_threshold_by_cost_function(y_true, y_proba, alpha, beta, save_plot_path=None):
     thresholds = np.linspace(0.0, 1.0, 200)
@@ -94,7 +95,6 @@ def train_tabnet(X_train, y_train, X_val, y_val, params, threshold_plot_path, al
     return clf, threshold, cost
 
 def run_training():
-    from itertools import product
 
     search_space = {
         "n_d": [8, 16],
@@ -103,14 +103,16 @@ def run_training():
         "lambda_sparse": [1e-3, 1e-4]
     }
 
-    alpha = 2  # Kosten eines False Negatives (verpasster Angriff)
-    beta = 1    # Kosten eines False Positives (Fehlalarm)
+    alpha = 2
+    beta = 1
 
     configs = list(product(*search_space.values()))
     lowest_cost = float("inf")
     best_config = None
     best_model = None
     best_threshold = 0.5
+    best_y_val = None
+    best_y_proba_val = None
 
     (X_train, y_train), (X_val, y_val), (X_test, y_test) = load_classic()
     feature_names = X_train.columns.tolist()
@@ -121,9 +123,10 @@ def run_training():
         params = dict(zip(search_space.keys(), values))
         print(f"\n[{i+1}/{len(configs)}] Teste Config: {params}")
 
+        # Kein Plot während des Grid Search
         clf, threshold, cost = train_tabnet(
             X_train, y_train, X_val, y_val, params,
-            threshold_plot_path=f"reports/figures/threshold_cost_val_{i}.png",
+            threshold_plot_path=None,  # <- Keine Speicherung hier
             alpha=alpha, beta=beta
         )
 
@@ -134,6 +137,8 @@ def run_training():
             best_config = params
             best_model = clf
             best_threshold = threshold
+            best_y_val = y_val
+            best_y_proba_val = clf.predict_proba(X_val.values)[:, 1]
             print("Neue beste Konfiguration gefunden!")
 
     print("Grid Search abgeschlossen.")
@@ -142,5 +147,13 @@ def run_training():
     print(f"Minimale erwartete Kosten auf Val: {lowest_cost:.2f}")
 
     if best_model:
+        compute_optimal_threshold_by_cost_function(
+            best_y_val,
+            best_y_proba_val,
+            alpha=alpha,
+            beta=beta,
+            save_plot_path="reports/figures/threshold_best_config.png"
+        )
+
         save_model_and_threshold(best_model, best_threshold, path="models/tabnet")
         evaluate_tabnet_model(best_model, best_threshold, X_test, y_test, feature_names)
