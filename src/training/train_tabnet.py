@@ -7,6 +7,8 @@ from sklearn.metrics import confusion_matrix
 from src.utils.io import load_classic
 import json
 from src.training.evaluate_tabnet import evaluate_tabnet_model
+import uuid
+from datetime import datetime
 
 def compute_optimal_threshold_by_cost_function(y_true, y_proba, alpha, beta, save_plot_path=None):
     thresholds = np.linspace(0.0, 1.0, 200)
@@ -43,11 +45,21 @@ def compute_optimal_threshold_by_cost_function(y_true, y_proba, alpha, beta, sav
     return best_threshold, best_cost
 
 
-def save_model_and_threshold(clf, threshold, path="src/models/"):
-    clf.save_model(f"{path}_model.zip")
-    with open(f"{path}_threshold.json", "w") as f:
+
+def save_model_and_threshold(clf, threshold, path="src/models/tabnet"):
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    uid = uuid.uuid4().hex[:6]
+    suffix = f"{timestamp}_{uid}"
+
+    model_path = f"{path}_model_{suffix}.zip"
+    threshold_path = f"{path}_threshold_{suffix}.json"
+
+    clf.save_model(model_path)
+    with open(threshold_path, "w") as f:
         json.dump({"threshold": float(threshold)}, f)
-    print(f"[✓] Modell und Threshold gespeichert unter: {path}tabnet.zip / {path}threshold.json")
+
+    print(f"[✓] Modell gespeichert unter: {model_path}")
+    print(f"[✓] Threshold gespeichert unter: {threshold_path}")
 
 
 def train_tabnet(X_train, y_train, X_val, y_val, params, threshold_plot_path, alpha, beta):
