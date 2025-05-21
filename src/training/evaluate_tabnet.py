@@ -8,6 +8,7 @@ from sklearn.metrics import (
     cohen_kappa_score, classification_report, ConfusionMatrixDisplay
 )
 from sklearn.inspection import permutation_importance
+import shap
 
 def save_metrics_as_table(accuracy, precision, recall, f1, kappa, save_path):
     df = pd.DataFrame({
@@ -54,7 +55,7 @@ def plot_tabnet_feature_importance(clf, feature_names, save_path=None):
     else:
         plt.show()
 
-def compute_and_plot_permutation_importance(clf, X_val, y_val, feature_names, save_path=None, scoring='accuracy'):
+def compute_and_plot_permutation_importance(clf, X_val, y_val, feature_names, save_path=None, scoring='recall'):
     class SklearnLikeWrapper:
         def __init__(self, model):
             self.model = model
@@ -90,27 +91,31 @@ def compute_and_plot_permutation_importance(clf, X_val, y_val, feature_names, sa
 
     return result
 
-def save_instance_level_explanations(clf, X, y_proba, y_pred, feature_names, threshold, save_path):
-    feature_masks, _ = clf.explain(X.values)  # <-- Fix: Tuple entpacken
-    instance_feature_importances = feature_masks.mean(axis=1)
+def save_shap_explanations(clf, X, feature_names, save_path, top_k=5):
+    import shap
+    from pathlib import Path
 
-    top_k = 5
+    explainer = shap.Explainer(clf.predict_proba, X.values)
+    shap_values = explainer(X.values)
+
     results = []
+    for i in range(X.shape[0]):
+        shap_val = shap_values[i].values[1]  # Nur Klasse 1 (Angriff)
+        abs_shap = np.abs(shap_val)
+        top_indices = abs_shap.argsort()[::-1][:top_k]
+        top_features = [feature_names[j] for j in top_indices]
 
-    for idx, (proba, pred, row) in enumerate(zip(y_proba, y_pred, instance_feature_importances)):
-        top_features = [feature_names[i] for i in np.argsort(row)[::-1][:top_k]]
         results.append({
-            "index": int(idx),
-            "predicted_proba": float(proba),
-            "predicted_label": int(pred),
-            "threshold": float(threshold),
-            "top_features": top_features
+            "index": int(i),
+            "top_features": top_features,
+            "shap_values": {feature_names[j]: float(shap_val[j]) for j in top_indices}
         })
 
     Path(save_path).parent.mkdir(parents=True, exist_ok=True)
     with open(save_path, "w") as f:
         json.dump(results, f, indent=2)
-    print(f"[✓] Erklärungen gespeichert unter: {save_path}")
+
+    print(f"[✓] SHAP-Erklärungen gespeichert unter: {save_path}")
 
 
 def evaluate_tabnet_model(clf, threshold, X_test, y_test, feature_names):
@@ -132,7 +137,4 @@ def evaluate_tabnet_model(clf, threshold, X_test, y_test, feature_names):
     plot_tabnet_feature_importance(clf, feature_names, save_path="reports/figures/tabnet_feature_masks_test.png")
     compute_and_plot_permutation_importance(clf, X_test, y_test, feature_names, save_path="reports/figures/permutation_importance_test.png")
 
-    save_instance_level_explanations(
-        clf, X_test, y_proba_test, y_pred_test, feature_names, threshold,
-        save_path="reports/feature_reasons/test_predictions_with_explanations.json"
-    )
+    save_shap_explanations(clf, X_test, feature_names, "reports/feature_reasons/shap_explanations_test.json")
