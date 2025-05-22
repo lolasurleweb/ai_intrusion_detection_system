@@ -91,47 +91,55 @@ def compute_and_plot_permutation_importance(clf, X_val, y_val, feature_names, sa
 
     return result
 
-def explain_instance_tabnet_local(model, instance: pd.DataFrame, feature_names: list, save_path=None):
-    import matplotlib.pyplot as plt
-    import numpy as np
-    from pathlib import Path
+import numpy as np
+import json
+from pathlib import Path
 
-    model.device = "cpu"
-    model.forward_masks = True
-    model.eval()
+def save_instance_level_explanations(
+    clf,
+    X,
+    y_proba,
+    y_pred,
+    feature_names,
+    threshold,
+    save_path,
+    top_k=5,
+    only_positive_predictions=False,
+    include_scores=True
+):
+    
+    feature_masks, _ = clf.explain(X.values.astype(np.float32))  
+    instance_feature_importances = feature_masks 
 
-    instance_np = instance.values.astype(np.float32)
-    _ = model.predict(instance_np)
+    results = []
 
-    if not hasattr(model, "explain_outputs") or model.explain_outputs is None:
-        raise RuntimeError("TabNet explain_outputs wurde nicht gesetzt. Sicherstellen, dass model.forward_masks=True und model.predict() verwendet wird.")
+    for idx, (proba, pred, importance_vector) in enumerate(zip(y_proba, y_pred, instance_feature_importances)):
+        if only_positive_predictions and pred != 1:
+            continue
 
-    # explain_outputs ist ein Tupel (masks, masks_for_each_step)
-    decision_masks = model.explain_outputs[0]  # Shape: (1, n_steps, n_features)
-    aggregate_mask = np.sum(decision_masks, axis=1).squeeze()  # Shape: (n_features,)
+        sorted_idx = np.argsort(importance_vector)[::-1][:top_k]
 
-    mask_norm = aggregate_mask / aggregate_mask.sum()
+        if include_scores:
+            top_features = [
+                {"feature": feature_names[i], "importance": float(round(importance_vector[i], 5))}
+                for i in sorted_idx
+            ]
+        else:
+            top_features = [feature_names[i] for i in sorted_idx]
 
-    sorted_idx = np.argsort(mask_norm)[::-1]
-    sorted_features = np.array(feature_names)[sorted_idx]
-    sorted_importances = mask_norm[sorted_idx]
+        results.append({
+            "index": int(idx),
+            "predicted_proba": float(round(proba, 5)),
+            "predicted_label": int(pred),
+            "threshold": float(round(threshold, 5)),
+            "top_features": top_features
+        })
 
-    plt.figure(figsize=(10, 6))
-    plt.barh(sorted_features, sorted_importances)
-    plt.xlabel("Relative Importance (TabNet Feature Mask)")
-    plt.title("Lokale Erklärung für 1 Instanz")
-    plt.tight_layout()
+    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(save_path, "w") as f:
+        json.dump(results, f, indent=2)
 
-    if save_path:
-        Path(save_path).parent.mkdir(parents=True, exist_ok=True)
-        plt.savefig(save_path)
-        print(f"[✓] Lokale Erklärung gespeichert unter: {save_path}")
-        plt.close()
-    else:
-        plt.show()
-
-    return sorted_features, sorted_importances
-
+    print(f"[✓] Lokale Erklärungen gespeichert unter: {save_path}")
 
 
 def evaluate_tabnet_model(clf, threshold, X_test, y_test, feature_names):
@@ -153,13 +161,16 @@ def evaluate_tabnet_model(clf, threshold, X_test, y_test, feature_names):
     plot_tabnet_feature_importance(clf, feature_names, save_path="reports/figures/tabnet_feature_masks_test.png")
     compute_and_plot_permutation_importance(clf, X_test, y_test, feature_names, save_path="reports/figures/permutation_importance_test.png")
 
-    print("[✓] Erzeuge lokale Erklärung für eine Beispielinstanz...")
-    suspicious_idx = np.argmax(y_proba_test)  # höchste Angriffswahrscheinlichkeit
-    suspicious_instance = X_test.iloc[[suspicious_idx]]
-    explain_instance_tabnet_local(
-        clf,
-        suspicious_instance,
-        feature_names,
-        save_path="reports/figures/local_explanation_example.png"
+    print("[✓] Speichere lokale Top-K Feature-Erklärungen für alle Testinstanzen...")
+    save_instance_level_explanations(
+        clf=clf,
+        X=X_test,
+        y_proba=y_proba_test,
+        y_pred=y_pred_test,
+        feature_names=feature_names,
+        threshold=threshold,
+        save_path="reports/explanations/instance_level_explanations.json",
+        top_k=5,
+        only_positive_predictions=True,
+        include_scores=True
     )
-
