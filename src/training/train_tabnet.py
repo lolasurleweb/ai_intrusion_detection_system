@@ -175,6 +175,9 @@ def run_training():
             alpha=alpha,
             beta=beta
         )
+        
+        clf.forward_masks = True  # Aktiviert Speicherung der Feature Masks bei Vorhersagen
+
 
         save_model_and_threshold(clf, threshold, path="models/tabnet")
         print("[✓] Finales Modell und Schwellenwert gespeichert.")

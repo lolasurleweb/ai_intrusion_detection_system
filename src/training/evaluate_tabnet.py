@@ -91,31 +91,47 @@ def compute_and_plot_permutation_importance(clf, X_val, y_val, feature_names, sa
 
     return result
 
-def save_shap_explanations(clf, X, feature_names, save_path, top_k=5):
-    import shap
+def explain_instance_tabnet_local(model, instance: pd.DataFrame, feature_names: list, save_path=None):
+    import matplotlib.pyplot as plt
+    import numpy as np
     from pathlib import Path
 
-    explainer = shap.Explainer(clf.predict_proba, X.values)
-    shap_values = explainer(X.values)
+    model.device = "cpu"
+    model.forward_masks = True
+    model.eval()
 
-    results = []
-    for i in range(X.shape[0]):
-        shap_val = shap_values[i].values[1]  # Nur Klasse 1 (Angriff)
-        abs_shap = np.abs(shap_val)
-        top_indices = abs_shap.argsort()[::-1][:top_k]
-        top_features = [feature_names[j] for j in top_indices]
+    instance_np = instance.values.astype(np.float32)
+    _ = model.predict(instance_np)
 
-        results.append({
-            "index": int(i),
-            "top_features": top_features,
-            "shap_values": {feature_names[j]: float(shap_val[j]) for j in top_indices}
-        })
+    if not hasattr(model, "explain_outputs") or model.explain_outputs is None:
+        raise RuntimeError("TabNet explain_outputs wurde nicht gesetzt. Sicherstellen, dass model.forward_masks=True und model.predict() verwendet wird.")
 
-    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(save_path, "w") as f:
-        json.dump(results, f, indent=2)
+    # explain_outputs ist ein Tupel (masks, masks_for_each_step)
+    decision_masks = model.explain_outputs[0]  # Shape: (1, n_steps, n_features)
+    aggregate_mask = np.sum(decision_masks, axis=1).squeeze()  # Shape: (n_features,)
 
-    print(f"[✓] SHAP-Erklärungen gespeichert unter: {save_path}")
+    mask_norm = aggregate_mask / aggregate_mask.sum()
+
+    sorted_idx = np.argsort(mask_norm)[::-1]
+    sorted_features = np.array(feature_names)[sorted_idx]
+    sorted_importances = mask_norm[sorted_idx]
+
+    plt.figure(figsize=(10, 6))
+    plt.barh(sorted_features, sorted_importances)
+    plt.xlabel("Relative Importance (TabNet Feature Mask)")
+    plt.title("Lokale Erklärung für 1 Instanz")
+    plt.tight_layout()
+
+    if save_path:
+        Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(save_path)
+        print(f"[✓] Lokale Erklärung gespeichert unter: {save_path}")
+        plt.close()
+    else:
+        plt.show()
+
+    return sorted_features, sorted_importances
+
 
 
 def evaluate_tabnet_model(clf, threshold, X_test, y_test, feature_names):
@@ -137,4 +153,13 @@ def evaluate_tabnet_model(clf, threshold, X_test, y_test, feature_names):
     plot_tabnet_feature_importance(clf, feature_names, save_path="reports/figures/tabnet_feature_masks_test.png")
     compute_and_plot_permutation_importance(clf, X_test, y_test, feature_names, save_path="reports/figures/permutation_importance_test.png")
 
-    save_shap_explanations(clf, X_test, feature_names, "reports/feature_reasons/shap_explanations_test.json")
+    print("[✓] Erzeuge lokale Erklärung für eine Beispielinstanz...")
+    suspicious_idx = np.argmax(y_proba_test)  # höchste Angriffswahrscheinlichkeit
+    suspicious_instance = X_test.iloc[[suspicious_idx]]
+    explain_instance_tabnet_local(
+        clf,
+        suspicious_instance,
+        feature_names,
+        save_path="reports/figures/local_explanation_example.png"
+    )
+
