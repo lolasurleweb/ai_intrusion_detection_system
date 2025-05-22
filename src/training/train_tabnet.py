@@ -1,15 +1,17 @@
 import torch
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
 from pytorch_tabnet.tab_model import TabNetClassifier
 from sklearn.metrics import confusion_matrix
-from src.utils.io import load_classic
+from src.utils.io import load_classic, load_train_val_test_pool
 import json
 from src.training.evaluate_tabnet import evaluate_tabnet_model
 import uuid
 from datetime import datetime
 from itertools import product
+from sklearn.model_selection import StratifiedKFold
 
 def compute_optimal_threshold_by_cost_function(y_true, y_proba, alpha, beta, save_plot_path=None):
     thresholds = np.linspace(0.0, 1.0, 200)
@@ -95,6 +97,8 @@ def train_tabnet(X_train, y_train, X_val, y_val, params, threshold_plot_path, al
     return clf, threshold, cost
 
 def run_training():
+    print("[✓] Lade Trainingsdaten...")
+    X_full, y_full = load_train_val_test_pool()
 
     search_space = {
         "n_d": [8, 16],
@@ -106,54 +110,82 @@ def run_training():
     alpha = 2
     beta = 1
 
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     configs = list(product(*search_space.values()))
-    lowest_cost = float("inf")
+
+    lowest_avg_cost = float("inf")
     best_config = None
     best_model = None
-    best_threshold = 0.5
-    best_y_val = None
-    best_y_proba_val = None
+    best_threshold = None
 
-    (X_train, y_train), (X_val, y_val), (X_test, y_test) = load_classic()
-    feature_names = X_train.columns.tolist()
-
-    print(f"Starte Grid Search mit {len(configs)} Konfigurationen...")
+    print(f"Starte Grid Search mit {len(configs)} Hyperparameter-Kombinationen...")
 
     for i, values in enumerate(configs):
         params = dict(zip(search_space.keys(), values))
         print(f"\n[{i+1}/{len(configs)}] Teste Config: {params}")
 
-        # Kein Plot während des Grid Search
-        clf, threshold, cost = train_tabnet(
-            X_train, y_train, X_val, y_val, params,
-            threshold_plot_path=None,  # <- Keine Speicherung hier
-            alpha=alpha, beta=beta
-        )
+        fold_costs = []
 
-        print(f"Kosten auf Val: {cost:.2f} (Threshold: {threshold:.2f})")
+        for fold_idx, (train_idx, val_idx) in enumerate(skf.split(X_full, y_full)):
+            X_train, X_val = X_full.iloc[train_idx], X_full.iloc[val_idx]
+            y_train, y_val = y_full.iloc[train_idx], y_full.iloc[val_idx]
 
-        if cost < lowest_cost:
-            lowest_cost = cost
+            clf, threshold, cost = train_tabnet(
+                X_train, y_train, X_val, y_val,
+                params=params,
+                threshold_plot_path=None,
+                alpha=alpha,
+                beta=beta
+            )
+
+            fold_costs.append(cost)
+            print(f"  → Fold {fold_idx+1} Cost: {cost:.2f}")
+
+        avg_cost = np.mean(fold_costs)
+        print(f"➤ Durchschnittliche Kosten: {avg_cost:.2f}")
+
+        if avg_cost < lowest_avg_cost:
+            lowest_avg_cost = avg_cost
             best_config = params
             best_model = clf
             best_threshold = threshold
-            best_y_val = y_val
-            best_y_proba_val = clf.predict_proba(X_val.values)[:, 1]
             print("Neue beste Konfiguration gefunden!")
 
     print("Grid Search abgeschlossen.")
     print("Beste Konfiguration:")
     print(best_config)
-    print(f"Minimale erwartete Kosten auf Val: {lowest_cost:.2f}")
+    print(f"Minimale durchschnittliche Kosten: {lowest_avg_cost:.2f}")
 
     if best_model:
-        compute_optimal_threshold_by_cost_function(
-            best_y_val,
-            best_y_proba_val,
+        print("\n[✓] Lade klassische Splits für finale Trainingsphase...")
+        from src.utils.io import load_classic
+        (X_train, y_train), (X_val, y_val), (X_test, y_test) = load_classic()
+
+        print("[✓] Trainiere finales Modell auf Train+Val...")
+        X_train_val = pd.concat([X_train, X_val], axis=0)
+        y_train_val = pd.concat([y_train, y_val], axis=0)
+
+        clf, threshold, cost = train_tabnet(
+            X_train_val,
+            y_train_val,
+            X_val, 
+            y_val,
+            params=best_config,
+            threshold_plot_path="reports/figures/final_threshold_plot.png",
             alpha=alpha,
-            beta=beta,
-            save_plot_path="reports/figures/threshold_best_config.png"
+            beta=beta
         )
 
-        save_model_and_threshold(best_model, best_threshold, path="models/tabnet")
-        evaluate_tabnet_model(best_model, best_threshold, X_test, y_test, feature_names)
+        save_model_and_threshold(clf, threshold, path="models/tabnet")
+        print("[✓] Finales Modell und Schwellenwert gespeichert.")
+
+        from src.training.evaluate_tabnet import evaluate_tabnet_model
+        print("[✓] Starte finale Evaluation auf komplett unberührtem Test-Set...")
+        evaluate_tabnet_model(
+            clf,
+            threshold,
+            X_test,
+            y_test,
+            feature_names=X_train.columns.tolist()
+        )
+

@@ -34,6 +34,10 @@ def preprocess():
     df_early = df_encoded.iloc[:int(n * 0.33)].copy()
     df_mid_late = df_encoded.iloc[int(n * 0.33):].copy()
 
+    # [2.5] Speichere df_mid_late für Cross-Validation später
+    from src.utils.io import save_pickle
+    save_pickle(df_mid_late, "data/processed/train_val_test_pool.pkl")
+
     print("[3] Erzeuge klassischen Split (nur mid + late)...")
     X_train, X_val, X_test, y_train, y_val, y_test = create_classic_split(df_mid_late)
     scale_and_save_splits({
@@ -51,6 +55,7 @@ def preprocess():
     })
 
     print("[✓] Preprocessing abgeschlossen.")
+
 
 def load_classic_splits():
     print("[2] Lade klassisch segmentierte Daten...")
