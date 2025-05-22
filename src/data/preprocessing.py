@@ -41,7 +41,7 @@ def scale_numerical(df: pd.DataFrame, scaler: StandardScaler = None, fit=True):
 
 def create_classic_split(df: pd.DataFrame):
     y = df[TARGET_COL]
-    X = df.drop(columns=[TARGET_COL, 'session_id'])
+    X = df.drop(columns=[TARGET_COL])
 
     X_temp, X_test, y_temp, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
     X_train, X_val, y_train, y_val = train_test_split(X_temp, y_temp, test_size=0.25, stratify=y_temp, random_state=42)
@@ -51,7 +51,7 @@ def create_classic_split(df: pd.DataFrame):
 
 def create_time_split(df: pd.DataFrame, seed=42):
     y = df[TARGET_COL]
-    X = df.drop(columns=[TARGET_COL, 'session_id'])
+    X = df.drop(columns=[TARGET_COL])
 
     X_temp, X_late, y_temp, y_late = train_test_split(X, y, test_size=1/3, stratify=y, random_state=seed)
     X_early, X_mid, y_early, y_mid = train_test_split(X_temp, y_temp, test_size=0.5, stratify=y_temp, random_state=seed)
@@ -59,7 +59,13 @@ def create_time_split(df: pd.DataFrame, seed=42):
     return (X_early, y_early), (X_mid, y_mid), (X_late, y_late)
 
 def scale_and_save_splits(splits: dict, path_prefix='data/processed/'):
+    reference_columns = None
     for name, (X, y) in splits.items():
+        if reference_columns is None:
+            reference_columns = list(X.columns)
+        else:
+            assert list(X.columns) == reference_columns, f"Feature mismatch in split {name}"
+
         X_scaled, _ = scale_numerical(X, fit=True)
         df = pd.concat([X_scaled, y], axis=1)
         df.to_csv(f"{path_prefix}{name}.csv", index=False)

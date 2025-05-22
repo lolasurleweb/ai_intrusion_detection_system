@@ -97,7 +97,7 @@ def train_tabnet(X_train, y_train, X_val, y_val, params, threshold_plot_path, al
     return clf, threshold, cost
 
 def run_training():
-    print("[✓] Lade Trainingsdaten...")
+    print("[✓] Lade Trainingsdaten für Grid Search...")
     X_full, y_full = load_train_val_test_pool()
 
     search_space = {
@@ -151,43 +151,52 @@ def run_training():
             best_threshold = threshold
             print("Neue beste Konfiguration gefunden!")
 
-    print("Grid Search abgeschlossen.")
+    print("\nGrid Search abgeschlossen.")
     print("Beste Konfiguration:")
     print(best_config)
     print(f"Minimale durchschnittliche Kosten: {lowest_avg_cost:.2f}")
 
     if best_model:
-        print("\n[✓] Lade klassische Splits für finale Trainingsphase...")
+        print("\n[✓] Lade klassische Splits für finales Training...")
         from src.utils.io import load_classic
         (X_train, y_train), (X_val, y_val), (X_test, y_test) = load_classic()
 
-        print("[✓] Trainiere finales Modell auf Train+Val...")
         X_train_val = pd.concat([X_train, X_val], axis=0)
         y_train_val = pd.concat([y_train, y_val], axis=0)
 
-        clf, threshold, cost = train_tabnet(
-            X_train_val,
-            y_train_val,
-            X_val, 
-            y_val,
-            params=best_config,
-            threshold_plot_path="reports/figures/final_threshold_plot.png",
-            alpha=alpha,
-            beta=beta
+        print("[✓] Trainiere finales Modell mit bester Konfiguration...")
+        clf = TabNetClassifier(
+            **best_config,
+            optimizer_params=dict(lr=2e-2),
+            scheduler_params={"step_size": 10, "gamma": 0.95},
+            scheduler_fn=torch.optim.lr_scheduler.StepLR,
+            seed=42
         )
-        
-        clf.forward_masks = True  # Aktiviert Speicherung der Feature Masks bei Vorhersagen
 
-        save_model_and_threshold(clf, threshold, path="models/tabnet")
-        print("[✓] Finales Modell und Schwellenwert gespeichert.")
+        clf.fit(
+            X_train=X_train_val.values, y_train=y_train_val.values,
+            eval_set=[(X_val.values, y_val.values)],
+            eval_name=["val"],
+            eval_metric=["auc"],
+            max_epochs=100,
+            patience=10,
+            batch_size=1024,
+            virtual_batch_size=128,
+            num_workers=0,
+            drop_last=False
+        )
 
+        clf.forward_masks = True  # Aktiviert Speicherung der Feature Masks
+
+        save_model_and_threshold(clf, best_threshold, path="models/tabnet")
+        print("[✓] Finales Modell und validierter Threshold gespeichert.")
+
+        print("\n[✓] Starte finale Evaluation auf dem unberührten Test-Set...")
         from src.training.evaluate_tabnet import evaluate_tabnet_model
-        print("[✓] Starte finale Evaluation auf komplett unberührtem Test-Set...")
         evaluate_tabnet_model(
             clf,
-            threshold,
-            X_test,
-            y_test,
+            threshold=best_threshold,
+            X_test=X_test,
+            y_test=y_test,
             feature_names=X_train.columns.tolist()
         )
-

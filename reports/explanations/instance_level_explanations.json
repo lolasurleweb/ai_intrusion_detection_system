@@ -1,37 +1,9 @@
 [
   {
-    "index": 0,
-    "predicted_proba": 0.5167999863624573,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 1.59734
-      },
-      {
-        "feature": "ip_reputation_score",
-        "importance": 0.82338
-      },
-      {
-        "feature": "encryption_used_None",
-        "importance": 0.75842
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.74495
-      },
-      {
-        "feature": "browser_type_Edge",
-        "importance": 0.6936
-      }
-    ]
-  },
-  {
     "index": 1,
     "predicted_proba": 0.5554599761962891,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -59,7 +31,7 @@
     "index": 3,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -87,7 +59,7 @@
     "index": 4,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -115,7 +87,7 @@
     "index": 5,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -143,7 +115,7 @@
     "index": 14,
     "predicted_proba": 0.5389000177383423,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -171,7 +143,7 @@
     "index": 24,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -199,7 +171,7 @@
     "index": 25,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -227,7 +199,7 @@
     "index": 27,
     "predicted_proba": 0.6961899995803833,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -255,7 +227,7 @@
     "index": 32,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Safari",
@@ -280,66 +252,10 @@
     ]
   },
   {
-    "index": 35,
-    "predicted_proba": 0.4197399914264679,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "failed_logins",
-        "importance": 2.82559
-      },
-      {
-        "feature": "protocol_type_UDP",
-        "importance": 2.27255
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 1.08065
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.82584
-      },
-      {
-        "feature": "browser_type_Unknown",
-        "importance": 0.55891
-      }
-    ]
-  },
-  {
-    "index": 36,
-    "predicted_proba": 0.47005999088287354,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "failed_logins",
-        "importance": 2.27185
-      },
-      {
-        "feature": "network_packet_size",
-        "importance": 0.38217
-      },
-      {
-        "feature": "session_duration_log",
-        "importance": 0.25853
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.23952
-      },
-      {
-        "feature": "protocol_type_TCP",
-        "importance": 0.20978
-      }
-    ]
-  },
-  {
     "index": 39,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -367,7 +283,7 @@
     "index": 43,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -395,7 +311,7 @@
     "index": 44,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -423,7 +339,7 @@
     "index": 47,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -451,7 +367,7 @@
     "index": 49,
     "predicted_proba": 0.9959499835968018,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -479,7 +395,7 @@
     "index": 50,
     "predicted_proba": 0.9321900010108948,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -507,7 +423,7 @@
     "index": 52,
     "predicted_proba": 0.5351300239562988,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -535,7 +451,7 @@
     "index": 57,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -560,38 +476,10 @@
     ]
   },
   {
-    "index": 63,
-    "predicted_proba": 0.39737001061439514,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "failed_logins",
-        "importance": 2.0011
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 1.38869
-      },
-      {
-        "feature": "protocol_type_UDP",
-        "importance": 1.2891
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.76995
-      },
-      {
-        "feature": "encryption_used_DES",
-        "importance": 0.6417
-      }
-    ]
-  },
-  {
     "index": 64,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -619,7 +507,7 @@
     "index": 68,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -647,7 +535,7 @@
     "index": 69,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -675,7 +563,7 @@
     "index": 72,
     "predicted_proba": 0.9999600052833557,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -703,7 +591,7 @@
     "index": 77,
     "predicted_proba": 0.9985899925231934,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -731,7 +619,7 @@
     "index": 79,
     "predicted_proba": 0.9994500279426575,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -759,7 +647,7 @@
     "index": 80,
     "predicted_proba": 0.9998499751091003,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -787,7 +675,7 @@
     "index": 84,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -815,7 +703,7 @@
     "index": 85,
     "predicted_proba": 0.9994800090789795,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -843,7 +731,7 @@
     "index": 86,
     "predicted_proba": 0.9747599959373474,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -871,7 +759,7 @@
     "index": 87,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -899,7 +787,7 @@
     "index": 89,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -927,7 +815,7 @@
     "index": 90,
     "predicted_proba": 0.7732800245285034,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "session_duration_log",
@@ -955,7 +843,7 @@
     "index": 93,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -983,7 +871,7 @@
     "index": 95,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -1011,7 +899,7 @@
     "index": 97,
     "predicted_proba": 0.7267199754714966,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -1039,7 +927,7 @@
     "index": 98,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -1067,7 +955,7 @@
     "index": 99,
     "predicted_proba": 0.9999799728393555,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -1095,7 +983,7 @@
     "index": 100,
     "predicted_proba": 0.9816300272941589,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -1123,7 +1011,7 @@
     "index": 101,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -1151,7 +1039,7 @@
     "index": 102,
     "predicted_proba": 0.6537200212478638,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1179,7 +1067,7 @@
     "index": 103,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1207,7 +1095,7 @@
     "index": 105,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1235,7 +1123,7 @@
     "index": 106,
     "predicted_proba": 0.8256400227546692,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -1263,7 +1151,7 @@
     "index": 107,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1291,7 +1179,7 @@
     "index": 109,
     "predicted_proba": 0.9999300241470337,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -1319,7 +1207,7 @@
     "index": 110,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1347,7 +1235,7 @@
     "index": 111,
     "predicted_proba": 0.705560028553009,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "unusual_time_access",
@@ -1375,7 +1263,7 @@
     "index": 116,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1403,7 +1291,7 @@
     "index": 118,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -1431,7 +1319,7 @@
     "index": 119,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1459,7 +1347,7 @@
     "index": 122,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1487,7 +1375,7 @@
     "index": 123,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1515,7 +1403,7 @@
     "index": 125,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1543,7 +1431,7 @@
     "index": 127,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1571,7 +1459,7 @@
     "index": 136,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "session_duration_log",
@@ -1599,7 +1487,7 @@
     "index": 139,
     "predicted_proba": 0.9997100234031677,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Safari",
@@ -1627,7 +1515,7 @@
     "index": 141,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1655,7 +1543,7 @@
     "index": 142,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1683,7 +1571,7 @@
     "index": 143,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -1711,7 +1599,7 @@
     "index": 144,
     "predicted_proba": 0.9999600052833557,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1739,7 +1627,7 @@
     "index": 152,
     "predicted_proba": 0.9006500244140625,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -1767,7 +1655,7 @@
     "index": 157,
     "predicted_proba": 0.9999099969863892,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Safari",
@@ -1795,7 +1683,7 @@
     "index": 162,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1823,7 +1711,7 @@
     "index": 166,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1851,7 +1739,7 @@
     "index": 168,
     "predicted_proba": 0.9998999834060669,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1879,7 +1767,7 @@
     "index": 172,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -1907,7 +1795,7 @@
     "index": 176,
     "predicted_proba": 0.9769899845123291,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -1935,7 +1823,7 @@
     "index": 178,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -1963,7 +1851,7 @@
     "index": 183,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -1991,7 +1879,7 @@
     "index": 184,
     "predicted_proba": 0.9998700022697449,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -2019,7 +1907,7 @@
     "index": 187,
     "predicted_proba": 0.9999799728393555,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -2047,7 +1935,7 @@
     "index": 192,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -2075,7 +1963,7 @@
     "index": 193,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -2103,7 +1991,7 @@
     "index": 194,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -2131,7 +2019,7 @@
     "index": 195,
     "predicted_proba": 0.9999499917030334,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -2159,7 +2047,7 @@
     "index": 196,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -2187,7 +2075,7 @@
     "index": 203,
     "predicted_proba": 0.9999799728393555,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -2215,7 +2103,7 @@
     "index": 204,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -2243,7 +2131,7 @@
     "index": 209,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -2271,7 +2159,7 @@
     "index": 210,
     "predicted_proba": 0.9916999936103821,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -2299,7 +2187,7 @@
     "index": 211,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -2327,7 +2215,7 @@
     "index": 212,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -2355,7 +2243,7 @@
     "index": 213,
     "predicted_proba": 0.9998900294303894,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -2383,7 +2271,7 @@
     "index": 214,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -2411,7 +2299,7 @@
     "index": 220,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -2439,7 +2327,7 @@
     "index": 222,
     "predicted_proba": 0.9999399781227112,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -2467,7 +2355,7 @@
     "index": 223,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -2495,7 +2383,7 @@
     "index": 224,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -2523,7 +2411,7 @@
     "index": 228,
     "predicted_proba": 0.7818099856376648,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "encryption_used_None",
@@ -2551,7 +2439,7 @@
     "index": 229,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -2579,7 +2467,7 @@
     "index": 230,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -2607,7 +2495,7 @@
     "index": 231,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -2635,7 +2523,7 @@
     "index": 232,
     "predicted_proba": 0.9715499877929688,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "session_duration_log",
@@ -2663,7 +2551,7 @@
     "index": 237,
     "predicted_proba": 0.570580005645752,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "encryption_used_None",
@@ -2688,38 +2576,10 @@
     ]
   },
   {
-    "index": 238,
-    "predicted_proba": 0.45699000358581543,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "failed_logins",
-        "importance": 1.09408
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 1.08643
-      },
-      {
-        "feature": "protocol_type_TCP",
-        "importance": 0.62928
-      },
-      {
-        "feature": "ip_reputation_score",
-        "importance": 0.45629
-      },
-      {
-        "feature": "encryption_used_None",
-        "importance": 0.33827
-      }
-    ]
-  },
-  {
     "index": 241,
     "predicted_proba": 0.7997000217437744,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Firefox",
@@ -2747,7 +2607,7 @@
     "index": 242,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -2775,7 +2635,7 @@
     "index": 243,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -2803,7 +2663,7 @@
     "index": 244,
     "predicted_proba": 0.9991400241851807,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Safari",
@@ -2831,7 +2691,7 @@
     "index": 245,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -2859,7 +2719,7 @@
     "index": 246,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -2887,7 +2747,7 @@
     "index": 249,
     "predicted_proba": 0.7837600111961365,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "encryption_used_DES",
@@ -2915,7 +2775,7 @@
     "index": 251,
     "predicted_proba": 0.9999799728393555,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -2943,7 +2803,7 @@
     "index": 256,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -2968,38 +2828,10 @@
     ]
   },
   {
-    "index": 257,
-    "predicted_proba": 0.4309999942779541,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 1.05441
-      },
-      {
-        "feature": "browser_type_Edge",
-        "importance": 0.63887
-      },
-      {
-        "feature": "encryption_used_None",
-        "importance": 0.59504
-      },
-      {
-        "feature": "failed_logins",
-        "importance": 0.58956
-      },
-      {
-        "feature": "protocol_type_UDP",
-        "importance": 0.41918
-      }
-    ]
-  },
-  {
     "index": 258,
     "predicted_proba": 0.9997100234031677,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -3027,7 +2859,7 @@
     "index": 260,
     "predicted_proba": 0.7824500203132629,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "session_duration_log",
@@ -3055,7 +2887,7 @@
     "index": 262,
     "predicted_proba": 0.9997299909591675,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -3083,7 +2915,7 @@
     "index": 263,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -3111,7 +2943,7 @@
     "index": 266,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -3136,38 +2968,10 @@
     ]
   },
   {
-    "index": 268,
-    "predicted_proba": 0.5111299753189087,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "failed_logins",
-        "importance": 1.13263
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.97791
-      },
-      {
-        "feature": "encryption_used_None",
-        "importance": 0.53816
-      },
-      {
-        "feature": "browser_type_Unknown",
-        "importance": 0.53103
-      },
-      {
-        "feature": "encryption_used_DES",
-        "importance": 0.35918
-      }
-    ]
-  },
-  {
     "index": 270,
     "predicted_proba": 0.9999300241470337,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -3195,7 +2999,7 @@
     "index": 275,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -3223,7 +3027,7 @@
     "index": 277,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -3251,7 +3055,7 @@
     "index": 278,
     "predicted_proba": 0.6866999864578247,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -3279,7 +3083,7 @@
     "index": 279,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -3307,7 +3111,7 @@
     "index": 280,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -3335,7 +3139,7 @@
     "index": 283,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -3363,7 +3167,7 @@
     "index": 284,
     "predicted_proba": 0.7698500156402588,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -3391,7 +3195,7 @@
     "index": 286,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -3419,7 +3223,7 @@
     "index": 289,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -3447,7 +3251,7 @@
     "index": 292,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -3475,7 +3279,7 @@
     "index": 293,
     "predicted_proba": 0.5532100200653076,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -3503,7 +3307,7 @@
     "index": 295,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Safari",
@@ -3531,7 +3335,7 @@
     "index": 296,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -3559,7 +3363,7 @@
     "index": 297,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -3587,7 +3391,7 @@
     "index": 298,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -3612,38 +3416,10 @@
     ]
   },
   {
-    "index": 300,
-    "predicted_proba": 0.42072999477386475,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "encryption_used_DES",
-        "importance": 1.18413
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 0.74557
-      },
-      {
-        "feature": "failed_logins",
-        "importance": 0.70907
-      },
-      {
-        "feature": "ip_reputation_score",
-        "importance": 0.53653
-      },
-      {
-        "feature": "encryption_used_None",
-        "importance": 0.42028
-      }
-    ]
-  },
-  {
     "index": 302,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -3671,7 +3447,7 @@
     "index": 304,
     "predicted_proba": 0.9989299774169922,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -3699,7 +3475,7 @@
     "index": 307,
     "predicted_proba": 0.9988800287246704,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -3727,7 +3503,7 @@
     "index": 308,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -3752,38 +3528,10 @@
     ]
   },
   {
-    "index": 313,
-    "predicted_proba": 0.47791001200675964,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "ip_reputation_score",
-        "importance": 1.03528
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 0.83775
-      },
-      {
-        "feature": "encryption_used_None",
-        "importance": 0.7039
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.62422
-      },
-      {
-        "feature": "network_packet_size",
-        "importance": 0.57895
-      }
-    ]
-  },
-  {
     "index": 315,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -3811,7 +3559,7 @@
     "index": 317,
     "predicted_proba": 0.9999600052833557,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -3839,7 +3587,7 @@
     "index": 322,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -3867,7 +3615,7 @@
     "index": 324,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -3895,7 +3643,7 @@
     "index": 325,
     "predicted_proba": 0.9999499917030334,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -3923,7 +3671,7 @@
     "index": 328,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -3951,7 +3699,7 @@
     "index": 329,
     "predicted_proba": 0.5529400110244751,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "session_duration_log",
@@ -3979,7 +3727,7 @@
     "index": 330,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -4007,7 +3755,7 @@
     "index": 337,
     "predicted_proba": 0.999970018863678,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -4035,7 +3783,7 @@
     "index": 338,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -4063,7 +3811,7 @@
     "index": 339,
     "predicted_proba": 0.9999799728393555,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -4091,7 +3839,7 @@
     "index": 344,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -4119,7 +3867,7 @@
     "index": 346,
     "predicted_proba": 0.9999200105667114,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -4147,7 +3895,7 @@
     "index": 348,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -4175,7 +3923,7 @@
     "index": 349,
     "predicted_proba": 0.9991899728775024,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -4203,7 +3951,7 @@
     "index": 351,
     "predicted_proba": 0.9977499842643738,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "unusual_time_access",
@@ -4231,7 +3979,7 @@
     "index": 352,
     "predicted_proba": 0.9999600052833557,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -4259,7 +4007,7 @@
     "index": 353,
     "predicted_proba": 0.9999499917030334,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -4287,7 +4035,7 @@
     "index": 354,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -4315,7 +4063,7 @@
     "index": 355,
     "predicted_proba": 0.5405399799346924,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -4343,7 +4091,7 @@
     "index": 357,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -4371,7 +4119,7 @@
     "index": 364,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -4399,7 +4147,7 @@
     "index": 365,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -4427,7 +4175,7 @@
     "index": 366,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -4455,7 +4203,7 @@
     "index": 368,
     "predicted_proba": 0.9892799854278564,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Safari",
@@ -4483,7 +4231,7 @@
     "index": 370,
     "predicted_proba": 0.9999300241470337,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -4511,7 +4259,7 @@
     "index": 372,
     "predicted_proba": 0.9999399781227112,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -4539,7 +4287,7 @@
     "index": 374,
     "predicted_proba": 0.7483999729156494,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -4567,7 +4315,7 @@
     "index": 376,
     "predicted_proba": 0.9871100187301636,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -4595,7 +4343,7 @@
     "index": 377,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -4623,7 +4371,7 @@
     "index": 378,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -4651,7 +4399,7 @@
     "index": 379,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -4679,7 +4427,7 @@
     "index": 380,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -4707,7 +4455,7 @@
     "index": 381,
     "predicted_proba": 0.9999399781227112,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -4735,7 +4483,7 @@
     "index": 387,
     "predicted_proba": 0.5234599709510803,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Firefox",
@@ -4763,7 +4511,7 @@
     "index": 388,
     "predicted_proba": 0.994159996509552,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -4791,7 +4539,7 @@
     "index": 394,
     "predicted_proba": 0.9716699719429016,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -4819,7 +4567,7 @@
     "index": 399,
     "predicted_proba": 0.9994400143623352,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -4844,38 +4592,10 @@
     ]
   },
   {
-    "index": 400,
-    "predicted_proba": 0.46320998668670654,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "ip_reputation_score",
-        "importance": 3.14816
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 1.42823
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.49028
-      },
-      {
-        "feature": "failed_logins",
-        "importance": 0.39147
-      },
-      {
-        "feature": "browser_type_Safari",
-        "importance": 0.35201
-      }
-    ]
-  },
-  {
     "index": 401,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -4903,7 +4623,7 @@
     "index": 404,
     "predicted_proba": 0.9978700280189514,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -4931,7 +4651,7 @@
     "index": 405,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -4959,7 +4679,7 @@
     "index": 406,
     "predicted_proba": 0.9993100166320801,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -4987,7 +4707,7 @@
     "index": 411,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -5015,7 +4735,7 @@
     "index": 413,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -5043,7 +4763,7 @@
     "index": 414,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -5071,7 +4791,7 @@
     "index": 418,
     "predicted_proba": 0.9169700145721436,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -5099,7 +4819,7 @@
     "index": 420,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -5127,7 +4847,7 @@
     "index": 421,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -5155,7 +4875,7 @@
     "index": 424,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -5183,7 +4903,7 @@
     "index": 430,
     "predicted_proba": 0.6408200263977051,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -5211,7 +4931,7 @@
     "index": 433,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -5239,7 +4959,7 @@
     "index": 438,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -5267,7 +4987,7 @@
     "index": 439,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -5292,38 +5012,10 @@
     ]
   },
   {
-    "index": 443,
-    "predicted_proba": 0.42201998829841614,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "ip_reputation_score",
-        "importance": 3.23633
-      },
-      {
-        "feature": "encryption_used_DES",
-        "importance": 1.10224
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 0.58838
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.49717
-      },
-      {
-        "feature": "encryption_used_None",
-        "importance": 0.46915
-      }
-    ]
-  },
-  {
     "index": 444,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -5351,7 +5043,7 @@
     "index": 445,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -5379,7 +5071,7 @@
     "index": 446,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -5407,7 +5099,7 @@
     "index": 447,
     "predicted_proba": 0.9835699796676636,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -5435,7 +5127,7 @@
     "index": 448,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -5463,7 +5155,7 @@
     "index": 451,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -5491,7 +5183,7 @@
     "index": 452,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -5519,7 +5211,7 @@
     "index": 453,
     "predicted_proba": 0.9999799728393555,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -5547,7 +5239,7 @@
     "index": 454,
     "predicted_proba": 0.9820399880409241,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -5575,7 +5267,7 @@
     "index": 455,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -5603,7 +5295,7 @@
     "index": 456,
     "predicted_proba": 0.5747699737548828,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "encryption_used_DES",
@@ -5631,7 +5323,7 @@
     "index": 459,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -5659,7 +5351,7 @@
     "index": 462,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -5687,7 +5379,7 @@
     "index": 464,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -5715,7 +5407,7 @@
     "index": 465,
     "predicted_proba": 0.9986100196838379,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -5743,7 +5435,7 @@
     "index": 467,
     "predicted_proba": 0.654009997844696,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -5771,7 +5463,7 @@
     "index": 471,
     "predicted_proba": 0.9999799728393555,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -5799,7 +5491,7 @@
     "index": 479,
     "predicted_proba": 0.9996299743652344,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -5827,7 +5519,7 @@
     "index": 480,
     "predicted_proba": 0.9998900294303894,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -5855,7 +5547,7 @@
     "index": 483,
     "predicted_proba": 0.999180018901825,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -5883,7 +5575,7 @@
     "index": 484,
     "predicted_proba": 0.9994099736213684,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -5911,7 +5603,7 @@
     "index": 485,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -5939,7 +5631,7 @@
     "index": 488,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -5967,7 +5659,7 @@
     "index": 493,
     "predicted_proba": 0.999970018863678,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -5995,7 +5687,7 @@
     "index": 500,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -6023,7 +5715,7 @@
     "index": 502,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -6051,7 +5743,7 @@
     "index": 510,
     "predicted_proba": 0.9999600052833557,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -6079,7 +5771,7 @@
     "index": 515,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -6107,7 +5799,7 @@
     "index": 516,
     "predicted_proba": 0.9120100140571594,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -6135,7 +5827,7 @@
     "index": 518,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -6163,7 +5855,7 @@
     "index": 524,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -6191,7 +5883,7 @@
     "index": 527,
     "predicted_proba": 0.9999200105667114,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -6219,7 +5911,7 @@
     "index": 528,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -6247,7 +5939,7 @@
     "index": 529,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -6275,7 +5967,7 @@
     "index": 530,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -6303,7 +5995,7 @@
     "index": 533,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -6331,7 +6023,7 @@
     "index": 534,
     "predicted_proba": 0.9987000226974487,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -6359,7 +6051,7 @@
     "index": 536,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -6387,7 +6079,7 @@
     "index": 537,
     "predicted_proba": 0.998449981212616,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -6415,7 +6107,7 @@
     "index": 538,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -6443,7 +6135,7 @@
     "index": 539,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -6471,7 +6163,7 @@
     "index": 541,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -6499,7 +6191,7 @@
     "index": 543,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -6527,7 +6219,7 @@
     "index": 547,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -6555,7 +6247,7 @@
     "index": 551,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -6583,7 +6275,7 @@
     "index": 554,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -6611,7 +6303,7 @@
     "index": 559,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -6639,7 +6331,7 @@
     "index": 560,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -6667,7 +6359,7 @@
     "index": 564,
     "predicted_proba": 0.9999799728393555,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -6695,7 +6387,7 @@
     "index": 565,
     "predicted_proba": 0.9978399872779846,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -6723,7 +6415,7 @@
     "index": 566,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -6751,7 +6443,7 @@
     "index": 569,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -6776,38 +6468,10 @@
     ]
   },
   {
-    "index": 570,
-    "predicted_proba": 0.5161399841308594,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "protocol_type_UDP",
-        "importance": 1.57233
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 1.51954
-      },
-      {
-        "feature": "failed_logins",
-        "importance": 1.30807
-      },
-      {
-        "feature": "browser_type_Safari",
-        "importance": 0.73822
-      },
-      {
-        "feature": "browser_type_Unknown",
-        "importance": 0.49993
-      }
-    ]
-  },
-  {
     "index": 571,
     "predicted_proba": 0.9994900226593018,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -6832,94 +6496,10 @@
     ]
   },
   {
-    "index": 573,
-    "predicted_proba": 0.46876999735832214,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 1.23819
-      },
-      {
-        "feature": "failed_logins",
-        "importance": 1.06292
-      },
-      {
-        "feature": "browser_type_Edge",
-        "importance": 0.77819
-      },
-      {
-        "feature": "protocol_type_TCP",
-        "importance": 0.52629
-      },
-      {
-        "feature": "encryption_used_None",
-        "importance": 0.3004
-      }
-    ]
-  },
-  {
-    "index": 574,
-    "predicted_proba": 0.4047299921512604,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "login_attempts",
-        "importance": 1.63279
-      },
-      {
-        "feature": "browser_type_Edge",
-        "importance": 1.10667
-      },
-      {
-        "feature": "ip_reputation_score",
-        "importance": 0.7248
-      },
-      {
-        "feature": "unusual_time_access",
-        "importance": 0.63137
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 0.40216
-      }
-    ]
-  },
-  {
-    "index": 575,
-    "predicted_proba": 0.4089699983596802,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "failed_logins",
-        "importance": 1.41194
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 1.26611
-      },
-      {
-        "feature": "protocol_type_UDP",
-        "importance": 0.97801
-      },
-      {
-        "feature": "browser_type_Safari",
-        "importance": 0.51556
-      },
-      {
-        "feature": "ip_reputation_score",
-        "importance": 0.41494
-      }
-    ]
-  },
-  {
     "index": 578,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -6947,7 +6527,7 @@
     "index": 581,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -6975,7 +6555,7 @@
     "index": 582,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -7003,7 +6583,7 @@
     "index": 593,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -7031,7 +6611,7 @@
     "index": 594,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -7059,7 +6639,7 @@
     "index": 596,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -7087,7 +6667,7 @@
     "index": 600,
     "predicted_proba": 0.9998900294303894,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -7115,7 +6695,7 @@
     "index": 602,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -7143,7 +6723,7 @@
     "index": 606,
     "predicted_proba": 0.999809980392456,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -7168,38 +6748,10 @@
     ]
   },
   {
-    "index": 609,
-    "predicted_proba": 0.491129994392395,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "failed_logins",
-        "importance": 4.34291
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 0.86776
-      },
-      {
-        "feature": "protocol_type_UDP",
-        "importance": 0.80233
-      },
-      {
-        "feature": "browser_type_Unknown",
-        "importance": 0.61066
-      },
-      {
-        "feature": "encryption_used_DES",
-        "importance": 0.58098
-      }
-    ]
-  },
-  {
     "index": 610,
     "predicted_proba": 0.9981200098991394,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -7227,7 +6779,7 @@
     "index": 611,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -7255,7 +6807,7 @@
     "index": 613,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -7283,7 +6835,7 @@
     "index": 615,
     "predicted_proba": 0.5430999994277954,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -7311,7 +6863,7 @@
     "index": 616,
     "predicted_proba": 0.8238999843597412,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -7339,7 +6891,7 @@
     "index": 617,
     "predicted_proba": 0.9999200105667114,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -7367,7 +6919,7 @@
     "index": 619,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -7395,7 +6947,7 @@
     "index": 621,
     "predicted_proba": 0.9992499947547913,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -7423,7 +6975,7 @@
     "index": 622,
     "predicted_proba": 0.9999499917030334,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -7451,7 +7003,7 @@
     "index": 631,
     "predicted_proba": 0.9987900257110596,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -7479,7 +7031,7 @@
     "index": 632,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -7507,7 +7059,7 @@
     "index": 637,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -7535,7 +7087,7 @@
     "index": 638,
     "predicted_proba": 0.5316799879074097,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -7563,7 +7115,7 @@
     "index": 639,
     "predicted_proba": 0.9999799728393555,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -7591,7 +7143,7 @@
     "index": 640,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -7619,7 +7171,7 @@
     "index": 642,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -7647,7 +7199,7 @@
     "index": 646,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -7675,7 +7227,7 @@
     "index": 647,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -7703,7 +7255,7 @@
     "index": 648,
     "predicted_proba": 0.9999600052833557,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -7731,7 +7283,7 @@
     "index": 650,
     "predicted_proba": 0.9998900294303894,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -7759,7 +7311,7 @@
     "index": 652,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -7787,7 +7339,7 @@
     "index": 654,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -7815,7 +7367,7 @@
     "index": 661,
     "predicted_proba": 0.9054800271987915,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "encryption_used_DES",
@@ -7843,7 +7395,7 @@
     "index": 663,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -7871,7 +7423,7 @@
     "index": 664,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -7896,38 +7448,10 @@
     ]
   },
   {
-    "index": 666,
-    "predicted_proba": 0.4078400135040283,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "failed_logins",
-        "importance": 0.94868
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 0.46132
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.37019
-      },
-      {
-        "feature": "ip_reputation_score",
-        "importance": 0.35555
-      },
-      {
-        "feature": "encryption_used_None",
-        "importance": 0.21559
-      }
-    ]
-  },
-  {
     "index": 667,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -7955,7 +7479,7 @@
     "index": 670,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -7983,7 +7507,7 @@
     "index": 671,
     "predicted_proba": 0.9999799728393555,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -8011,7 +7535,7 @@
     "index": 672,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -8039,7 +7563,7 @@
     "index": 674,
     "predicted_proba": 0.5935400128364563,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -8067,7 +7591,7 @@
     "index": 679,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -8095,7 +7619,7 @@
     "index": 681,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -8120,38 +7644,10 @@
     ]
   },
   {
-    "index": 684,
-    "predicted_proba": 0.41874000430107117,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "ip_reputation_score",
-        "importance": 3.08695
-      },
-      {
-        "feature": "session_duration_log",
-        "importance": 1.3201
-      },
-      {
-        "feature": "protocol_type_TCP",
-        "importance": 1.13124
-      },
-      {
-        "feature": "encryption_used_None",
-        "importance": 0.84432
-      },
-      {
-        "feature": "network_packet_size",
-        "importance": 0.56365
-      }
-    ]
-  },
-  {
     "index": 688,
     "predicted_proba": 0.9999300241470337,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -8179,7 +7675,7 @@
     "index": 689,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -8207,7 +7703,7 @@
     "index": 690,
     "predicted_proba": 0.9999600052833557,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -8235,7 +7731,7 @@
     "index": 691,
     "predicted_proba": 0.9999600052833557,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -8263,7 +7759,7 @@
     "index": 692,
     "predicted_proba": 0.9981499910354614,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -8291,7 +7787,7 @@
     "index": 693,
     "predicted_proba": 0.9990400075912476,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Safari",
@@ -8319,7 +7815,7 @@
     "index": 697,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -8347,7 +7843,7 @@
     "index": 698,
     "predicted_proba": 0.9928100109100342,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -8375,7 +7871,7 @@
     "index": 703,
     "predicted_proba": 0.6983299851417542,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -8403,7 +7899,7 @@
     "index": 705,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -8431,7 +7927,7 @@
     "index": 706,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -8459,7 +7955,7 @@
     "index": 710,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -8487,7 +7983,7 @@
     "index": 719,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -8512,38 +8008,10 @@
     ]
   },
   {
-    "index": 721,
-    "predicted_proba": 0.40195000171661377,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 1.79585
-      },
-      {
-        "feature": "browser_type_Edge",
-        "importance": 1.169
-      },
-      {
-        "feature": "network_packet_size",
-        "importance": 1.0683
-      },
-      {
-        "feature": "protocol_type_UDP",
-        "importance": 0.85605
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.7467
-      }
-    ]
-  },
-  {
     "index": 722,
     "predicted_proba": 0.945360004901886,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -8571,7 +8039,7 @@
     "index": 724,
     "predicted_proba": 0.578790009021759,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "session_duration_log",
@@ -8599,7 +8067,7 @@
     "index": 729,
     "predicted_proba": 0.7573099732398987,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -8627,7 +8095,7 @@
     "index": 730,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -8655,7 +8123,7 @@
     "index": 731,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -8683,7 +8151,7 @@
     "index": 733,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -8711,7 +8179,7 @@
     "index": 734,
     "predicted_proba": 0.5541999936103821,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -8739,7 +8207,7 @@
     "index": 735,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -8764,38 +8232,10 @@
     ]
   },
   {
-    "index": 736,
-    "predicted_proba": 0.506309986114502,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "browser_type_Edge",
-        "importance": 1.44674
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 1.2537
-      },
-      {
-        "feature": "protocol_type_UDP",
-        "importance": 1.06758
-      },
-      {
-        "feature": "network_packet_size",
-        "importance": 0.61455
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.42698
-      }
-    ]
-  },
-  {
     "index": 741,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -8823,7 +8263,7 @@
     "index": 742,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -8851,7 +8291,7 @@
     "index": 746,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -8876,38 +8316,10 @@
     ]
   },
   {
-    "index": 747,
-    "predicted_proba": 0.5181800127029419,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "ip_reputation_score",
-        "importance": 1.57453
-      },
-      {
-        "feature": "session_duration_log",
-        "importance": 0.64931
-      },
-      {
-        "feature": "encryption_used_None",
-        "importance": 0.53749
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 0.40323
-      },
-      {
-        "feature": "protocol_type_UDP",
-        "importance": 0.38524
-      }
-    ]
-  },
-  {
     "index": 750,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -8935,7 +8347,7 @@
     "index": 752,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -8963,7 +8375,7 @@
     "index": 753,
     "predicted_proba": 0.999970018863678,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -8991,7 +8403,7 @@
     "index": 754,
     "predicted_proba": 0.5994499921798706,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "encryption_used_DES",
@@ -9019,7 +8431,7 @@
     "index": 755,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -9047,7 +8459,7 @@
     "index": 758,
     "predicted_proba": 0.9998599886894226,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -9075,7 +8487,7 @@
     "index": 760,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -9103,7 +8515,7 @@
     "index": 766,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -9131,7 +8543,7 @@
     "index": 767,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -9159,7 +8571,7 @@
     "index": 768,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -9187,7 +8599,7 @@
     "index": 773,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -9215,7 +8627,7 @@
     "index": 774,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -9243,7 +8655,7 @@
     "index": 775,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -9271,7 +8683,7 @@
     "index": 776,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -9299,7 +8711,7 @@
     "index": 778,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -9327,7 +8739,7 @@
     "index": 781,
     "predicted_proba": 0.995140016078949,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -9355,7 +8767,7 @@
     "index": 782,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -9383,7 +8795,7 @@
     "index": 785,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -9411,7 +8823,7 @@
     "index": 786,
     "predicted_proba": 0.956570029258728,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -9439,7 +8851,7 @@
     "index": 789,
     "predicted_proba": 0.9999499917030334,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -9467,7 +8879,7 @@
     "index": 791,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -9495,7 +8907,7 @@
     "index": 795,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -9523,7 +8935,7 @@
     "index": 797,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -9551,7 +8963,7 @@
     "index": 798,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -9579,7 +8991,7 @@
     "index": 802,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -9607,7 +9019,7 @@
     "index": 805,
     "predicted_proba": 0.9999300241470337,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -9635,7 +9047,7 @@
     "index": 810,
     "predicted_proba": 0.9998999834060669,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -9663,7 +9075,7 @@
     "index": 814,
     "predicted_proba": 0.9158999919891357,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -9691,7 +9103,7 @@
     "index": 819,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -9719,7 +9131,7 @@
     "index": 820,
     "predicted_proba": 0.9999799728393555,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -9747,7 +9159,7 @@
     "index": 821,
     "predicted_proba": 0.7957000136375427,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -9772,38 +9184,10 @@
     ]
   },
   {
-    "index": 825,
-    "predicted_proba": 0.4373700022697449,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "failed_logins",
-        "importance": 1.69908
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 1.26245
-      },
-      {
-        "feature": "protocol_type_TCP",
-        "importance": 0.70596
-      },
-      {
-        "feature": "ip_reputation_score",
-        "importance": 0.55128
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.49498
-      }
-    ]
-  },
-  {
     "index": 828,
     "predicted_proba": 0.9920399785041809,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Safari",
@@ -9831,7 +9215,7 @@
     "index": 833,
     "predicted_proba": 0.9999600052833557,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -9859,7 +9243,7 @@
     "index": 838,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -9887,7 +9271,7 @@
     "index": 839,
     "predicted_proba": 0.7645300030708313,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -9915,7 +9299,7 @@
     "index": 840,
     "predicted_proba": 0.9998700022697449,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -9943,7 +9327,7 @@
     "index": 847,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -9971,7 +9355,7 @@
     "index": 851,
     "predicted_proba": 0.6542400121688843,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -9999,7 +9383,7 @@
     "index": 852,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -10027,7 +9411,7 @@
     "index": 856,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Safari",
@@ -10055,7 +9439,7 @@
     "index": 857,
     "predicted_proba": 0.9787499904632568,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -10083,7 +9467,7 @@
     "index": 858,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -10111,7 +9495,7 @@
     "index": 859,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -10139,7 +9523,7 @@
     "index": 860,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -10167,7 +9551,7 @@
     "index": 861,
     "predicted_proba": 0.99235999584198,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -10195,7 +9579,7 @@
     "index": 862,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -10223,7 +9607,7 @@
     "index": 865,
     "predicted_proba": 0.999970018863678,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -10251,7 +9635,7 @@
     "index": 867,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Safari",
@@ -10279,7 +9663,7 @@
     "index": 871,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -10307,7 +9691,7 @@
     "index": 872,
     "predicted_proba": 0.5359299778938293,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -10335,7 +9719,7 @@
     "index": 873,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -10363,7 +9747,7 @@
     "index": 874,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -10391,7 +9775,7 @@
     "index": 879,
     "predicted_proba": 0.6374300122261047,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "network_packet_size",
@@ -10419,7 +9803,7 @@
     "index": 880,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -10447,7 +9831,7 @@
     "index": 881,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -10475,7 +9859,7 @@
     "index": 885,
     "predicted_proba": 0.9738600254058838,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -10503,7 +9887,7 @@
     "index": 886,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -10531,7 +9915,7 @@
     "index": 889,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -10559,7 +9943,7 @@
     "index": 891,
     "predicted_proba": 0.7430400252342224,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -10587,7 +9971,7 @@
     "index": 892,
     "predicted_proba": 0.9999399781227112,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -10615,7 +9999,7 @@
     "index": 897,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -10643,7 +10027,7 @@
     "index": 899,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -10671,7 +10055,7 @@
     "index": 902,
     "predicted_proba": 0.7561799883842468,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -10699,7 +10083,7 @@
     "index": 905,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -10727,7 +10111,7 @@
     "index": 906,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -10755,7 +10139,7 @@
     "index": 907,
     "predicted_proba": 0.9813399910926819,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Safari",
@@ -10783,7 +10167,7 @@
     "index": 908,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -10811,7 +10195,7 @@
     "index": 909,
     "predicted_proba": 0.9999600052833557,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -10839,7 +10223,7 @@
     "index": 911,
     "predicted_proba": 0.8547800183296204,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -10864,38 +10248,10 @@
     ]
   },
   {
-    "index": 912,
-    "predicted_proba": 0.42236998677253723,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "session_duration_log",
-        "importance": 3.22952
-      },
-      {
-        "feature": "browser_type_Unknown",
-        "importance": 2.62778
-      },
-      {
-        "feature": "protocol_type_UDP",
-        "importance": 1.14759
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.50569
-      },
-      {
-        "feature": "network_packet_size",
-        "importance": 0.43798
-      }
-    ]
-  },
-  {
     "index": 913,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -10923,7 +10279,7 @@
     "index": 915,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -10951,7 +10307,7 @@
     "index": 916,
     "predicted_proba": 0.6090400218963623,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -10979,7 +10335,7 @@
     "index": 917,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -11007,7 +10363,7 @@
     "index": 919,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -11035,7 +10391,7 @@
     "index": 922,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -11063,7 +10419,7 @@
     "index": 924,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -11088,38 +10444,10 @@
     ]
   },
   {
-    "index": 928,
-    "predicted_proba": 0.47979000210762024,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "browser_type_Unknown",
-        "importance": 1.65123
-      },
-      {
-        "feature": "session_duration_log",
-        "importance": 1.50418
-      },
-      {
-        "feature": "network_packet_size",
-        "importance": 1.2875
-      },
-      {
-        "feature": "failed_logins",
-        "importance": 1.2527
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.97912
-      }
-    ]
-  },
-  {
     "index": 929,
     "predicted_proba": 0.9983699917793274,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -11147,7 +10475,7 @@
     "index": 930,
     "predicted_proba": 0.9999399781227112,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -11175,7 +10503,7 @@
     "index": 937,
     "predicted_proba": 0.9104899764060974,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -11200,38 +10528,10 @@
     ]
   },
   {
-    "index": 939,
-    "predicted_proba": 0.4886400103569031,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 1.30775
-      },
-      {
-        "feature": "encryption_used_DES",
-        "importance": 1.06061
-      },
-      {
-        "feature": "failed_logins",
-        "importance": 1.00792
-      },
-      {
-        "feature": "ip_reputation_score",
-        "importance": 0.84249
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.59079
-      }
-    ]
-  },
-  {
     "index": 941,
     "predicted_proba": 0.9989100098609924,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -11259,7 +10559,7 @@
     "index": 943,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -11287,7 +10587,7 @@
     "index": 944,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -11315,7 +10615,7 @@
     "index": 946,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -11343,7 +10643,7 @@
     "index": 947,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -11368,38 +10668,10 @@
     ]
   },
   {
-    "index": 948,
-    "predicted_proba": 0.48385998606681824,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "unusual_time_access",
-        "importance": 1.60698
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 1.44809
-      },
-      {
-        "feature": "ip_reputation_score",
-        "importance": 0.78863
-      },
-      {
-        "feature": "browser_type_Unknown",
-        "importance": 0.67876
-      },
-      {
-        "feature": "failed_logins",
-        "importance": 0.48203
-      }
-    ]
-  },
-  {
     "index": 950,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -11427,7 +10699,7 @@
     "index": 954,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -11455,7 +10727,7 @@
     "index": 956,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -11483,7 +10755,7 @@
     "index": 957,
     "predicted_proba": 0.9928299784660339,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -11511,7 +10783,7 @@
     "index": 960,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -11539,7 +10811,7 @@
     "index": 962,
     "predicted_proba": 0.999970018863678,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -11564,38 +10836,10 @@
     ]
   },
   {
-    "index": 963,
-    "predicted_proba": 0.41639000177383423,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "failed_logins",
-        "importance": 1.94767
-      },
-      {
-        "feature": "browser_type_Unknown",
-        "importance": 0.77266
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.42598
-      },
-      {
-        "feature": "ip_reputation_score",
-        "importance": 0.25117
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 0.15163
-      }
-    ]
-  },
-  {
     "index": 965,
     "predicted_proba": 0.9998599886894226,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -11623,7 +10867,7 @@
     "index": 968,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -11651,7 +10895,7 @@
     "index": 970,
     "predicted_proba": 0.9390000104904175,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -11679,7 +10923,7 @@
     "index": 971,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -11707,7 +10951,7 @@
     "index": 972,
     "predicted_proba": 0.8956900238990784,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -11735,7 +10979,7 @@
     "index": 976,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -11760,38 +11004,10 @@
     ]
   },
   {
-    "index": 978,
-    "predicted_proba": 0.4546099901199341,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 1.57169
-      },
-      {
-        "feature": "browser_type_Edge",
-        "importance": 1.5664
-      },
-      {
-        "feature": "ip_reputation_score",
-        "importance": 1.10686
-      },
-      {
-        "feature": "encryption_used_None",
-        "importance": 1.10178
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.92264
-      }
-    ]
-  },
-  {
     "index": 979,
     "predicted_proba": 0.7515900135040283,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -11819,7 +11035,7 @@
     "index": 980,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -11844,38 +11060,10 @@
     ]
   },
   {
-    "index": 983,
-    "predicted_proba": 0.4144600033760071,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "ip_reputation_score",
-        "importance": 7.34228
-      },
-      {
-        "feature": "failed_logins",
-        "importance": 2.83312
-      },
-      {
-        "feature": "protocol_type_TCP",
-        "importance": 1.44144
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 1.04212
-      },
-      {
-        "feature": "encryption_used_None",
-        "importance": 0.92772
-      }
-    ]
-  },
-  {
     "index": 984,
     "predicted_proba": 0.5798900127410889,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -11900,38 +11088,10 @@
     ]
   },
   {
-    "index": 988,
-    "predicted_proba": 0.4231800138950348,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "failed_logins",
-        "importance": 1.9904
-      },
-      {
-        "feature": "browser_type_Unknown",
-        "importance": 1.8942
-      },
-      {
-        "feature": "session_duration_log",
-        "importance": 1.82045
-      },
-      {
-        "feature": "protocol_type_UDP",
-        "importance": 0.42743
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.35828
-      }
-    ]
-  },
-  {
     "index": 989,
     "predicted_proba": 0.999970018863678,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -11959,7 +11119,7 @@
     "index": 991,
     "predicted_proba": 0.9979100227355957,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -11987,7 +11147,7 @@
     "index": 994,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -12012,38 +11172,10 @@
     ]
   },
   {
-    "index": 997,
-    "predicted_proba": 0.41008999943733215,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "protocol_type_UDP",
-        "importance": 2.74358
-      },
-      {
-        "feature": "failed_logins",
-        "importance": 1.80384
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 1.33827
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.68759
-      },
-      {
-        "feature": "protocol_type_TCP",
-        "importance": 0.42736
-      }
-    ]
-  },
-  {
     "index": 998,
     "predicted_proba": 0.8203499913215637,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -12071,7 +11203,7 @@
     "index": 1000,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -12099,7 +11231,7 @@
     "index": 1005,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -12127,7 +11259,7 @@
     "index": 1006,
     "predicted_proba": 0.9999499917030334,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -12155,7 +11287,7 @@
     "index": 1007,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -12183,7 +11315,7 @@
     "index": 1008,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -12211,7 +11343,7 @@
     "index": 1010,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -12239,7 +11371,7 @@
     "index": 1013,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -12267,7 +11399,7 @@
     "index": 1014,
     "predicted_proba": 0.9999499917030334,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -12295,7 +11427,7 @@
     "index": 1015,
     "predicted_proba": 0.6185100078582764,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -12323,7 +11455,7 @@
     "index": 1017,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -12351,7 +11483,7 @@
     "index": 1022,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -12379,7 +11511,7 @@
     "index": 1023,
     "predicted_proba": 0.9998800158500671,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -12407,7 +11539,7 @@
     "index": 1025,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -12435,7 +11567,7 @@
     "index": 1026,
     "predicted_proba": 0.9169600009918213,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -12463,7 +11595,7 @@
     "index": 1029,
     "predicted_proba": 0.9997000098228455,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -12491,7 +11623,7 @@
     "index": 1033,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -12519,7 +11651,7 @@
     "index": 1034,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -12547,7 +11679,7 @@
     "index": 1037,
     "predicted_proba": 0.9995999932289124,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -12575,7 +11707,7 @@
     "index": 1038,
     "predicted_proba": 0.5246800184249878,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Firefox",
@@ -12600,38 +11732,10 @@
     ]
   },
   {
-    "index": 1041,
-    "predicted_proba": 0.5058799982070923,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "session_duration_log",
-        "importance": 5.66653
-      },
-      {
-        "feature": "browser_type_Unknown",
-        "importance": 2.61475
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 1.07424
-      },
-      {
-        "feature": "protocol_type_UDP",
-        "importance": 0.52221
-      },
-      {
-        "feature": "browser_type_Safari",
-        "importance": 0.46537
-      }
-    ]
-  },
-  {
     "index": 1043,
     "predicted_proba": 0.9999799728393555,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -12659,7 +11763,7 @@
     "index": 1048,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -12687,7 +11791,7 @@
     "index": 1051,
     "predicted_proba": 0.9999300241470337,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -12715,7 +11819,7 @@
     "index": 1053,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -12743,7 +11847,7 @@
     "index": 1055,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -12771,7 +11875,7 @@
     "index": 1057,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -12799,7 +11903,7 @@
     "index": 1058,
     "predicted_proba": 0.9329900145530701,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -12827,7 +11931,7 @@
     "index": 1060,
     "predicted_proba": 0.9542999863624573,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -12855,7 +11959,7 @@
     "index": 1068,
     "predicted_proba": 0.9998900294303894,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -12883,7 +11987,7 @@
     "index": 1069,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -12911,7 +12015,7 @@
     "index": 1070,
     "predicted_proba": 0.9998700022697449,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -12939,7 +12043,7 @@
     "index": 1078,
     "predicted_proba": 0.9998599886894226,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -12967,7 +12071,7 @@
     "index": 1080,
     "predicted_proba": 0.8251199722290039,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -12992,38 +12096,10 @@
     ]
   },
   {
-    "index": 1082,
-    "predicted_proba": 0.5044000148773193,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "ip_reputation_score",
-        "importance": 2.95812
-      },
-      {
-        "feature": "browser_type_Safari",
-        "importance": 1.47179
-      },
-      {
-        "feature": "failed_logins",
-        "importance": 0.64983
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.62132
-      },
-      {
-        "feature": "unusual_time_access",
-        "importance": 0.2314
-      }
-    ]
-  },
-  {
     "index": 1087,
     "predicted_proba": 0.9999399781227112,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -13051,7 +12127,7 @@
     "index": 1089,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -13079,7 +12155,7 @@
     "index": 1092,
     "predicted_proba": 0.8803600072860718,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -13107,7 +12183,7 @@
     "index": 1093,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -13135,7 +12211,7 @@
     "index": 1099,
     "predicted_proba": 0.9961100220680237,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Firefox",
@@ -13163,7 +12239,7 @@
     "index": 1109,
     "predicted_proba": 0.7605699896812439,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -13191,7 +12267,7 @@
     "index": 1110,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -13219,7 +12295,7 @@
     "index": 1111,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -13247,7 +12323,7 @@
     "index": 1114,
     "predicted_proba": 0.5624200105667114,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -13275,7 +12351,7 @@
     "index": 1117,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -13303,7 +12379,7 @@
     "index": 1119,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -13331,7 +12407,7 @@
     "index": 1121,
     "predicted_proba": 0.6336899995803833,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -13359,7 +12435,7 @@
     "index": 1123,
     "predicted_proba": 0.9999200105667114,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -13387,7 +12463,7 @@
     "index": 1124,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -13412,38 +12488,10 @@
     ]
   },
   {
-    "index": 1126,
-    "predicted_proba": 0.44650998711586,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "encryption_used_None",
-        "importance": 1.70785
-      },
-      {
-        "feature": "failed_logins",
-        "importance": 1.66024
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 1.52183
-      },
-      {
-        "feature": "protocol_type_TCP",
-        "importance": 0.81565
-      },
-      {
-        "feature": "ip_reputation_score",
-        "importance": 0.64535
-      }
-    ]
-  },
-  {
     "index": 1128,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -13471,7 +12519,7 @@
     "index": 1130,
     "predicted_proba": 0.9490500092506409,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "unusual_time_access",
@@ -13499,7 +12547,7 @@
     "index": 1133,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -13527,7 +12575,7 @@
     "index": 1136,
     "predicted_proba": 0.998989999294281,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -13555,7 +12603,7 @@
     "index": 1138,
     "predicted_proba": 0.9975900053977966,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -13583,7 +12631,7 @@
     "index": 1140,
     "predicted_proba": 0.9992700219154358,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -13611,7 +12659,7 @@
     "index": 1141,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -13639,7 +12687,7 @@
     "index": 1142,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -13667,7 +12715,7 @@
     "index": 1143,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -13695,7 +12743,7 @@
     "index": 1145,
     "predicted_proba": 0.999750018119812,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -13723,7 +12771,7 @@
     "index": 1146,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -13748,38 +12796,10 @@
     ]
   },
   {
-    "index": 1148,
-    "predicted_proba": 0.5179499983787537,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "failed_logins",
-        "importance": 1.35435
-      },
-      {
-        "feature": "encryption_used_None",
-        "importance": 0.87339
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 0.5568
-      },
-      {
-        "feature": "protocol_type_TCP",
-        "importance": 0.4803
-      },
-      {
-        "feature": "network_packet_size",
-        "importance": 0.47685
-      }
-    ]
-  },
-  {
     "index": 1150,
     "predicted_proba": 0.9999300241470337,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -13807,7 +12827,7 @@
     "index": 1151,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -13835,7 +12855,7 @@
     "index": 1156,
     "predicted_proba": 0.7110599875450134,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Firefox",
@@ -13863,7 +12883,7 @@
     "index": 1157,
     "predicted_proba": 0.5551599860191345,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -13891,7 +12911,7 @@
     "index": 1165,
     "predicted_proba": 0.9989699721336365,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -13916,38 +12936,10 @@
     ]
   },
   {
-    "index": 1167,
-    "predicted_proba": 0.4866900146007538,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "failed_logins",
-        "importance": 1.75153
-      },
-      {
-        "feature": "session_duration_log",
-        "importance": 0.67036
-      },
-      {
-        "feature": "browser_type_Unknown",
-        "importance": 0.39845
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.28892
-      },
-      {
-        "feature": "ip_reputation_score",
-        "importance": 0.15881
-      }
-    ]
-  },
-  {
     "index": 1169,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -13975,7 +12967,7 @@
     "index": 1173,
     "predicted_proba": 0.5788599848747253,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14003,7 +12995,7 @@
     "index": 1175,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14028,38 +13020,10 @@
     ]
   },
   {
-    "index": 1177,
-    "predicted_proba": 0.40935999155044556,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "failed_logins",
-        "importance": 1.41069
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 1.3642
-      },
-      {
-        "feature": "protocol_type_TCP",
-        "importance": 0.87435
-      },
-      {
-        "feature": "browser_type_Edge",
-        "importance": 0.67691
-      },
-      {
-        "feature": "ip_reputation_score",
-        "importance": 0.5773
-      }
-    ]
-  },
-  {
     "index": 1178,
     "predicted_proba": 0.7370100021362305,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -14087,7 +13051,7 @@
     "index": 1179,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14115,7 +13079,7 @@
     "index": 1180,
     "predicted_proba": 0.9999799728393555,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -14143,7 +13107,7 @@
     "index": 1181,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14168,38 +13132,10 @@
     ]
   },
   {
-    "index": 1182,
-    "predicted_proba": 0.4770199954509735,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "login_attempts",
-        "importance": 2.28968
-      },
-      {
-        "feature": "unusual_time_access",
-        "importance": 1.52558
-      },
-      {
-        "feature": "browser_type_Unknown",
-        "importance": 0.50576
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 0.42452
-      },
-      {
-        "feature": "ip_reputation_score",
-        "importance": 0.36434
-      }
-    ]
-  },
-  {
     "index": 1185,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14227,7 +13163,7 @@
     "index": 1186,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14255,7 +13191,7 @@
     "index": 1192,
     "predicted_proba": 0.9994300007820129,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -14283,7 +13219,7 @@
     "index": 1193,
     "predicted_proba": 0.999970018863678,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14311,7 +13247,7 @@
     "index": 1195,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -14339,7 +13275,7 @@
     "index": 1197,
     "predicted_proba": 0.9809899926185608,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -14367,7 +13303,7 @@
     "index": 1198,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_UDP",
@@ -14395,7 +13331,7 @@
     "index": 1202,
     "predicted_proba": 0.6347100138664246,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14423,7 +13359,7 @@
     "index": 1208,
     "predicted_proba": 0.9999600052833557,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14451,7 +13387,7 @@
     "index": 1209,
     "predicted_proba": 0.7184699773788452,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -14479,7 +13415,7 @@
     "index": 1211,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14507,7 +13443,7 @@
     "index": 1212,
     "predicted_proba": 0.9660699963569641,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -14535,7 +13471,7 @@
     "index": 1213,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Safari",
@@ -14563,7 +13499,7 @@
     "index": 1215,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14591,7 +13527,7 @@
     "index": 1218,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -14619,7 +13555,7 @@
     "index": 1223,
     "predicted_proba": 0.9999899864196777,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -14647,7 +13583,7 @@
     "index": 1225,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14675,7 +13611,7 @@
     "index": 1227,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14703,7 +13639,7 @@
     "index": 1231,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14731,7 +13667,7 @@
     "index": 1232,
     "predicted_proba": 0.9996500015258789,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -14759,7 +13695,7 @@
     "index": 1233,
     "predicted_proba": 0.9999799728393555,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14787,7 +13723,7 @@
     "index": 1234,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14815,7 +13751,7 @@
     "index": 1237,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -14843,7 +13779,7 @@
     "index": 1238,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -14871,7 +13807,7 @@
     "index": 1240,
     "predicted_proba": 0.9999799728393555,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -14899,7 +13835,7 @@
     "index": 1243,
     "predicted_proba": 0.9461299777030945,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -14927,7 +13863,7 @@
     "index": 1244,
     "predicted_proba": 0.9993299841880798,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -14955,7 +13891,7 @@
     "index": 1252,
     "predicted_proba": 0.7319700121879578,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "browser_type_Edge",
@@ -14983,7 +13919,7 @@
     "index": 1253,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -15011,7 +13947,7 @@
     "index": 1256,
     "predicted_proba": 0.9087799787521362,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "network_packet_size",
@@ -15039,7 +13975,7 @@
     "index": 1257,
     "predicted_proba": 0.7777000069618225,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -15067,7 +14003,7 @@
     "index": 1258,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -15095,7 +14031,7 @@
     "index": 1260,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -15123,7 +14059,7 @@
     "index": 1261,
     "predicted_proba": 0.9992499947547913,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -15151,7 +14087,7 @@
     "index": 1262,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -15179,7 +14115,7 @@
     "index": 1268,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "protocol_type_TCP",
@@ -15207,7 +14143,7 @@
     "index": 1269,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",
@@ -15235,7 +14171,7 @@
     "index": 1270,
     "predicted_proba": 0.9986299872398376,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -15263,7 +14199,7 @@
     "index": 1271,
     "predicted_proba": 0.999970018863678,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "login_attempts",
@@ -15291,7 +14227,7 @@
     "index": 1272,
     "predicted_proba": 0.9921299815177917,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "ip_reputation_score",
@@ -15316,38 +14252,10 @@
     ]
   },
   {
-    "index": 1273,
-    "predicted_proba": 0.4755600094795227,
-    "predicted_label": 1,
-    "threshold": 0.39698,
-    "top_features": [
-      {
-        "feature": "failed_logins",
-        "importance": 1.7904
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 1.2244
-      },
-      {
-        "feature": "browser_type_Edge",
-        "importance": 0.7934
-      },
-      {
-        "feature": "encryption_used_None",
-        "importance": 0.78738
-      },
-      {
-        "feature": "protocol_type_TCP",
-        "importance": 0.60442
-      }
-    ]
-  },
-  {
     "index": 1274,
     "predicted_proba": 1.0,
     "predicted_label": 1,
-    "threshold": 0.39698,
+    "threshold": 0.52261,
     "top_features": [
       {
         "feature": "failed_logins",

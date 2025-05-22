@@ -29,6 +29,7 @@ def preprocess():
 
     print("[2] Sortiere nach Zeit (session_id)...")
     df_encoded = df_encoded.sort_values("session_id").reset_index(drop=True)
+    df_encoded.drop(columns=["session_id"], inplace=True)
 
     n = len(df_encoded)
     df_early = df_encoded.iloc[:int(n * 0.33)].copy()

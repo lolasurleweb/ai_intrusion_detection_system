@@ -8,7 +8,6 @@ from sklearn.metrics import (
     cohen_kappa_score, classification_report, ConfusionMatrixDisplay
 )
 from sklearn.inspection import permutation_importance
-import shap
 
 def save_metrics_as_table(accuracy, precision, recall, f1, kappa, save_path):
     df = pd.DataFrame({
