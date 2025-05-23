@@ -1,6 +1,7 @@
 from collections import deque
 import numpy as np
 import pandas as pd
+import random
 
 class ReplayBuffer:
     def __init__(self, max_size=1000):
@@ -19,7 +20,10 @@ class ReplayBuffer:
         if len(self.buffer) < n_old:
             old_samples = list(self.buffer)
         else:
-            old_samples = np.random.choice(list(self.buffer), size=n_old, replace=False)
+            buffer_list = list(self.buffer)
+            sample_size = min(n_old, len(buffer_list))
+            old_samples = random.sample(buffer_list, k=sample_size)
+
 
         if old_samples:
             X_old, y_old = zip(*old_samples)
