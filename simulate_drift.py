@@ -16,9 +16,9 @@ def simulate_stream(X, y, batch_size=128):
 def run_drift_simulation():
     print("[1] Lade Modell und Threshold...")
     clf = TabNetClassifier()
-    clf.load_model("models/tabnet_model_20250521_ab12cd.zip")
+    clf.load_model("models/tabnet_model_20250522-144359_f81eba.zip.zip")
 
-    with open("models/tabnet_threshold_20250521_ab12cd.json") as f:
+    with open("models/tabnet_threshold_20250522-144359_f81eba.json") as f:
         threshold = json.load(f)["threshold"]
 
     print("[2] Lade Zeitsplits...")

@@ -10,11 +10,8 @@ class PerformanceDriftDetector:
         self.warnings = []
 
     def update(self, acc, auc):
-        self.adwin_auc.update(auc)
-        self.adwin_acc.update(acc)
-
-        drift_acc = self.adwin_acc.change_detected and len(self.adwin_acc.window) > self.min_instances
-        drift_auc = self.adwin_auc.change_detected and len(self.adwin_auc.window) > self.min_instances
+        drift_acc = self.adwin_acc.update(acc) and len(self.adwin_acc._window) > self.min_instances
+        drift_auc = self.adwin_auc.update(auc) and len(self.adwin_auc._window) > self.min_instances
         drift_hard = acc < self.acc_threshold
 
         if drift_acc or drift_auc or drift_hard:
