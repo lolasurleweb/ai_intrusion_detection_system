@@ -62,15 +62,7 @@ def save_model_and_threshold(clf, threshold, path="src/models/tabnet"):
         json.dump({"threshold": float(threshold)}, f)
 
     print(f"[✓] Modell gespeichert unter: {model_path}")
-    print(f"[✓] Threshold gespeichert unter: {threshold_path}")
-
-
-def custom_cost_metric(y_true, y_score, threshold=0.5, alpha=2, beta=1):
-    y_pred = (y_score > threshold).astype(int)
-    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
-    cost = alpha * fn + beta * fp
-    return "cost", -cost, True
-    
+    print(f"[✓] Threshold gespeichert unter: {threshold_path}")    
 
 def train_tabnet(X_train, y_train, X_val, y_val, params, threshold_plot_path, alpha, beta):
     clf = TabNetClassifier(
@@ -85,7 +77,7 @@ def train_tabnet(X_train, y_train, X_val, y_val, params, threshold_plot_path, al
         X_train=X_train.values, y_train=y_train.values,
         eval_set=[(X_val.values, y_val.values)],
         eval_name=["val"],
-        eval_metric=[lambda y_true, y_score: custom_cost_metric(y_true, y_score, threshold=0.5, alpha=2, beta=1)],
+        eval_metric=["auc"],
         max_epochs=100,
         patience=10,
         batch_size=1024,
