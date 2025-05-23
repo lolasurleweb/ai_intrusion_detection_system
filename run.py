@@ -16,6 +16,7 @@ from src.training.train_tabnet import (
     run_training
 )
 from src.utils.seeding import set_seed
+from simulate_drift import run_drift_simulation
 
 
 def preprocess():
@@ -89,6 +90,9 @@ def main():
     elif args.step == "run_training":
         set_seed(42)
         run_training()
+    elif args.step == "simulate_drift":
+        run_drift_simulation()
+
 
 if __name__ == "__main__":
     main()
