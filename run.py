@@ -1,17 +1,17 @@
 import argparse
+
+import joblib
 from src.data.preprocessing import (
     load_and_clean_data,
     log_transform,
     encode_categorical,     
-    create_classic_split,
     create_time_split,
     scale_and_save_splits,
-    TARGET_COL                 
+    TARGET_COL,
+    scale_numerical                 
 )
-from src.utils.io import (
-    load_classic,
-    load_time
-)
+from src.utils.io import save_pickle
+
 from src.training.train_tabnet import (
     run_training
 )
@@ -23,56 +23,39 @@ def preprocess():
     print("[1] Lade und bereinige Daten...")
     df = load_and_clean_data("data/raw/cybersecurity_intrusion_data.csv")
     df = log_transform(df, "session_duration")
-
     df_encoded = encode_categorical(df)
     df_encoded[TARGET_COL] = df[TARGET_COL].values
-    df_encoded['session_id'] = df['session_id'].values
+    df_encoded["session_id"] = df["session_id"].values
+    expected_columns = df_encoded.columns.tolist()
 
-    print("[2] Sortiere nach Zeit (session_id)...")
+    print("[2] Sortiere nach Zeit...")
     df_encoded = df_encoded.sort_values("session_id").reset_index(drop=True)
     df_encoded.drop(columns=["session_id"], inplace=True)
 
+    print("[3] Split in Early vs Mid+Late...")
     n = len(df_encoded)
     df_early = df_encoded.iloc[:int(n * 0.33)].copy()
     df_mid_late = df_encoded.iloc[int(n * 0.33):].copy()
 
-    # [2.5] Speichere df_mid_late für Cross-Validation später
-    from src.utils.io import save_pickle
+    df_early = df_early.reindex(columns=expected_columns, fill_value=0)
+    df_mid_late = df_mid_late.reindex(columns=expected_columns, fill_value=0)
+
+    print("[4] Speichere Pool (Mid + Late) für Cross-Validation...")
     save_pickle(df_mid_late, "data/processed/train_val_test_pool.pkl")
 
-    print("[3] Erzeuge klassischen Split (nur mid + late)...")
-    X_train, X_val, X_test, y_train, y_val, y_test = create_classic_split(df_mid_late)
-    scale_and_save_splits({
-        "train": (X_train, y_train),
-        "val":   (X_val,   y_val),
-        "test":  (X_test,  y_test),
-    })
+    print("[5] Skaliere Mid + Late für Scaler-Anpassung...")
+    df_mid_late_scaled, scaler = scale_numerical(df_mid_late.drop(columns=[TARGET_COL]), fit=True)
+    joblib.dump(scaler, "data/processed/scaler.pkl")
 
-    print("[4] Erzeuge zeitlichen Split (nur early)...")
+    print("[6] Erzeuge und speichere Time-Splits mit gleichem Scaler...")
     (X_early, y_early), (X_mid, y_mid), (X_late, y_late) = create_time_split(df_early)
     scale_and_save_splits({
         "early": (X_early, y_early),
-        "mid":   (X_mid,   y_mid),
-        "late":  (X_late,  y_late),
-    })
+        "mid": (X_mid, y_mid),
+        "late": (X_late, y_late)
+    }, scaler=scaler)
 
     print("[✓] Preprocessing abgeschlossen.")
-
-
-def load_classic_splits():
-    print("[2] Lade klassisch segmentierte Daten...")
-    (X_train, y_train), (X_val, y_val), (X_test, y_test) = load_classic()
-    print("Train Shape:", X_train.shape)
-    print("Val Shape:", X_val.shape)
-    print("Test Shape:", X_test.shape)
-
-
-def load_time_splits():
-    print("[3] Lade zeitlich segmentierte Daten...")
-    (X_early, y_early), (X_mid, y_mid), (X_late, y_late) = load_time()
-    print("Early Shape:", X_early.shape)
-    print("Mid Shape:", X_mid.shape)
-    print("Late Shape:", X_late.shape)
 
 
 def main():
@@ -83,10 +66,6 @@ def main():
 
     if args.step == "preprocess":
         preprocess()
-    elif args.step == "load_classic":
-        load_classic_splits()
-    elif args.step == "load_time":
-        load_time_splits()
     elif args.step == "train":
         set_seed(42)
         run_training()

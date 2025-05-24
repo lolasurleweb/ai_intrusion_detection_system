@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-import joblib
+from src.utils.io import save_pickle
 
 NUMERICAL_FEATURES = [
     'network_packet_size',
@@ -30,7 +30,6 @@ def encode_categorical(df: pd.DataFrame) -> pd.DataFrame:
     df_encoded = pd.get_dummies(df, columns=CATEGORICAL_FEATURES, drop_first=True)
     return df_encoded.astype({col: float for col in df_encoded.select_dtypes('bool').columns})
 
-
 def scale_numerical(df: pd.DataFrame, scaler: StandardScaler = None, fit=True):
     df_scaled = df.copy()
     if fit:
@@ -39,16 +38,6 @@ def scale_numerical(df: pd.DataFrame, scaler: StandardScaler = None, fit=True):
     else:
         df_scaled[NUMERICAL_FEATURES] = scaler.transform(df_scaled[NUMERICAL_FEATURES])
     return df_scaled, scaler
-
-def create_classic_split(df: pd.DataFrame):
-    y = df[TARGET_COL]
-    X = df.drop(columns=[TARGET_COL])
-
-    X_temp, X_test, y_temp, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
-    X_train, X_val, y_train, y_val = train_test_split(X_temp, y_temp, test_size=0.25, stratify=y_temp, random_state=42)
-
-    return X_train, X_val, X_test, y_train, y_val, y_test
-
 
 def create_time_split(df: pd.DataFrame, seed=42):
     y = df[TARGET_COL]
@@ -59,9 +48,8 @@ def create_time_split(df: pd.DataFrame, seed=42):
 
     return (X_early, y_early), (X_mid, y_mid), (X_late, y_late)
 
-def scale_and_save_splits(splits: dict, path_prefix='data/processed/'):
+def scale_and_save_splits(splits: dict, scaler=None, path_prefix='data/processed/'):
     reference_columns = None
-    scaler = None
 
     for name, (X, y) in splits.items():
         if reference_columns is None:
@@ -69,15 +57,6 @@ def scale_and_save_splits(splits: dict, path_prefix='data/processed/'):
         else:
             assert list(X.columns) == reference_columns, f"Feature mismatch in split {name}"
 
-        if name == "train":
-            # Train ist Ursprung – fitte Scaler
-            X_scaled, scaler = scale_numerical(X, fit=True)
-            joblib.dump(scaler, f"{path_prefix}scaler.pkl")
-        else:
-            # Val/Test/Time: nutze gespeicherten Scaler
-            if scaler is None:
-                scaler = joblib.load(f"{path_prefix}scaler.pkl")
-            X_scaled, _ = scale_numerical(X, scaler=scaler, fit=False)
-
+        X_scaled, _ = scale_numerical(X, scaler=scaler, fit=False)
         df = pd.concat([X_scaled, y], axis=1)
         df.to_csv(f"{path_prefix}{name}.csv", index=False)
