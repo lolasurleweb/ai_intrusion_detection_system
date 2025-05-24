@@ -1,50 +1,57 @@
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
-from pytorch_tabnet.tab_model import TabNetClassifier
-from sklearn.metrics import confusion_matrix, f1_score, roc_auc_score
-from src.utils.io import load_train_val_test_pool
 import json
-from src.training.evaluate_tabnet import plot_tabnet_feature_importance
 import uuid
 from datetime import datetime
 from itertools import product
-from sklearn.model_selection import StratifiedKFold
+
+from pytorch_tabnet.tab_model import TabNetClassifier
+from sklearn.model_selection import StratifiedKFold, train_test_split
+from sklearn.metrics import (
+    confusion_matrix, f1_score, accuracy_score, precision_score,
+    recall_score, cohen_kappa_score, roc_auc_score
+)
+
+from src.utils.io import load_train_val_test_pool
+from src.training.evaluate_tabnet import (
+    plot_tabnet_feature_importance,
+    evaluate_cross_validation_results,
+    save_instance_level_explanations,
+    compute_and_plot_permutation_importance,
+    save_confusion_matrix
+)
+
 
 def compute_optimal_threshold_by_cost_function(y_true, y_proba, alpha, beta, save_plot_path=None):
     thresholds = np.linspace(0.0, 1.0, 200)
-    costs, fns, fps = [], [], []
+    costs = []
 
     for t in thresholds:
         y_pred = (y_proba > t).astype(int)
         tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
-
         cost = alpha * fn + beta * fp
         costs.append(cost)
-        fns.append(fn)
-        fps.append(fp)
 
     min_idx = np.argmin(costs)
     best_threshold = thresholds[min_idx]
     best_cost = costs[min_idx]
 
-    # Plot optional
     if save_plot_path:
         plt.figure(figsize=(10, 6))
         plt.plot(thresholds, costs, label='Gesamtkosten')
-        plt.axvline(best_threshold, linestyle='--', color='gray', label=f"Optimaler Schwellenwert: {best_threshold:.2f}")
+        plt.axvline(best_threshold, linestyle='--', color='gray', label=f"Optimal: {best_threshold:.2f}")
         plt.xlabel("Threshold")
-        plt.ylabel("Geschätzte Kosten")
-        plt.title("Kostenbasierte Schwellenwertoptimierung")
+        plt.ylabel("Kosten")
+        plt.title("Kostenbasierte Threshold-Optimierung")
         plt.legend()
         plt.grid(True)
         plt.tight_layout()
         plt.savefig(save_plot_path)
         plt.close()
-        print(f"[✓] Kostenplot gespeichert unter: {save_plot_path}")
+        print(f"[✓] Kostenplot gespeichert: {save_plot_path}")
 
     return best_threshold, best_cost
-
 
 
 def save_model_and_threshold(clf, threshold, path="src/models/tabnet"):
@@ -59,8 +66,9 @@ def save_model_and_threshold(clf, threshold, path="src/models/tabnet"):
     with open(threshold_path, "w") as f:
         json.dump({"threshold": float(threshold)}, f)
 
-    print(f"[✓] Modell gespeichert unter: {model_path}")
-    print(f"[✓] Threshold gespeichert unter: {threshold_path}")    
+    print(f"[✓] Modell gespeichert: {model_path}")
+    print(f"[✓] Threshold gespeichert: {threshold_path}")
+
 
 def train_tabnet(X_train, y_train, X_val, y_val, params, threshold_plot_path, alpha, beta):
     clf = TabNetClassifier(
@@ -86,21 +94,15 @@ def train_tabnet(X_train, y_train, X_val, y_val, params, threshold_plot_path, al
 
     y_proba_val = clf.predict_proba(X_val.values)[:, 1]
     threshold, cost = compute_optimal_threshold_by_cost_function(
-        y_val, y_proba_val, alpha=alpha, beta=beta,
-        save_plot_path=threshold_plot_path
+        y_val, y_proba_val, alpha, beta, save_plot_path=threshold_plot_path
     )
-    print(f"[✓] Kostenminimaler Schwellenwert: {threshold:.2f} (Kosten: {cost:.2f})")
 
+    print(f"[✓] Optimaler Threshold: {threshold:.2f}, Kosten: {cost:.2f}")
     return clf, threshold, cost
 
-from sklearn.metrics import (
-    roc_auc_score, f1_score, accuracy_score, precision_score,
-    recall_score, cohen_kappa_score
-)
-from src.training.evaluate_tabnet import evaluate_cross_validation_results, save_instance_level_explanations
 
 def run_training():
-    print("[✓] Lade Trainingspool für K-Fold-Cross-Validation...")
+    print("[✓] Lade Trainingsdaten...")
     X_full, y_full = load_train_val_test_pool()
 
     search_space = {
@@ -109,26 +111,21 @@ def run_training():
         "mask_type": ["sparsemax", "entmax"],
         "lambda_sparse": [1e-3, 1e-4]
     }
-
-    alpha = 2
-    beta = 1
+    alpha, beta = 2, 1
 
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     configs = list(product(*search_space.values()))
+    print(f"Starte Grid Search mit {len(configs)} Konfigurationen...")
 
-    print(f"Starte Grid Search mit {len(configs)} Hyperparameter-Kombinationen...")
-
-    best_config = None
+    best_config, best_threshold = None, None
     lowest_avg_cost = float("inf")
-    best_metrics = None
-    best_fold_metrics = None
+    best_metrics, best_fold_metrics = None, None
 
     for i, values in enumerate(configs):
         params = dict(zip(search_space.keys(), values))
-        print(f"\n[{i+1}/{len(configs)}] Teste Config: {params}")
+        print(f"\n[{i+1}/{len(configs)}] Konfiguration: {params}")
 
-        fold_costs, aucs, f1s = [], [], []
-        fold_metrics = []
+        fold_costs, aucs, f1s, fold_metrics = [], [], [], []
 
         for fold_idx, (train_idx, val_idx) in enumerate(skf.split(X_full, y_full)):
             X_train, X_val = X_full.iloc[train_idx], X_full.iloc[val_idx]
@@ -136,10 +133,7 @@ def run_training():
 
             clf, threshold, cost = train_tabnet(
                 X_train, y_train, X_val, y_val,
-                params=params,
-                threshold_plot_path=None,
-                alpha=alpha,
-                beta=beta
+                params, threshold_plot_path=None, alpha=alpha, beta=beta
             )
 
             y_proba = clf.predict_proba(X_val.values)[:, 1]
@@ -159,13 +153,12 @@ def run_training():
                 "kappa": cohen_kappa_score(y_val, y_pred)
             })
 
-            print(f"  → Fold {fold_idx+1} | Cost: {cost:.2f} | AUC: {aucs[-1]:.3f} | F1: {f1s[-1]:.3f}")
+            print(f"  → Fold {fold_idx+1}: Cost={cost:.2f}, AUC={aucs[-1]:.3f}, F1={f1s[-1]:.3f}")
 
         avg_cost = np.mean(fold_costs)
-        print(f"➤ Durchschnittliche Kosten: {avg_cost:.2f}")
-
         if avg_cost < lowest_avg_cost:
             best_config = params
+            best_threshold = threshold
             lowest_avg_cost = avg_cost
             best_metrics = {
                 "cost": (np.mean(fold_costs), np.std(fold_costs)),
@@ -175,17 +168,17 @@ def run_training():
             best_fold_metrics = fold_metrics
 
     print("\nGrid Search abgeschlossen.")
-    print("Beste Konfiguration:")
-    print(best_config)
+    print(f"Beste Konfiguration: {best_config}")
     print(f"Kosten: {best_metrics['cost'][0]:.2f} ± {best_metrics['cost'][1]:.2f}")
     print(f"AUC:    {best_metrics['auc'][0]:.3f} ± {best_metrics['auc'][1]:.3f}")
     print(f"F1:     {best_metrics['f1'][0]:.3f} ± {best_metrics['f1'][1]:.3f}")
 
-    # Speichere und visualisiere Metriken aller Folds
     evaluate_cross_validation_results(best_fold_metrics)
 
-    # Trainiere finales Modell auf allen Daten
-    print("\n[✓] Trainiere finales Modell auf alle Daten")
+    print("\n[✓] Trainiere finales Modell auf Trainings- und Validierungsdaten mit Early-Stopping...")
+    X_train_final, X_val_final, y_train_final, y_val_final = train_test_split(
+        X_full, y_full, test_size=0.2, stratify=y_full, random_state=42
+    )
 
     final_clf = TabNetClassifier(
         **best_config,
@@ -196,10 +189,10 @@ def run_training():
     )
 
     final_clf.fit(
-        X_train=X_full.values,
-        y_train=y_full.values,
-        eval_set=[(X_full.values, y_full.values)],
-        eval_name=["full"],
+        X_train=X_train_final.values,
+        y_train=y_train_final.values,
+        eval_set=[(X_val_final.values, y_val_final.values)],
+        eval_name=["val"],
         eval_metric=["auc"],
         max_epochs=100,
         patience=10,
@@ -210,20 +203,19 @@ def run_training():
     )
 
     final_clf.forward_masks = True
-    save_model_and_threshold(final_clf, threshold=0.5, path="models/tabnet_final")
-    print("[✓] Finales Modell gespeichert. Hinweis: Nicht zur Evaluation verwenden.")
-
-    # Lokale Erklärungen für positive IDS-Warnungen erzeugen
-    print("[✓] Generiere lokale Erklärungen für positives Verhalten...")
     y_proba_full = final_clf.predict_proba(X_full.values)[:, 1]
-    y_pred_full = (y_proba_full > 0.5).astype(int)
+    y_pred_full = (y_proba_full > best_threshold).astype(int)
+
+    save_model_and_threshold(final_clf, threshold=best_threshold, path="models/tabnet_final")
+
+    print("[✓] Generiere lokale Erklärungen für positive IDS-Warnungen...")
     save_instance_level_explanations(
         clf=final_clf,
         X=X_full,
         y_proba=y_proba_full,
         y_pred=y_pred_full,
         feature_names=X_full.columns.tolist(),
-        threshold=0.5,
+        threshold=best_threshold,
         save_path="reports/explanations/final_model_instance_level.json",
         top_k=5,
         only_positive_predictions=True,
@@ -238,18 +230,16 @@ def run_training():
     )
 
     print("[✓] Berechne Permutation Importance...")
-    from src.training.evaluate_tabnet import compute_and_plot_permutation_importance
     compute_and_plot_permutation_importance(
         clf=final_clf,
-        X_val=X_full.sample(frac=0.25, random_state=42),  # Optional: schneller
+        X_val=X_full.sample(frac=0.25, random_state=42),
         y_val=y_full.loc[X_full.sample(frac=0.25, random_state=42).index],
         feature_names=X_full.columns.tolist(),
         save_path="reports/figures/permutation_importance_final.png",
         scoring='f1'
     )
 
-    print("[✓] Speichere Confusion Matrix auf allen Daten...")
-    from src.training.evaluate_tabnet import save_confusion_matrix
+    print("[✓] Speichere Confusion Matrix...")
     save_confusion_matrix(
         y_true=y_full,
         y_pred=y_pred_full,

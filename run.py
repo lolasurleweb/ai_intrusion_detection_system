@@ -40,20 +40,22 @@ def preprocess():
     df_early = df_early.reindex(columns=expected_columns, fill_value=0)
     df_mid_late = df_mid_late.reindex(columns=expected_columns, fill_value=0)
 
-    print("[4] Speichere Pool (Mid + Late) für Cross-Validation...")
-    save_pickle(df_mid_late, "data/processed/train_val_test_pool.pkl")
-
-    print("[5] Skaliere Mid + Late für Scaler-Anpassung...")
-    df_mid_late_scaled, scaler = scale_numerical(df_mid_late.drop(columns=[TARGET_COL]), fit=True)
+    print("[4] Skaliere Early (Scaler-Anpassung)...")
+    df_early_scaled, scaler = scale_numerical(df_early.drop(columns=[TARGET_COL]), fit=True)
     joblib.dump(scaler, "data/processed/scaler.pkl")
 
-    print("[6] Erzeuge und speichere Time-Splits mit gleichem Scaler...")
+    print("[5] Erzeuge und speichere Time-Splits mit gleichem Scaler...")
     (X_early, y_early), (X_mid, y_mid), (X_late, y_late) = create_time_split(df_early)
     scale_and_save_splits({
         "early": (X_early, y_early),
         "mid": (X_mid, y_mid),
         "late": (X_late, y_late)
     }, scaler=scaler)
+
+    print("[6] Skaliere & speichere Mid+Late Pool...")
+    df_mid_late_scaled, _ = scale_numerical(df_mid_late.drop(columns=[TARGET_COL]), scaler=scaler, fit=False)
+    df_mid_late_scaled[TARGET_COL] = df_mid_late[TARGET_COL].values
+    save_pickle(df_mid_late_scaled, "data/processed/train_val_test_pool.pkl")
 
     print("[✓] Preprocessing abgeschlossen.")
 
