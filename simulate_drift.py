@@ -42,6 +42,7 @@ def run_drift_simulation():
 
     for i, (X_batch, y_batch) in enumerate(simulate_stream(X_stream, y_stream)):
 
+        X_batch = X_batch.copy()
         X_batch[NUMERICAL_FEATURES] = scaler.transform(X_batch[NUMERICAL_FEATURES])
 
         y_proba = clf.predict_proba(X_batch.values)[:, 1]
@@ -56,9 +57,21 @@ def run_drift_simulation():
             print(f"Drift erkannt bei Batch {i}")
             drift_events += 1
 
-            alarms = (y_pred == 1) & (y_batch == 1)
-            X_alarm = X_batch[alarms]
-            y_alarm = y_batch[alarms]
+            # Trenne TP und FP explizit
+            predicted_positive = y_pred == 1
+            tp_mask = (predicted_positive) & (y_batch == 1)
+            fp_mask = (predicted_positive) & (y_batch == 0)
+
+            X_tp = X_batch[tp_mask]
+            y_tp = y_batch[tp_mask]
+
+            X_fp = X_batch[fp_mask]
+            y_fp = y_batch[fp_mask]
+
+            X_alarm = pd.concat([X_tp, X_fp])
+            y_alarm = pd.concat([y_tp, y_fp])
+
+            print(f"[Batch {i}] Fine-Tune: {len(X_tp)} TP, {len(X_fp)} FP")
 
             if not X_alarm.empty:
                 X_ft, y_ft = replay_buffer.sample(n_old=50, X_new=X_alarm, y_new=y_alarm)

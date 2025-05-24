@@ -77,7 +77,7 @@ def load_time_splits():
 
 def main():
     parser = argparse.ArgumentParser(description="Cybersecurity ML-Pipeline")
-    parser.add_argument("step", choices=["preprocess", "load_classic", "load_time", "run_training", "simulate_drift"],
+    parser.add_argument("step", choices=["preprocess", "load_classic", "load_time", "train", "simulate_drift"],
                         help="Wähle den Teil der Pipeline, den du ausführen willst.")
     args = parser.parse_args()
 
@@ -87,7 +87,7 @@ def main():
         load_classic_splits()
     elif args.step == "load_time":
         load_time_splits()
-    elif args.step == "run_training":
+    elif args.step == "train":
         set_seed(42)
         run_training()
     elif args.step == "simulate_drift":

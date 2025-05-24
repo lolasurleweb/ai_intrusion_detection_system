@@ -2,7 +2,14 @@ import os
 import pandas as pd
 import numpy as np
 import joblib
-from src.data.preprocessing import NUMERICAL_FEATURES
+
+NUMERICAL_FEATURES = [
+    'network_packet_size',
+    'login_attempts',
+    'ip_reputation_score',
+    'failed_logins',
+    'session_duration_log'
+]
 
 
 def compare_weights(suffix):
@@ -11,8 +18,12 @@ def compare_weights(suffix):
     after = torch.load(f"checkpoints/after_{suffix}.pt")
 
     for k in before:
+        if before[k].dtype not in (torch.float32, torch.float64):
+            print(f"{k}: übersprungen (dtype={before[k].dtype})")
+            continue
         diff = torch.norm(before[k] - after[k]).item()
         print(f"{k}: Δ={diff:.6f}")
+
 
 
 def check_scaling_consistency(csv_paths, scaler_path):
@@ -46,7 +57,7 @@ def check_scaling_consistency(csv_paths, scaler_path):
 
 
 if __name__ == "__main__":
-    compare_weights("dein_suffix")  # optional
+    compare_weights("fd5693")  # optional
 
     check_scaling_consistency(
         csv_paths=[
