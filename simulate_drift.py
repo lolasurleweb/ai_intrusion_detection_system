@@ -48,7 +48,7 @@ def run_drift_simulation():
             print(f"Drift erkannt bei Batch {i}")
             drift_events += 1
 
-            alarms = y_pred == 1
+            alarms = (y_pred == 1) & (y_batch == 1)
             X_alarm = X_batch[alarms]
             y_alarm = y_batch[alarms]
 
