@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+import joblib
 
 NUMERICAL_FEATURES = [
     'network_packet_size',
@@ -60,12 +61,23 @@ def create_time_split(df: pd.DataFrame, seed=42):
 
 def scale_and_save_splits(splits: dict, path_prefix='data/processed/'):
     reference_columns = None
+    scaler = None
+
     for name, (X, y) in splits.items():
         if reference_columns is None:
             reference_columns = list(X.columns)
         else:
             assert list(X.columns) == reference_columns, f"Feature mismatch in split {name}"
 
-        X_scaled, _ = scale_numerical(X, fit=True)
+        if name == "train":
+            # Train ist Ursprung – fitte Scaler
+            X_scaled, scaler = scale_numerical(X, fit=True)
+            joblib.dump(scaler, f"{path_prefix}scaler.pkl")
+        else:
+            # Val/Test/Time: nutze gespeicherten Scaler
+            if scaler is None:
+                scaler = joblib.load(f"{path_prefix}scaler.pkl")
+            X_scaled, _ = scale_numerical(X, scaler=scaler, fit=False)
+
         df = pd.concat([X_scaled, y], axis=1)
         df.to_csv(f"{path_prefix}{name}.csv", index=False)

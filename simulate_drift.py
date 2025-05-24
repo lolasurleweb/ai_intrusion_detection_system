@@ -7,6 +7,8 @@ from src.drift.finetuning import fine_tune_tabnet
 from sklearn.metrics import accuracy_score, roc_auc_score
 import numpy as np
 import pandas as pd
+from src.data.preprocessing import NUMERICAL_FEATURES
+import joblib
 
 def simulate_stream(X, y, batch_size=128):
     for i in range(0, len(X), batch_size):
@@ -35,6 +37,9 @@ def run_drift_simulation():
     fine_tune_events = 0
 
     for i, (X_batch, y_batch) in enumerate(simulate_stream(X_stream, y_stream)):
+
+        scaler = joblib.load("data/processed/scaler.pkl")
+        X_batch[NUMERICAL_FEATURES] = scaler.transform(X_batch[NUMERICAL_FEATURES])
 
         y_proba = clf.predict_proba(X_batch.values)[:, 1]
         y_pred = (y_proba > threshold).astype(int)
