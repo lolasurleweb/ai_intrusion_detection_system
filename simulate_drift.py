@@ -4,16 +4,16 @@ from src.utils.io import load_time
 from src.drift.drift_detection import PerformanceDriftDetector
 from src.drift.replay_buffer import ReplayBuffer
 from src.drift.finetuning import fine_tune_tabnet
+from src.training.train_tabnet import compute_optimal_threshold_by_cost_function
 from sklearn.metrics import accuracy_score, roc_auc_score
+from src.data.preprocessing import NUMERICAL_FEATURES
 import numpy as np
 import pandas as pd
-from src.data.preprocessing import NUMERICAL_FEATURES
 import joblib
 
 def simulate_stream(X, y, batch_size=128):
     for i in range(0, len(X), batch_size):
         yield X.iloc[i:i+batch_size], y.iloc[i:i+batch_size]
-
 
 def run_drift_simulation():
     print("[1] Lade Modell und Threshold...")
@@ -29,16 +29,19 @@ def run_drift_simulation():
     X_stream = pd.concat([X_mid, X_late], axis=0).reset_index(drop=True)
     y_stream = pd.concat([y_mid, y_late], axis=0).reset_index(drop=True)
 
+    scaler = joblib.load("data/processed/scaler.pkl")
+
     print("[3] Starte Drift-Überwachung...")
     drift_detector = PerformanceDriftDetector(acc_threshold=0.85)
     replay_buffer = ReplayBuffer(max_size=500)
 
     drift_events = 0
     fine_tune_events = 0
+    reoptimize_every = 5
+    retraining_counter = 0
 
     for i, (X_batch, y_batch) in enumerate(simulate_stream(X_stream, y_stream)):
 
-        scaler = joblib.load("data/processed/scaler.pkl")
         X_batch[NUMERICAL_FEATURES] = scaler.transform(X_batch[NUMERICAL_FEATURES])
 
         y_proba = clf.predict_proba(X_batch.values)[:, 1]
@@ -63,12 +66,27 @@ def run_drift_simulation():
                 replay_buffer.add_batch(X_alarm, y_alarm)
 
                 fine_tune_events += 1
+                retraining_counter += 1
                 print(f"✓ Fine-Tuning durchgeführt bei Batch {i}")
+
+                # Optional: Reoptimiere Threshold – nur wenn beide Klassen vorhanden sind
+                if retraining_counter % reoptimize_every == 0:
+                    if len(y_ft) >= 30 and y_ft.nunique() == 2:
+                        y_ft_proba = clf.predict_proba(X_ft.values)[:, 1]
+                        new_threshold, _ = compute_optimal_threshold_by_cost_function(
+                            y_true=y_ft,
+                            y_proba=y_ft_proba,
+                            alpha=2,
+                            beta=1
+                        )
+                        threshold = new_threshold
+                        print(f"[✓] Threshold neu gesetzt auf {threshold:.3f}")
+                    else:
+                        print("[i] Threshold nicht angepasst: unzureichende Klassenvielfalt oder Samplegröße")
 
     print("\n[✓] Drift-Handling abgeschlossen.")
     print(f"Erkannte Drift-Warnungen: {drift_events}")
     print(f"Durchgeführte Fine-Tunings: {fine_tune_events}")
-
 
 if __name__ == "__main__":
     run_drift_simulation()
