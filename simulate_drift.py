@@ -68,12 +68,29 @@ def run_drift_simulation():
             X_fp = X_batch[fp_mask]
             y_fp = y_batch[fp_mask]
 
-            X_alarm = pd.concat([X_tp, X_fp])
-            y_alarm = pd.concat([y_tp, y_fp])
+            print(f"[Batch {i}] Erkannte Alarme: {len(X_tp)} TP, {len(X_fp)} FP")
 
-            print(f"[Batch {i}] Fine-Tune: {len(X_tp)} TP, {len(X_fp)} FP")
+            # Feintuning nur, wenn echte Angriffe enthalten sind
+            if not X_tp.empty:
+                n_tp = min(len(X_tp), 30)
+                n_fp = min(len(X_fp), 10)
 
-            if not X_alarm.empty:
+                X_tp_sampled = X_tp.sample(n=n_tp, random_state=42)
+                y_tp_sampled = y_tp.loc[X_tp_sampled.index]
+
+                if n_fp > 0:
+                    X_fp_sampled = X_fp.sample(n=n_fp, random_state=42)
+                    y_fp_sampled = y_fp.loc[X_fp_sampled.index]
+                else:
+                    X_fp_sampled = pd.DataFrame(columns=X_tp.columns)
+                    y_fp_sampled = pd.Series(dtype=int)
+
+                X_alarm = pd.concat([X_tp_sampled, X_fp_sampled])
+                y_alarm = pd.concat([y_tp_sampled, y_fp_sampled])
+
+                print(f"[Batch {i}] → Fine-Tuning mit {len(X_tp_sampled)} TP, {len(X_fp_sampled)} FP")
+
+                # Replay-Sampling (inkl. alter Beispiele)
                 X_ft, y_ft = replay_buffer.sample(n_old=50, X_new=X_alarm, y_new=y_alarm)
                 clf = fine_tune_tabnet(clf, X_ft, y_ft, epochs=10)
                 replay_buffer.add_batch(X_alarm, y_alarm)

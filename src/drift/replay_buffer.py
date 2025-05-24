@@ -12,28 +12,34 @@ class ReplayBuffer:
             self.buffer.append((x[1], y))
 
     def sample(self, n_old, X_new, y_new):
-        # Aktuelle neue Daten (z. B. Alarmfeedback)
+        # Neue aktuelle Alarmdaten
         df_new = pd.DataFrame(X_new)
         y_new = pd.Series(y_new)
 
-        # Alte aus dem Buffer
-        if len(self.buffer) < n_old:
-            old_samples = list(self.buffer)
-        else:
-            buffer_list = list(self.buffer)
-            sample_size = min(n_old, len(buffer_list))
-            old_samples = random.sample(buffer_list, k=sample_size)
+        # Alte Bufferdaten nach Label trennen
+        buffer_list = list(self.buffer)
+        old_tp = [(x, y) for (x, y) in buffer_list if y == 1]
+        old_fp = [(x, y) for (x, y) in buffer_list if y == 0]
 
+        # 3:1-Verhältnis – 75 % TP, 25 % FP
+        n_tp = min(len(old_tp), int(n_old * 0.75))
+        n_fp = min(len(old_fp), n_old - n_tp)
 
-        if old_samples:
-            X_old, y_old = zip(*old_samples)
+        sampled_tp = random.sample(old_tp, k=n_tp) if n_tp > 0 else []
+        sampled_fp = random.sample(old_fp, k=n_fp) if n_fp > 0 else []
+
+        sampled = sampled_tp + sampled_fp
+        random.shuffle(sampled)
+
+        if sampled:
+            X_old, y_old = zip(*sampled)
             X_old = pd.DataFrame(X_old)
             y_old = pd.Series(y_old)
         else:
             X_old = pd.DataFrame(columns=X_new.columns)
             y_old = pd.Series(dtype=int)
 
-        # Kombinieren
+        # Kombinieren mit aktuellen Daten
         X_combined = pd.concat([X_old, df_new], axis=0).reset_index(drop=True)
         y_combined = pd.concat([y_old, y_new], axis=0).reset_index(drop=True)
 

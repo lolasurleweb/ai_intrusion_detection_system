@@ -27,7 +27,7 @@ def fine_tune_tabnet(model, X_ft, y_ft, epochs=10, batch_size=512):
         batch_size=batch_size,
         virtual_batch_size=128,
         num_workers=0,
-        drop_last=False
+        drop_last=True
     )
 
     torch.save(model.network.state_dict(), f"checkpoints/after_{suffix}.pt")
