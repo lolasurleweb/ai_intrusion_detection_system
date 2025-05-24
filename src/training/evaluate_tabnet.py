@@ -3,30 +3,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from sklearn.metrics import (
-    accuracy_score, precision_score, recall_score, f1_score,
-    cohen_kappa_score, classification_report, ConfusionMatrixDisplay
-)
+from sklearn.metrics import ConfusionMatrixDisplay
 from sklearn.inspection import permutation_importance
 
-def save_metrics_as_table(accuracy, precision, recall, f1, kappa, save_path):
-    df = pd.DataFrame({
-        "Metrik": ["Accuracy", "Precision", "Recall", "F1-Score", "Cohen's Kappa"],
-        "Wert": [accuracy, precision, recall, f1, kappa]
-    })
-
-    fig, ax = plt.subplots(figsize=(6, 2.5))
-    ax.axis('off')
-    table = ax.table(cellText=df.values, colLabels=df.columns, loc='center')
-    table.auto_set_font_size(False)
-    table.set_fontsize(10)
-    table.scale(1.2, 1.5)
-    plt.title("Klassische Metriken")
-    plt.tight_layout()
-    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(save_path)
-    print(f"[✓] Metrik-Tabelle gespeichert unter: {save_path}")
-    plt.close()
 
 def save_confusion_matrix(y_true, y_pred, save_path):
     disp = ConfusionMatrixDisplay.from_predictions(y_true, y_pred, cmap="Blues")
@@ -90,9 +69,6 @@ def compute_and_plot_permutation_importance(clf, X_val, y_val, feature_names, sa
 
     return result
 
-import numpy as np
-import json
-from pathlib import Path
 
 def save_instance_level_explanations(
     clf,
@@ -140,36 +116,30 @@ def save_instance_level_explanations(
 
     print(f"[✓] Lokale Erklärungen gespeichert unter: {save_path}")
 
+def evaluate_cross_validation_results(fold_metrics, save_dir="reports/cv_summary"):
+    Path(save_dir).mkdir(parents=True, exist_ok=True)
 
-def evaluate_tabnet_model(clf, threshold, X_test, y_test, feature_names):
-    y_proba_test = clf.predict_proba(X_test.values)[:, 1]
-    y_pred_test = (y_proba_test > threshold).astype(int)
+    df = pd.DataFrame(fold_metrics)
+    df_mean_std = df.agg(['mean', 'std']).T.round(4)
+    df_mean_std.columns = ['Mittelwert', 'Standardabweichung']
+    df_mean_std.index.name = 'Metrik'
 
-    acc = accuracy_score(y_test, y_pred_test)
-    prec = precision_score(y_test, y_pred_test)
-    rec = recall_score(y_test, y_pred_test)
-    f1 = f1_score(y_test, y_pred_test)
-    kappa = cohen_kappa_score(y_test, y_pred_test)
+    df_mean_std.to_csv(Path(save_dir) / "cv_metrics.csv")
+    print(f"[✓] Cross-Validation-Metriken gespeichert unter: {save_dir}/cv_metrics.csv")
 
-    save_metrics_as_table(acc, prec, rec, f1, kappa, "reports/figures/classic_metrics_test.png")
-    save_confusion_matrix(y_test, y_pred_test, "reports/figures/confusion_matrix_test.png")
 
-    print("\nFinale Evaluation auf dem Testset:")
-    print(classification_report(y_test, y_pred_test))
+    plt.figure(figsize=(10, 6))
+    df.plot(kind='bar', figsize=(10, 6), title="Metriken pro Fold")
+    plt.xticks(ticks=np.arange(len(df)), labels=[f"Fold {i+1}" for i in range(len(df))], rotation=0)
+    plt.tight_layout()
+    plt.savefig(Path(save_dir) / "metrics_per_fold.png")
+    print(f"[✓] Plot gespeichert unter: {save_dir}/metrics_per_fold.png")
+    plt.close()
 
-    plot_tabnet_feature_importance(clf, feature_names, save_path="reports/figures/tabnet_feature_masks_test.png")
-    compute_and_plot_permutation_importance(clf, X_test, y_test, feature_names, save_path="reports/figures/permutation_importance_test.png")
-
-    print("[✓] Speichere lokale Top-K Feature-Erklärungen für alle Testinstanzen...")
-    save_instance_level_explanations(
-        clf=clf,
-        X=X_test,
-        y_proba=y_proba_test,
-        y_pred=y_pred_test,
-        feature_names=feature_names,
-        threshold=threshold,
-        save_path="reports/explanations/instance_level_explanations.json",
-        top_k=5,
-        only_positive_predictions=True,
-        include_scores=True
-    )
+    
+    df.boxplot(figsize=(10, 6))
+    plt.title("Verteilung der Metriken über Folds")
+    plt.tight_layout()
+    plt.savefig(Path(save_dir) / "metrics_boxplot.png")
+    print(f"[✓] Boxplot gespeichert unter: {save_dir}/metrics_boxplot.png")
+    plt.close()

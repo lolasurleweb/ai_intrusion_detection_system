@@ -37,7 +37,7 @@ def run_drift_simulation():
 
     drift_events = 0
     fine_tune_events = 0
-    reoptimize_every = 5
+    reoptimize_every = 1
     retraining_counter = 0
 
     for i, (X_batch, y_batch) in enumerate(simulate_stream(X_stream, y_stream)):

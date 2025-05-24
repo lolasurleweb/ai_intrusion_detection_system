@@ -1,13 +1,11 @@
 import torch
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-from pathlib import Path
 from pytorch_tabnet.tab_model import TabNetClassifier
-from sklearn.metrics import confusion_matrix
-from src.utils.io import load_classic, load_train_val_test_pool
+from sklearn.metrics import confusion_matrix, f1_score, roc_auc_score
+from src.utils.io import load_train_val_test_pool
 import json
-from src.training.evaluate_tabnet import evaluate_tabnet_model
+from src.training.evaluate_tabnet import plot_tabnet_feature_importance
 import uuid
 from datetime import datetime
 from itertools import product
@@ -95,8 +93,14 @@ def train_tabnet(X_train, y_train, X_val, y_val, params, threshold_plot_path, al
 
     return clf, threshold, cost
 
+from sklearn.metrics import (
+    roc_auc_score, f1_score, accuracy_score, precision_score,
+    recall_score, cohen_kappa_score
+)
+from src.training.evaluate_tabnet import evaluate_cross_validation_results, save_instance_level_explanations
+
 def run_training():
-    print("[✓] Lade Trainingsdaten für Grid Search...")
+    print("[✓] Lade Trainingspool für K-Fold-Cross-Validation...")
     X_full, y_full = load_train_val_test_pool()
 
     search_space = {
@@ -112,18 +116,19 @@ def run_training():
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     configs = list(product(*search_space.values()))
 
-    lowest_avg_cost = float("inf")
-    best_config = None
-    best_model = None
-    best_threshold = None
-
     print(f"Starte Grid Search mit {len(configs)} Hyperparameter-Kombinationen...")
+
+    best_config = None
+    lowest_avg_cost = float("inf")
+    best_metrics = None
+    best_fold_metrics = None
 
     for i, values in enumerate(configs):
         params = dict(zip(search_space.keys(), values))
         print(f"\n[{i+1}/{len(configs)}] Teste Config: {params}")
 
-        fold_costs = []
+        fold_costs, aucs, f1s = [], [], []
+        fold_metrics = []
 
         for fold_idx, (train_idx, val_idx) in enumerate(skf.split(X_full, y_full)):
             X_train, X_val = X_full.iloc[train_idx], X_full.iloc[val_idx]
@@ -137,65 +142,118 @@ def run_training():
                 beta=beta
             )
 
+            y_proba = clf.predict_proba(X_val.values)[:, 1]
+            y_pred = (y_proba > threshold).astype(int)
+
             fold_costs.append(cost)
-            print(f"  → Fold {fold_idx+1} Cost: {cost:.2f}")
+            aucs.append(roc_auc_score(y_val, y_proba))
+            f1s.append(f1_score(y_val, y_pred))
+
+            fold_metrics.append({
+                "cost": cost,
+                "auc": aucs[-1],
+                "f1": f1s[-1],
+                "accuracy": accuracy_score(y_val, y_pred),
+                "recall": recall_score(y_val, y_pred),
+                "precision": precision_score(y_val, y_pred),
+                "kappa": cohen_kappa_score(y_val, y_pred)
+            })
+
+            print(f"  → Fold {fold_idx+1} | Cost: {cost:.2f} | AUC: {aucs[-1]:.3f} | F1: {f1s[-1]:.3f}")
 
         avg_cost = np.mean(fold_costs)
         print(f"➤ Durchschnittliche Kosten: {avg_cost:.2f}")
 
         if avg_cost < lowest_avg_cost:
-            lowest_avg_cost = avg_cost
             best_config = params
-            best_model = clf
-            best_threshold = threshold
-            print("Neue beste Konfiguration gefunden!")
+            lowest_avg_cost = avg_cost
+            best_metrics = {
+                "cost": (np.mean(fold_costs), np.std(fold_costs)),
+                "auc": (np.mean(aucs), np.std(aucs)),
+                "f1": (np.mean(f1s), np.std(f1s))
+            }
+            best_fold_metrics = fold_metrics
 
     print("\nGrid Search abgeschlossen.")
     print("Beste Konfiguration:")
     print(best_config)
-    print(f"Minimale durchschnittliche Kosten: {lowest_avg_cost:.2f}")
+    print(f"Kosten: {best_metrics['cost'][0]:.2f} ± {best_metrics['cost'][1]:.2f}")
+    print(f"AUC:    {best_metrics['auc'][0]:.3f} ± {best_metrics['auc'][1]:.3f}")
+    print(f"F1:     {best_metrics['f1'][0]:.3f} ± {best_metrics['f1'][1]:.3f}")
 
-    if best_model:
-        print("\n[✓] Lade klassische Splits für finales Training...")
-        from src.utils.io import load_classic
-        (X_train, y_train), (X_val, y_val), (X_test, y_test) = load_classic()
+    # Speichere und visualisiere Metriken aller Folds
+    evaluate_cross_validation_results(best_fold_metrics)
 
-        X_train_val = pd.concat([X_train, X_val], axis=0)
-        y_train_val = pd.concat([y_train, y_val], axis=0)
+    # Trainiere finales Modell auf allen Daten
+    print("\n[✓] Trainiere finales Modell auf alle Daten")
 
-        print("[✓] Trainiere finales Modell mit bester Konfiguration...")
-        clf = TabNetClassifier(
-            **best_config,
-            optimizer_params=dict(lr=2e-2),
-            scheduler_params={"step_size": 10, "gamma": 0.95},
-            scheduler_fn=torch.optim.lr_scheduler.StepLR,
-            seed=42
-        )
+    final_clf = TabNetClassifier(
+        **best_config,
+        optimizer_params=dict(lr=2e-2),
+        scheduler_params={"step_size": 10, "gamma": 0.95},
+        scheduler_fn=torch.optim.lr_scheduler.StepLR,
+        seed=42
+    )
 
-        clf.fit(
-            X_train=X_train_val.values, y_train=y_train_val.values,
-            eval_set=[(X_val.values, y_val.values)],
-            eval_name=["val"],
-            eval_metric=["auc"],
-            max_epochs=100,
-            patience=10,
-            batch_size=1024,
-            virtual_batch_size=128,
-            num_workers=0,
-            drop_last=False
-        )
+    final_clf.fit(
+        X_train=X_full.values,
+        y_train=y_full.values,
+        eval_set=[(X_full.values, y_full.values)],
+        eval_name=["full"],
+        eval_metric=["auc"],
+        max_epochs=100,
+        patience=10,
+        batch_size=1024,
+        virtual_batch_size=128,
+        num_workers=0,
+        drop_last=False
+    )
 
-        clf.forward_masks = True  # Aktiviert Speicherung der Feature Masks
+    final_clf.forward_masks = True
+    save_model_and_threshold(final_clf, threshold=0.5, path="models/tabnet_final")
+    print("[✓] Finales Modell gespeichert. Hinweis: Nicht zur Evaluation verwenden.")
 
-        save_model_and_threshold(clf, best_threshold, path="models/tabnet")
-        print("[✓] Finales Modell und validierter Threshold gespeichert.")
+    # Lokale Erklärungen für positive IDS-Warnungen erzeugen
+    print("[✓] Generiere lokale Erklärungen für positives Verhalten...")
+    y_proba_full = final_clf.predict_proba(X_full.values)[:, 1]
+    y_pred_full = (y_proba_full > 0.5).astype(int)
+    save_instance_level_explanations(
+        clf=final_clf,
+        X=X_full,
+        y_proba=y_proba_full,
+        y_pred=y_pred_full,
+        feature_names=X_full.columns.tolist(),
+        threshold=0.5,
+        save_path="reports/explanations/final_model_instance_level.json",
+        top_k=5,
+        only_positive_predictions=True,
+        include_scores=True
+    )
 
-        print("\n[✓] Starte finale Evaluation auf dem unberührten Test-Set...")
-        from src.training.evaluate_tabnet import evaluate_tabnet_model
-        evaluate_tabnet_model(
-            clf,
-            threshold=best_threshold,
-            X_test=X_test,
-            y_test=y_test,
-            feature_names=X_train.columns.tolist()
-        )
+    print("[✓] Visualisiere TabNet Feature-Masken...")
+    plot_tabnet_feature_importance(
+        clf=final_clf,
+        feature_names=X_full.columns.tolist(),
+        save_path="reports/figures/tabnet_feature_masks_final.png"
+    )
+
+    print("[✓] Berechne Permutation Importance...")
+    from src.training.evaluate_tabnet import compute_and_plot_permutation_importance
+    compute_and_plot_permutation_importance(
+        clf=final_clf,
+        X_val=X_full.sample(frac=0.25, random_state=42),  # Optional: schneller
+        y_val=y_full.loc[X_full.sample(frac=0.25, random_state=42).index],
+        feature_names=X_full.columns.tolist(),
+        save_path="reports/figures/permutation_importance_final.png",
+        scoring='f1'
+    )
+
+    print("[✓] Speichere Confusion Matrix auf allen Daten...")
+    from src.training.evaluate_tabnet import save_confusion_matrix
+    save_confusion_matrix(
+        y_true=y_full,
+        y_pred=y_pred_full,
+        save_path="reports/figures/confusion_matrix_final.png"
+    )
+
+    print("[✓] Fertig.")
