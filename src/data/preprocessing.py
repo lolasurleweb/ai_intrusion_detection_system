@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from src.utils.io import save_pickle
+from sklearn.utils import shuffle
 
 NUMERICAL_FEATURES = [
     'network_packet_size',
@@ -48,15 +48,26 @@ def create_time_split(df: pd.DataFrame, seed=42):
 
     return (X_early, y_early), (X_mid, y_mid), (X_late, y_late)
 
-def scale_and_save_splits(splits: dict, scaler=None, path_prefix='data/processed/'):
-    reference_columns = None
 
-    for name, (X, y) in splits.items():
-        if reference_columns is None:
-            reference_columns = list(X.columns)
-        else:
-            assert list(X.columns) == reference_columns, f"Feature mismatch in split {name}"
+def split_for_training_and_drift(df: pd.DataFrame, target_col: str, seed: int = 42):
+    df_shuffled = shuffle(df, random_state=seed).reset_index(drop=True)
 
-        X_scaled, _ = scale_numerical(X, scaler=scaler, fit=False)
-        df = pd.concat([X_scaled, y], axis=1)
-        df.to_csv(f"{path_prefix}{name}.csv", index=False)
+    n_total = len(df_shuffled)
+    n_drift = int(n_total * 0.33)
+
+    df_drift = df_shuffled.iloc[:n_drift].copy()
+    df_trainvaltest = df_shuffled.iloc[n_drift:].copy()
+
+    n_drift_split = len(df_drift) // 3
+    df_early = df_drift.iloc[:n_drift_split].copy()
+    df_mid = df_drift.iloc[n_drift_split:2 * n_drift_split].copy()
+    df_late = df_drift.iloc[2 * n_drift_split:].copy()
+
+    drift_splits = {
+        "early": df_early,
+        "mid": df_mid,
+        "late": df_late
+    }
+
+    return df_trainvaltest, drift_splits
+
