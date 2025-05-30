@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
+import json
 
 NUMERICAL_FEATURES = [
     'network_packet_size',
@@ -26,8 +27,13 @@ def log_transform(df: pd.DataFrame, col: str) -> pd.DataFrame:
     df.drop(columns=[col], inplace=True)
     return df
 
-def encode_categorical(df: pd.DataFrame) -> pd.DataFrame:
+def encode_categorical(df: pd.DataFrame, save_path=None) -> pd.DataFrame:
     df_encoded = pd.get_dummies(df, columns=CATEGORICAL_FEATURES, drop_first=True)
+    
+    if save_path:
+        with open(save_path, "w") as f:
+            json.dump(df_encoded.columns.tolist(), f)
+    
     return df_encoded.astype({col: float for col in df_encoded.select_dtypes('bool').columns})
 
 def scale_numerical(df: pd.DataFrame, scaler: StandardScaler = None, fit=True):
