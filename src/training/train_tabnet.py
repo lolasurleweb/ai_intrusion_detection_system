@@ -22,6 +22,39 @@ from src.training.evaluate_tabnet import (
     save_confusion_matrix
 )
 
+from pytorch_tabnet.metrics import Metric
+from sklearn.metrics import confusion_matrix
+import numpy as np
+
+from pytorch_tabnet.metrics import Metric
+from sklearn.metrics import confusion_matrix
+import numpy as np
+
+class CostMetric(Metric):
+    def __init__(self):
+        self._name = "cost_metric"
+        self.alpha = 2
+        self.beta = 1
+        self.optimum = 0
+        self.greater_is_better = False
+        self._maximize = False
+
+    def __call__(self, y_true, y_score):
+        proba_pos = y_score[:, 1]
+
+        thresholds = np.linspace(0.01, 0.99, 50)
+        best_cost = float("inf")
+
+        for t in thresholds:
+            y_pred = (proba_pos > t).astype(int)
+            tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+            cost = self.alpha * fn + self.beta * fp
+            best_cost = min(best_cost, cost)
+
+        return best_cost
+
+
+
 
 def compute_optimal_threshold_by_cost_function(y_true, y_proba, alpha, beta, save_plot_path=None):
     thresholds = np.linspace(0.0, 1.0, 200)
@@ -83,7 +116,7 @@ def train_tabnet(X_train, y_train, X_val, y_val, params, threshold_plot_path, al
         X_train=X_train.values, y_train=y_train.values,
         eval_set=[(X_val.values, y_val.values)],
         eval_name=["val"],
-        eval_metric=["auc"],
+        eval_metric=[CostMetric],
         max_epochs=100,
         patience=10,
         batch_size=1024,
@@ -144,13 +177,7 @@ def run_training():
             f1s.append(f1_score(y_val, y_pred))
 
             fold_metrics.append({
-                "cost": cost,
-                "auc": aucs[-1],
-                "f1": f1s[-1],
-                "accuracy": accuracy_score(y_val, y_pred),
-                "recall": recall_score(y_val, y_pred),
-                "precision": precision_score(y_val, y_pred),
-                "kappa": cohen_kappa_score(y_val, y_pred)
+                "cost": cost
             })
 
             print(f"  → Fold {fold_idx+1}: Cost={cost:.2f}, AUC={aucs[-1]:.3f}, F1={f1s[-1]:.3f}")
@@ -193,7 +220,7 @@ def run_training():
         y_train=y_train_final.values,
         eval_set=[(X_val_final.values, y_val_final.values)],
         eval_name=["val"],
-        eval_metric=["auc"],
+        eval_metric=[CostMetric],
         max_epochs=100,
         patience=10,
         batch_size=1024,
