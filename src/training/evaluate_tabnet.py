@@ -10,34 +10,30 @@ from datetime import datetime
 from pytorch_tabnet.tab_model import TabNetClassifier
 from src.utils.io import load_pickle
 
-
 def save_confusion_matrix(y_true, y_pred, save_path):
     disp = ConfusionMatrixDisplay.from_predictions(y_true, y_pred, cmap="Blues")
     disp.ax_.set_title("Confusion Matrix")
     plt.tight_layout()
     Path(save_path).parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(save_path)
-    print(f"[✓] Confusion Matrix gespeichert unter: {save_path}")
+    print(f"[\u2713] Confusion Matrix gespeichert unter: {save_path}")
     plt.close()
 
-def plot_bar_and_violin(fold_metrics_df, save_path="reports/figures/cv_summary_bar_and_violin.png"):
-    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
 
-    # Barplot: Kosten pro Fold
-    fold_metrics_df.plot(kind="bar", ax=axes[0], title="Kosten pro Fold", legend=False)
-    axes[0].set_xticks(range(len(fold_metrics_df)))
-    axes[0].set_xticklabels([f"Fold {i+1}" for i in range(len(fold_metrics_df))])
-    axes[0].set_ylabel("Cost")
-
-    # Violinplot: Verteilung der Kosten
-    sns.violinplot(data=fold_metrics_df, y="cost", ax=axes[1], inner="box", linewidth=1)
-    axes[1].set_title("Kostenverteilung (Violin)")
-    axes[1].set_ylabel("Cost")
-
+def plot_bar_and_violin(df, save_path="reports/figures/cv_summary_bar_and_violin.png"):
+    metrics = [col for col in df.columns if col != "fold"]
+    fig, axes = plt.subplots(1, len(metrics), figsize=(6 * len(metrics), 6))
+    if len(metrics) == 1:
+        axes = [axes]
+    for ax, metric in zip(axes, metrics):
+        sns.violinplot(data=df, y=metric, ax=ax, inner="box", linewidth=1)
+        ax.set_title(f"{metric} (Violin)")
+        ax.set_ylabel(metric)
     plt.tight_layout()
     plt.savefig(save_path)
-    print(f"[✓] Kombiplot gespeichert: {save_path}")
+    print(f"[\u2713] Violinplot gespeichert: {save_path}")
     plt.close()
+
 
 def evaluate_cross_validation_results(
     fold_metrics,
@@ -47,16 +43,19 @@ def evaluate_cross_validation_results(
 ):
     Path(save_dir).mkdir(parents=True, exist_ok=True)
 
-    # 1. CSV mit Kosten pro Fold
-    df = pd.DataFrame(fold_metrics)[["cost"]]
+    df = pd.DataFrame(fold_metrics)
     df.index.name = "fold"
-    df.to_csv(Path(save_dir) / "fold_costs.csv")
-    print(f"[✓] Fold-Kosten gespeichert unter: {save_dir}/fold_costs.csv")
+    df.reset_index(inplace=True)
+    df.to_csv(Path(save_dir) / "fold_metrics.csv", index=False)
+    print(f"[\u2713] Fold-Metriken gespeichert unter: {save_dir}/fold_metrics.csv")
 
-    # 2. Summary JSON mit Threshold, Config, Statistik
     summary = {
         "mean_cost": round(df["cost"].mean(), 4),
         "std_cost": round(df["cost"].std(), 4),
+        "mean_f1": round(df["f1"].mean(), 4),
+        "mean_auc": round(df["auc"].mean(), 4),
+        "mean_precision": round(df["precision"].mean(), 4),
+        "mean_recall": round(df["recall"].mean(), 4),
         "threshold": round(best_threshold, 4) if best_threshold is not None else None,
         "best_config": best_config,
         "n_folds": len(df),
@@ -65,10 +64,43 @@ def evaluate_cross_validation_results(
 
     with open(Path(save_dir) / "cv_summary.json", "w") as f:
         json.dump(summary, f, indent=2)
-    print(f"[✓] Summary gespeichert unter: {save_dir}/cv_summary.json")
+    print(f"[\u2713] Summary gespeichert unter: {save_dir}/cv_summary.json")
 
-    # 3. Bar- + Violinplot
-    plot_bar_and_violin(df, save_path=Path(save_dir) / "cv_metrics_combined_violin.png")
+    plot_bar_and_violin(df.drop(columns="fold"), save_path=Path(save_dir) / "cv_metrics_violin.png")
+
+
+def plot_training_history(clf, save_path=None):
+
+    history = clf.history.history
+
+    loss = history.get("loss")
+    val_cost = history.get("val_cost_metric")
+
+    assert isinstance(loss, list), "history['loss'] ist nicht vom Typ list"
+    if val_cost is not None:
+        assert isinstance(val_cost, list), "history['val_cost_metric'] ist nicht vom Typ list"
+
+    epochs = range(1, len(loss) + 1)
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(epochs, loss, label="Train Loss")
+
+    if val_cost is not None:
+        plt.plot(epochs, val_cost, label="Validation Cost")
+
+    plt.xlabel("Epoch")
+    plt.ylabel("Score")
+    plt.title("Trainingsverlauf")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+
+    if save_path:
+        Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(save_path)
+        print(f"[✓] Trainingsverlauf gespeichert: {save_path}")
+    else:
+        plt.show()
 
 
 def plot_tabnet_feature_importance(clf, X, feature_names, save_path=None):
@@ -171,30 +203,6 @@ def save_instance_level_explanations(
 
     print(f"[✓] Lokale Erklärungen gespeichert unter: {save_path}")
 
-def plot_training_history(clf, save_path=None):
-    history = clf.history
-    epochs = range(1, len(history['loss']) + 1)
-
-    plt.figure(figsize=(10, 6))
-    plt.plot(epochs, history['loss'], label="Train Loss")
-    
-    if 'val_cost_metric' in history:
-        plt.plot(epochs, history['val_cost_metric'], label="Validation Cost")
-
-    plt.xlabel("Epoch")
-    plt.ylabel("Score")
-    plt.title("Trainingsverlauf")
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-
-    if save_path:
-        plt.savefig(save_path)
-        print(f"[✓] Trainingsverlauf gespeichert: {save_path}")
-    else:
-        plt.show()
-
-
 def run_final_test_model():
     print("[✓] Lade Holdout-Testdaten...")
     df_test = load_pickle("data/processed/test_holdout.pkl")
@@ -202,12 +210,15 @@ def run_final_test_model():
     X_test = df_test.drop(columns=["attack_detected"])
 
     print("[✓] Lade finales Modell und Threshold...")
-    model_path = "models/tabnet_final_model_20250531-102653_f169c4.zip.zip"
-    threshold_path = "models/tabnet_final_threshold_20250531-102653_f169c4.json"
+    metadata_path = "models/final_model_metadata.json"
+    with open(metadata_path) as f:
+        metadata = json.load(f)
+
+    model_path = metadata["model_path"]
+    threshold_path = metadata["threshold_path"]
 
     clf = TabNetClassifier()
     clf.load_model(model_path)
-
 
     with open(threshold_path) as f:
         threshold = json.load(f)["threshold"]
