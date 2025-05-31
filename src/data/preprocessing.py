@@ -19,6 +19,8 @@ TARGET_COL = 'attack_detected'
 
 def load_and_clean_data(path: str) -> pd.DataFrame:
     df = pd.read_csv(path)
+    if "session_id" in df.columns:
+        df = df.drop(columns=["session_id"])
     df['encryption_used'] = df['encryption_used'].fillna('None')
     return df
 
@@ -76,4 +78,20 @@ def split_for_training_and_drift(df: pd.DataFrame, target_col: str, seed: int = 
     }
 
     return df_trainvaltest, drift_splits
+
+def split_train_val_test_holdout(df: pd.DataFrame, target_col: str, test_size: float = 0.2, seed: int = 42):
+    y = df[target_col]
+    X = df.drop(columns=[target_col])
+
+    X_pool, X_test, y_pool, y_test = train_test_split(
+        X, y, test_size=test_size, stratify=y, random_state=seed
+    )
+
+    df_pool = X_pool.copy()
+    df_pool[target_col] = y_pool
+
+    df_test = X_test.copy()
+    df_test[target_col] = y_test
+
+    return df_pool.reset_index(drop=True), df_test.reset_index(drop=True)
 

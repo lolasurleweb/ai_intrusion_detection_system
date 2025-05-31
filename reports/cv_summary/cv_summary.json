@@ -1,0 +1,8 @@
+{
+  "mean_cost": 223.6,
+  "std_cost": 18.636,
+  "threshold": null,
+  "best_config": null,
+  "n_folds": 5,
+  "timestamp": "2025-05-31T10:26:48.132342"
+}

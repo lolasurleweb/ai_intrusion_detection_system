@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import json
 import uuid
@@ -8,27 +9,15 @@ from itertools import product
 
 from pytorch_tabnet.tab_model import TabNetClassifier
 from sklearn.model_selection import StratifiedKFold, train_test_split
-from sklearn.metrics import (
-    confusion_matrix, f1_score, accuracy_score, precision_score,
-    recall_score, cohen_kappa_score, roc_auc_score
-)
+from sklearn.metrics import confusion_matrix
 
-from src.utils.io import load_train_val_test_pool
+from src.utils.io import load_pickle
 from src.training.evaluate_tabnet import (
-    plot_tabnet_feature_importance,
     evaluate_cross_validation_results,
-    save_instance_level_explanations,
-    compute_and_plot_permutation_importance,
-    save_confusion_matrix
+ 
 )
 
 from pytorch_tabnet.metrics import Metric
-from sklearn.metrics import confusion_matrix
-import numpy as np
-
-from pytorch_tabnet.metrics import Metric
-from sklearn.metrics import confusion_matrix
-import numpy as np
 
 class CostMetric(Metric):
     def __init__(self):
@@ -52,8 +41,6 @@ class CostMetric(Metric):
             best_cost = min(best_cost, cost)
 
         return best_cost
-
-
 
 
 def compute_optimal_threshold_by_cost_function(y_true, y_proba, alpha, beta, save_plot_path=None):
@@ -136,7 +123,9 @@ def train_tabnet(X_train, y_train, X_val, y_val, params, threshold_plot_path, al
 
 def run_training():
     print("[✓] Lade Trainingsdaten...")
-    X_full, y_full = load_train_val_test_pool()
+    trainval_df = load_pickle("data/processed/train_val_pool.pkl")
+    X_full = trainval_df.drop(columns=["attack_detected"])
+    y_full = trainval_df["attack_detected"]
 
     search_space = {
         "n_d": [8, 16],
@@ -158,7 +147,7 @@ def run_training():
         params = dict(zip(search_space.keys(), values))
         print(f"\n[{i+1}/{len(configs)}] Konfiguration: {params}")
 
-        fold_costs, aucs, f1s, fold_metrics = [], [], [], []
+        fold_costs, fold_metrics = [], []
 
         for fold_idx, (train_idx, val_idx) in enumerate(skf.split(X_full, y_full)):
             X_train, X_val = X_full.iloc[train_idx], X_full.iloc[val_idx]
@@ -173,14 +162,12 @@ def run_training():
             y_pred = (y_proba > threshold).astype(int)
 
             fold_costs.append(cost)
-            aucs.append(roc_auc_score(y_val, y_proba))
-            f1s.append(f1_score(y_val, y_pred))
 
             fold_metrics.append({
                 "cost": cost
             })
 
-            print(f"  → Fold {fold_idx+1}: Cost={cost:.2f}, AUC={aucs[-1]:.3f}, F1={f1s[-1]:.3f}")
+            print(f"  → Fold {fold_idx+1}: Cost={cost:.2f}")
 
         avg_cost = np.mean(fold_costs)
         if avg_cost < lowest_avg_cost:
@@ -188,17 +175,13 @@ def run_training():
             best_threshold = threshold
             lowest_avg_cost = avg_cost
             best_metrics = {
-                "cost": (np.mean(fold_costs), np.std(fold_costs)),
-                "auc": (np.mean(aucs), np.std(aucs)),
-                "f1": (np.mean(f1s), np.std(f1s))
+                "cost": (np.mean(fold_costs), np.std(fold_costs))
             }
             best_fold_metrics = fold_metrics
 
     print("\nGrid Search abgeschlossen.")
     print(f"Beste Konfiguration: {best_config}")
     print(f"Kosten: {best_metrics['cost'][0]:.2f} ± {best_metrics['cost'][1]:.2f}")
-    print(f"AUC:    {best_metrics['auc'][0]:.3f} ± {best_metrics['auc'][1]:.3f}")
-    print(f"F1:     {best_metrics['f1'][0]:.3f} ± {best_metrics['f1'][1]:.3f}")
 
     evaluate_cross_validation_results(best_fold_metrics)
 
@@ -230,47 +213,6 @@ def run_training():
     )
 
     final_clf.forward_masks = True
-    y_proba_full = final_clf.predict_proba(X_full.values)[:, 1]
-    y_pred_full = (y_proba_full > best_threshold).astype(int)
 
     save_model_and_threshold(final_clf, threshold=best_threshold, path="models/tabnet_final")
-
-    print("[✓] Generiere lokale Erklärungen für positive IDS-Warnungen...")
-    save_instance_level_explanations(
-        clf=final_clf,
-        X=X_full,
-        y_proba=y_proba_full,
-        y_pred=y_pred_full,
-        feature_names=X_full.columns.tolist(),
-        threshold=best_threshold,
-        save_path="reports/explanations/final_model_instance_level.json",
-        top_k=5,
-        only_positive_predictions=True,
-        include_scores=True
-    )
-
-    print("[✓] Visualisiere TabNet Feature-Masken...")
-    plot_tabnet_feature_importance(
-        clf=final_clf,
-        feature_names=X_full.columns.tolist(),
-        save_path="reports/figures/tabnet_feature_masks_final.png"
-    )
-
-    print("[✓] Berechne Permutation Importance...")
-    compute_and_plot_permutation_importance(
-        clf=final_clf,
-        X_val=X_full.sample(frac=0.25, random_state=42),
-        y_val=y_full.loc[X_full.sample(frac=0.25, random_state=42).index],
-        feature_names=X_full.columns.tolist(),
-        save_path="reports/figures/permutation_importance_final.png",
-        scoring='f1'
-    )
-
-    print("[✓] Speichere Confusion Matrix...")
-    save_confusion_matrix(
-        y_true=y_full,
-        y_pred=y_pred_full,
-        save_path="reports/figures/confusion_matrix_final.png"
-    )
-
     print("[✓] Fertig.")

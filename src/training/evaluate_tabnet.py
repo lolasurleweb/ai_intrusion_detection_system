@@ -3,8 +3,12 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn.metrics import ConfusionMatrixDisplay, cohen_kappa_score, confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score, accuracy_score
 from sklearn.inspection import permutation_importance
+import seaborn as sns
+from datetime import datetime
+from pytorch_tabnet.tab_model import TabNetClassifier
+from src.utils.io import load_pickle
 
 
 def save_confusion_matrix(y_true, y_pred, save_path):
@@ -16,8 +20,59 @@ def save_confusion_matrix(y_true, y_pred, save_path):
     print(f"[✓] Confusion Matrix gespeichert unter: {save_path}")
     plt.close()
 
-def plot_tabnet_feature_importance(clf, feature_names, save_path=None):
-    importances = clf.feature_importances_
+def plot_bar_and_violin(fold_metrics_df, save_path="reports/figures/cv_summary_bar_and_violin.png"):
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+    # Barplot: Kosten pro Fold
+    fold_metrics_df.plot(kind="bar", ax=axes[0], title="Kosten pro Fold", legend=False)
+    axes[0].set_xticks(range(len(fold_metrics_df)))
+    axes[0].set_xticklabels([f"Fold {i+1}" for i in range(len(fold_metrics_df))])
+    axes[0].set_ylabel("Cost")
+
+    # Violinplot: Verteilung der Kosten
+    sns.violinplot(data=fold_metrics_df, y="cost", ax=axes[1], inner="box", linewidth=1)
+    axes[1].set_title("Kostenverteilung (Violin)")
+    axes[1].set_ylabel("Cost")
+
+    plt.tight_layout()
+    plt.savefig(save_path)
+    print(f"[✓] Kombiplot gespeichert: {save_path}")
+    plt.close()
+
+def evaluate_cross_validation_results(
+    fold_metrics,
+    best_config=None,
+    best_threshold=None,
+    save_dir="reports/cv_summary"
+):
+    Path(save_dir).mkdir(parents=True, exist_ok=True)
+
+    # 1. CSV mit Kosten pro Fold
+    df = pd.DataFrame(fold_metrics)[["cost"]]
+    df.index.name = "fold"
+    df.to_csv(Path(save_dir) / "fold_costs.csv")
+    print(f"[✓] Fold-Kosten gespeichert unter: {save_dir}/fold_costs.csv")
+
+    # 2. Summary JSON mit Threshold, Config, Statistik
+    summary = {
+        "mean_cost": round(df["cost"].mean(), 4),
+        "std_cost": round(df["cost"].std(), 4),
+        "threshold": round(best_threshold, 4) if best_threshold is not None else None,
+        "best_config": best_config,
+        "n_folds": len(df),
+        "timestamp": datetime.now().isoformat()
+    }
+
+    with open(Path(save_dir) / "cv_summary.json", "w") as f:
+        json.dump(summary, f, indent=2)
+    print(f"[✓] Summary gespeichert unter: {save_dir}/cv_summary.json")
+
+    # 3. Bar- + Violinplot
+    plot_bar_and_violin(df, save_path=Path(save_dir) / "cv_metrics_combined_violin.png")
+
+
+def plot_tabnet_feature_importance(clf, X, feature_names, save_path=None):
+    importances = clf.explain(X.values.astype(np.float32))[0].mean(axis=0)
     sorted_idx = np.argsort(importances)[::-1]
 
     plt.figure(figsize=(10, 6))
@@ -116,30 +171,97 @@ def save_instance_level_explanations(
 
     print(f"[✓] Lokale Erklärungen gespeichert unter: {save_path}")
 
-def evaluate_cross_validation_results(fold_metrics, save_dir="reports/cv_summary"):
-    Path(save_dir).mkdir(parents=True, exist_ok=True)
-
-    df = pd.DataFrame(fold_metrics)
-    df_mean_std = df.agg(['mean', 'std']).T.round(4)
-    df_mean_std.columns = ['Mittelwert', 'Standardabweichung']
-    df_mean_std.index.name = 'Metrik'
-
-    df_mean_std.to_csv(Path(save_dir) / "cv_metrics.csv")
-    print(f"[✓] Cross-Validation-Metriken gespeichert unter: {save_dir}/cv_metrics.csv")
-
+def plot_training_history(clf, save_path=None):
+    history = clf.history
+    epochs = range(1, len(history['loss']) + 1)
 
     plt.figure(figsize=(10, 6))
-    df.plot(kind='bar', figsize=(10, 6), title="Metriken pro Fold")
-    plt.xticks(ticks=np.arange(len(df)), labels=[f"Fold {i+1}" for i in range(len(df))], rotation=0)
-    plt.tight_layout()
-    plt.savefig(Path(save_dir) / "metrics_per_fold.png")
-    print(f"[✓] Plot gespeichert unter: {save_dir}/metrics_per_fold.png")
-    plt.close()
-
+    plt.plot(epochs, history['loss'], label="Train Loss")
     
-    df.boxplot(figsize=(10, 6))
-    plt.title("Verteilung der Metriken über Folds")
+    if 'val_cost_metric' in history:
+        plt.plot(epochs, history['val_cost_metric'], label="Validation Cost")
+
+    plt.xlabel("Epoch")
+    plt.ylabel("Score")
+    plt.title("Trainingsverlauf")
+    plt.legend()
+    plt.grid(True)
     plt.tight_layout()
-    plt.savefig(Path(save_dir) / "metrics_boxplot.png")
-    print(f"[✓] Boxplot gespeichert unter: {save_dir}/metrics_boxplot.png")
-    plt.close()
+
+    if save_path:
+        plt.savefig(save_path)
+        print(f"[✓] Trainingsverlauf gespeichert: {save_path}")
+    else:
+        plt.show()
+
+
+def run_final_test_model():
+    print("[✓] Lade Holdout-Testdaten...")
+    df_test = load_pickle("data/processed/test_holdout.pkl")
+    y_test = df_test["attack_detected"]
+    X_test = df_test.drop(columns=["attack_detected"])
+
+    print("[✓] Lade finales Modell und Threshold...")
+    model_path = "models/tabnet_final_model_20250531-102653_f169c4.zip.zip"
+    threshold_path = "models/tabnet_final_threshold_20250531-102653_f169c4.json"
+
+    clf = TabNetClassifier()
+    clf.load_model(model_path)
+
+
+    with open(threshold_path) as f:
+        threshold = json.load(f)["threshold"]
+
+    print(f"[✓] Verwende Threshold: {threshold:.2f}")
+    y_proba = clf.predict_proba(X_test.values)[:, 1]
+    y_pred = (y_proba > threshold).astype(int)
+
+    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+    alpha, beta = 2, 1
+    cost = alpha * fn + beta * fp
+
+    metrics = {
+        "threshold": round(threshold, 4),
+        "cost": cost,
+        "f1": round(f1_score(y_test, y_pred), 4),
+        "accuracy": round(accuracy_score(y_test, y_pred), 4),
+        "precision": round(precision_score(y_test, y_pred), 4),
+        "recall": round(recall_score(y_test, y_pred), 4),
+        "auc": round(roc_auc_score(y_test, y_proba), 4),
+        "kappa": round(cohen_kappa_score(y_test, y_pred), 4)
+    }
+
+    pd.DataFrame.from_dict(metrics, orient="index", columns=["Wert"]).to_csv(
+        "reports/final_test_metrics.csv")
+    print("[✓] Test-Metriken gespeichert unter: reports/final_test_metrics.csv")
+
+    print("[✓] Speichere Confusion Matrix...")
+    save_confusion_matrix(y_test, y_pred, "reports/figures/confusion_matrix_test.png")
+
+    print("[✓] Visualisiere Feature-Masken...")
+    plot_tabnet_feature_importance(clf, X_test, X_test.columns.tolist(), save_path="reports/figures/tabnet_feature_masks_test.png")
+
+
+    print("[✓] Berechne Permutation Importance...")
+    compute_and_plot_permutation_importance(
+        clf, X_val=X_test, y_val=y_test,
+        feature_names=X_test.columns.tolist(),
+        save_path="reports/figures/permutation_importance_test.png",
+        scoring='f1'
+    )
+
+    print("[✓] Speichere lokale Erklärungen für positive IDS-Warnungen...")
+    save_instance_level_explanations(
+        clf=clf,
+        X=X_test,
+        y_proba=y_proba,
+        y_pred=y_pred,
+        feature_names=X_test.columns.tolist(),
+        threshold=threshold,
+        save_path="reports/explanations/test_instance_level.json",
+        top_k=5,
+        only_positive_predictions=True,
+        include_scores=True
+    )
+
+    print("[✓] Testevaluation abgeschlossen.")

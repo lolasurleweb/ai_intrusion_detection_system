@@ -8,13 +8,16 @@ from src.data.preprocessing import (
     encode_categorical,
     split_for_training_and_drift,
     scale_numerical,
-    TARGET_COL
+    TARGET_COL,
+    split_train_val_test_holdout
 )
 from src.utils.io import save_pickle
 from src.training.train_tabnet import run_training
 from src.utils.seeding import set_seed
 from simulate_drift import run_drift_simulation
 import json
+
+from src.training.evaluate_tabnet import run_final_test_model
 
 def preprocess():
 
@@ -24,8 +27,11 @@ def preprocess():
     df_encoded = encode_categorical(df)
     df_encoded[TARGET_COL] = df[TARGET_COL].values
 
-    print("[2] Splitte in Drift-Simulation und Trainingsdaten...")
+    print("[2a] Splitte in Drift-Simulation und Trainingsdaten...")
     df_trainvaltest, drift_splits = split_for_training_and_drift(df_encoded, TARGET_COL)
+
+    print("[2b] Splitte Train-Val-Test-Pool in Training/Validation und Testset...")
+    df_trainval, df_test = split_train_val_test_holdout(df_trainvaltest, TARGET_COL)
 
     print("[3] Setze Feature-Spalten (Dummy-Kompatibilität)...")
     all_dfs = [df_trainvaltest] + list(drift_splits.values())
@@ -42,17 +48,19 @@ def preprocess():
         drift_splits[k] = drift_splits[k].reindex(columns=all_columns, fill_value=0)
 
     print("[4] Skaliere Trainingsdaten und speichere Scaler...")
-    df_trainvaltest_scaled, scaler = scale_numerical(df_trainvaltest.drop(columns=[TARGET_COL]), fit=True)
+    df_trainval_scaled, scaler = scale_numerical(df_trainval.drop(columns=[TARGET_COL]), fit=True)
+    df_test_scaled, _ = scale_numerical(df_test.drop(columns=[TARGET_COL]), scaler=scaler, fit=False)
 
-    # Spaltenreihenfolge sicherstellen
-    df_trainvaltest_scaled = df_trainvaltest_scaled.reindex(columns=[col for col in all_columns if col != TARGET_COL])
+    df_trainval_scaled = df_trainval_scaled.reindex(columns=[col for col in all_columns if col != TARGET_COL])
+    df_test_scaled = df_test_scaled.reindex(columns=[col for col in all_columns if col != TARGET_COL])
 
-    # Zielspalte hinzufügen und Index-Synchronisation prüfen
-    df_trainvaltest_scaled[TARGET_COL] = df_trainvaltest[TARGET_COL].values
-    assert all(df_trainvaltest_scaled.index == df_trainvaltest.index), "[Fehler] Index stimmt nach Skalierung nicht überein!"
+    df_trainval_scaled[TARGET_COL] = df_trainval[TARGET_COL].values
+    df_test_scaled[TARGET_COL] = df_test[TARGET_COL].values
 
     joblib.dump(scaler, "data/processed/scaler.pkl")
-    save_pickle(df_trainvaltest_scaled, "data/processed/train_val_test_pool.pkl")
+    save_pickle(df_trainval_scaled, "data/processed/train_val_pool.pkl")
+    save_pickle(df_test_scaled, "data/processed/test_holdout.pkl")
+    print("[✓] Train/Val/Test Splits gespeichert.")
 
     print("[5] Skaliere und speichere Drift-Splits...")
     for name, df_part in drift_splits.items():
@@ -67,8 +75,8 @@ def preprocess():
 
 def main():
     parser = argparse.ArgumentParser(description="Cybersecurity ML-Pipeline")
-    parser.add_argument("step", choices=["preprocess", "train", "simulate_drift"],
-                        help="W\u00e4hle den Teil der Pipeline, den du ausf\u00fchren willst.")
+    parser.add_argument("step", choices=["preprocess", "train", "test", "simulate_drift"],
+                        help="Wähle den Teil der Pipeline, den du ausführen willst.")
     args = parser.parse_args()
 
     if args.step == "preprocess":
@@ -76,6 +84,8 @@ def main():
     elif args.step == "train":
         set_seed(42)
         run_training()
+    elif args.step == "test":
+        run_final_test_model()
     elif args.step == "simulate_drift":
         run_drift_simulation()
 
