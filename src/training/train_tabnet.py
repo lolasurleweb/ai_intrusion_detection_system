@@ -76,7 +76,7 @@ def save_model_and_threshold(clf, threshold, path="src/models/tabnet"):
     uid = uuid.uuid4().hex[:6]
     suffix = f"{timestamp}_{uid}"
 
-    model_path = f"{path}_model_{suffix}.zip"
+    model_path = f"{path}_model_{suffix}"
     threshold_path = f"{path}_threshold_{suffix}.json"
     metadata_path = "models/final_model_metadata.json"
 
@@ -109,9 +109,9 @@ def train_tabnet(X_train, y_train, X_val, y_val, params, threshold_plot_path, al
 
     clf.fit(
         X_train=X_train.values, y_train=y_train.values,
-        eval_set=[(X_val.values, y_val.values)],
-        eval_name=["val"],
-        eval_metric=[CostMetric],
+        eval_set=[(X_train.values, y_train.values), (X_val.values, y_val.values)],
+        eval_name=["train", "val"],
+        eval_metric=["logloss", CostMetric],
         max_epochs=100,
         patience=10,
         batch_size=1024,
@@ -167,7 +167,7 @@ def run_training():
 
             clf, threshold, cost = train_tabnet(
                 X_train, y_train, X_val, y_val,
-                params, threshold_plot_path=None, alpha=alpha, beta=beta,
+                params, threshold_plot_path=f"reports/figures/threshold_fold_{fold_idx+1}.png", alpha=alpha, beta=beta,
                 fold_idx=fold_idx
             )
 

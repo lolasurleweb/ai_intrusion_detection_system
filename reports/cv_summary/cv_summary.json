@@ -1,17 +1,17 @@
 {
-  "mean_cost": 223.6,
-  "std_cost": 18.636,
-  "mean_f1": 0.857,
-  "mean_auc": 0.8835,
-  "mean_precision": 0.9693,
-  "mean_recall": 0.7682,
+  "mean_cost": 223.4,
+  "std_cost": 21.5476,
+  "mean_f1": 0.8575,
+  "mean_auc": 0.879,
+  "mean_precision": 0.9732,
+  "mean_recall": 0.7669,
   "threshold": null,
   "best_config": {
     "n_d": 16,
-    "n_a": 8,
+    "n_a": 16,
     "mask_type": "sparsemax",
     "lambda_sparse": 0.0001
   },
   "n_folds": 5,
-  "timestamp": "2025-05-31T11:19:48.665611"
+  "timestamp": "2025-05-31T15:08:36.265746"
 }

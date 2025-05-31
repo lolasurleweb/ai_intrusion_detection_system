@@ -1,6 +1,7 @@
 import argparse
 import joblib
 import pandas as pd
+import numpy as np
 
 from src.data.preprocessing import (
     load_and_clean_data,
@@ -24,6 +25,7 @@ def preprocess():
     print("[1] Lade und bereinige Daten...")
     df = load_and_clean_data("data/raw/cybersecurity_intrusion_data.csv")
     df = log_transform(df, "session_duration")
+
     df_encoded = encode_categorical(df)
     df_encoded[TARGET_COL] = df[TARGET_COL].values
 

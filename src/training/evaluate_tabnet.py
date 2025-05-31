@@ -68,24 +68,21 @@ def evaluate_cross_validation_results(
 
     plot_bar_and_violin(df.drop(columns="fold"), save_path=Path(save_dir) / "cv_metrics_violin.png")
 
-
 def plot_training_history(clf, save_path=None):
-
     history = clf.history.history
 
-    loss = history.get("loss")
+    train_loss = history.get("train_logloss")
     val_cost = history.get("val_cost_metric")
 
-    assert isinstance(loss, list), "history['loss'] ist nicht vom Typ list"
+    assert isinstance(train_loss, list), "train_logloss nicht vorhanden oder kein list"
     if val_cost is not None:
-        assert isinstance(val_cost, list), "history['val_cost_metric'] ist nicht vom Typ list"
+        assert isinstance(val_cost, list), "val_cost_metric nicht vom Typ list"
 
-    epochs = range(1, len(loss) + 1)
+    epochs = range(1, len(train_loss) + 1)
 
     plt.figure(figsize=(10, 6))
-    plt.plot(epochs, loss, label="Train Loss")
-
-    if val_cost is not None:
+    plt.plot(epochs, train_loss, label="Train LogLoss")
+    if val_cost:
         plt.plot(epochs, val_cost, label="Validation Cost")
 
     plt.xlabel("Epoch")
@@ -101,7 +98,6 @@ def plot_training_history(clf, save_path=None):
         print(f"[✓] Trainingsverlauf gespeichert: {save_path}")
     else:
         plt.show()
-
 
 def plot_tabnet_feature_importance(clf, X, feature_names, save_path=None):
     importances = clf.explain(X.values.astype(np.float32))[0].mean(axis=0)
@@ -210,20 +206,23 @@ def run_final_test_model():
     X_test = df_test.drop(columns=["attack_detected"])
 
     print("[✓] Lade finales Modell und Threshold...")
+    
     metadata_path = "models/final_model_metadata.json"
-    with open(metadata_path) as f:
-        metadata = json.load(f)
-
-    model_path = metadata["model_path"]
-    threshold_path = metadata["threshold_path"]
+    if Path(metadata_path).exists():
+        with open(metadata_path) as f:
+            meta = json.load(f)
+        model_path = meta["model_path"]
+        threshold_path = meta["threshold_path"]
+    else:
+        raise FileNotFoundError("Metadata-Datei zum Laden des finalen Modells fehlt.")
 
     clf = TabNetClassifier()
-    clf.load_model(model_path)
+    clf.load_model(model_path + ".zip")
 
     with open(threshold_path) as f:
         threshold = json.load(f)["threshold"]
 
-    print(f"[✓] Verwende Threshold: {threshold:.2f}")
+    print(f"[✓] Verwende Threshold: {threshold:.4f}")
     y_proba = clf.predict_proba(X_test.values)[:, 1]
     y_pred = (y_proba > threshold).astype(int)
 
@@ -250,8 +249,8 @@ def run_final_test_model():
     save_confusion_matrix(y_test, y_pred, "reports/figures/confusion_matrix_test.png")
 
     print("[✓] Visualisiere Feature-Masken...")
-    plot_tabnet_feature_importance(clf, X_test, X_test.columns.tolist(), save_path="reports/figures/tabnet_feature_masks_test.png")
-
+    plot_tabnet_feature_importance(clf, X_test, X_test.columns.tolist(), 
+                                   save_path="reports/figures/tabnet_feature_masks_test.png")
 
     print("[✓] Berechne Permutation Importance...")
     compute_and_plot_permutation_importance(
