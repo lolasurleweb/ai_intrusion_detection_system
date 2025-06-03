@@ -9,6 +9,7 @@ import seaborn as sns
 from datetime import datetime
 from pytorch_tabnet.tab_model import TabNetClassifier
 from src.utils.io import load_pickle
+from sklearn.manifold import TSNE
 
 def save_confusion_matrix(y_true, y_pred, save_path):
     disp = ConfusionMatrixDisplay.from_predictions(y_true, y_pred, cmap="Blues")
@@ -199,6 +200,97 @@ def save_instance_level_explanations(
 
     print(f"[✓] Lokale Erklärungen gespeichert unter: {save_path}")
 
+def analyze_model_errors(clf, X_test, y_test, y_pred, y_proba, feature_names, threshold,
+                         explanation_dir="reports/explanations/",
+                         figure_dir="reports/figures/",
+                         top_k_features=5):
+    
+    Path(explanation_dir).mkdir(parents=True, exist_ok=True)
+    Path(figure_dir).mkdir(parents=True, exist_ok=True)
+
+    # -----------------------------------
+    # 1. Lokale Erklärungen für FP und FN
+    # -----------------------------------
+
+    mask_fn = (y_test == 1) & (y_pred == 0)
+    mask_fp = (y_test == 0) & (y_pred == 1)
+
+    save_instance_level_explanations(
+        clf=clf,
+        X=X_test[mask_fn],
+        y_proba=y_proba[mask_fn],
+        y_pred=y_pred[mask_fn],
+        feature_names=feature_names,
+        threshold=threshold,
+        save_path=f"{explanation_dir}/false_negatives.json",
+        top_k=top_k_features,
+        only_positive_predictions=False
+    )
+
+    save_instance_level_explanations(
+        clf=clf,
+        X=X_test[mask_fp],
+        y_proba=y_proba[mask_fp],
+        y_pred=y_pred[mask_fp],
+        feature_names=feature_names,
+        threshold=threshold,
+        save_path=f"{explanation_dir}/false_positives.json",
+        top_k=top_k_features,
+        only_positive_predictions=False
+    )
+
+    print("[✓] Lokale Erklärungen für FP und FN gespeichert.")
+
+    # -----------------------------------
+    # 2. Violinplots für Top-K-Features
+    # -----------------------------------
+
+    # Feature-Masken: Mittelung über alle Beispiele → Ranking
+    feature_importances = clf.explain(X_test.values.astype(np.float32))[0].mean(axis=0)
+    top_k_idx = np.argsort(feature_importances)[::-1][:top_k_features]
+    top_k_feature_names = [feature_names[i] for i in top_k_idx]
+
+    df = X_test.copy()
+    df["y_true"] = y_test
+    df["y_pred"] = y_pred
+
+    df["Fehlerklasse"] = "TN"
+    df.loc[(y_test == 1) & (y_pred == 1), "Fehlerklasse"] = "TP"
+    df.loc[(y_test == 1) & (y_pred == 0), "Fehlerklasse"] = "FN"
+    df.loc[(y_test == 0) & (y_pred == 1), "Fehlerklasse"] = "FP"
+
+    for feature in top_k_feature_names:
+        plt.figure(figsize=(8, 5))
+        sns.violinplot(data=df, x="Fehlerklasse", y=feature, palette="Set2", inner="box")
+        plt.title(f"Verteilung von '{feature}' nach Fehlerklasse")
+        plt.tight_layout()
+        plt.savefig(f"{figure_dir}/error_violin_{feature}.png")
+        plt.close()
+        print(f"[✓] Violinplot gespeichert: {figure_dir}/error_violin_{feature}.png")
+
+    # -----------------------------------
+    # 3. t-SNE Projektion nach Fehlerklassen
+    # -----------------------------------
+    try:
+        tsne = TSNE(n_components=2, perplexity=30, random_state=42)
+        X_embedded = tsne.fit_transform(X_test.values.astype(np.float32))
+
+        df_tsne = pd.DataFrame(X_embedded, columns=["TSNE-1", "TSNE-2"])
+        df_tsne["Fehlerklasse"] = df["Fehlerklasse"]
+
+        plt.figure(figsize=(8, 6))
+        sns.scatterplot(data=df_tsne, x="TSNE-1", y="TSNE-2", hue="Fehlerklasse", alpha=0.8, palette="Set1")
+        plt.title("t-SNE Projektion nach Fehlerklasse")
+        plt.legend(loc="best")
+        plt.tight_layout()
+        plt.savefig(f"{figure_dir}/tsne_error_projection.png")
+        plt.close()
+        print(f"[✓] t-SNE Visualisierung gespeichert: {figure_dir}/tsne_error_projection.png")
+
+    except Exception as e:
+        print(f"[!] t-SNE konnte nicht berechnet werden: {e}")
+
+
 def run_final_test_model():
     print("[✓] Lade Holdout-Testdaten...")
     df_test = load_pickle("data/processed/test_holdout.pkl")
@@ -273,5 +365,17 @@ def run_final_test_model():
         only_positive_predictions=True,
         include_scores=True
     )
+
+    print("[✓] Visualisiere Grenzen des Modells")
+    analyze_model_errors(
+    clf=clf,
+    X_test=X_test,
+    y_test=y_test,
+    y_pred=y_pred,
+    y_proba=y_proba,
+    feature_names=X_test.columns.tolist(),
+    threshold=threshold,
+    top_k_features=5
+)
 
     print("[✓] Testevaluation abgeschlossen.")
