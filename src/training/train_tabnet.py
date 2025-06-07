@@ -132,7 +132,7 @@ def train_tabnet(X_train, y_train, X_val, y_val, params, threshold_plot_path, al
     return clf, threshold, cost
 
 def run_training():
-    print("[\u2713] Lade Trainingsdaten...")
+    print("[✓] Lade Trainingsdaten...")
     trainval_df = load_pickle("data/processed/train_val_pool.pkl")
     X_full = trainval_df.drop(columns=["attack_detected"])
     y_full = trainval_df["attack_detected"]
@@ -148,6 +148,10 @@ def run_training():
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     configs = list(product(*search_space.values()))
     print(f"Starte Grid Search mit {len(configs)} Konfigurationen...")
+
+    early_stop_rounds = 5
+    cost_tolerance = 1e-3
+    bad_config_counter = 0
 
     best_config, best_threshold = None, None
     lowest_avg_cost = float("inf")
@@ -187,11 +191,23 @@ def run_training():
             print(f"  → Fold {fold_idx+1}: Cost={cost:.2f}")
 
         avg_cost = np.mean(fold_costs)
-        if avg_cost < lowest_avg_cost:
+        std_cost = np.std(fold_costs)
+        print(f"→ Durchschnittliche Kosten: {avg_cost:.4f} ± {std_cost:.4f}")
+
+        if avg_cost < (lowest_avg_cost - cost_tolerance):
             best_config = params
             best_fold_metrics = fold_metrics
             best_fold_models = fold_models
             lowest_avg_cost = avg_cost
+            bad_config_counter = 0
+            print("[✓] Neue beste Konfiguration gefunden.")
+        else:
+            bad_config_counter += 1
+            print(f"[!] Keine Verbesserung. bad_config_counter = {bad_config_counter}")
+
+        if bad_config_counter >= early_stop_rounds:
+            print(f"[✘] Früher Abbruch der Grid Search nach {i+1} Konfigurationen.")
+            break
 
     print("\nGrid Search abgeschlossen.")
     print(f"Beste Konfiguration: {best_config}")
@@ -204,8 +220,8 @@ def run_training():
 
     best_fold_idx = np.argmin([m[2] for m in best_fold_models])
     final_clf, best_threshold, best_cost = best_fold_models[best_fold_idx]
-    print(f"[\u2713] Bestes Fold-Modell: Fold {best_fold_idx+1} mit Cost {best_cost:.2f}")
+    print(f"[✓] Bestes Fold-Modell: Fold {best_fold_idx+1} mit Cost {best_cost:.2f}")
 
     final_clf.forward_masks = True
     save_model_and_threshold(final_clf, threshold=best_threshold, path="models/tabnet_final")
-    print("[\u2713] Finalmodell gespeichert.")
+    print("[✓] Finalmodell gespeichert.")
