@@ -15,7 +15,7 @@ from src.data.preprocessing import (
 from src.utils.io import save_pickle
 from src.training.train_tabnet import run_training
 from src.utils.seeding import set_seed
-from simulate_drift import run_drift_simulation
+from simulate_deployment import run_deployment_simulation
 import json
 
 from src.training.evaluate_tabnet import run_final_test_model
@@ -78,7 +78,7 @@ def preprocess():
 
 def main():
     parser = argparse.ArgumentParser(description="Cybersecurity ML-Pipeline")
-    parser.add_argument("step", choices=["preprocess", "train", "test", "test_dummy", "simulate_drift"],
+    parser.add_argument("step", choices=["preprocess", "train", "test", "test_dummy", "simulate_deployment", "simulate_drift"],
                         help="Wähle den Teil der Pipeline, den du ausführen willst.")
     args = parser.parse_args()
 
@@ -91,8 +91,8 @@ def main():
         run_final_test_model()
     elif args.step == "test_dummy":
         run_dummy_baseline()
-    elif args.step == "simulate_drift":
-        run_drift_simulation()
+    elif args.step == "simulate_deployment":
+        run_deployment_simulation()
 
 if __name__ == "__main__":
     main()
