@@ -320,7 +320,14 @@ def run_final_test_model():
 
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
     alpha, beta = 2, 1
-    cost = alpha * fn + beta * fp
+    pos_total = tp + fn
+    neg_total = tn + fp
+
+    fn_rate = fn / pos_total if pos_total > 0 else 0
+    fp_rate = fp / neg_total if neg_total > 0 else 0
+
+    cost = alpha * fn_rate + beta * fp_rate
+
 
     metrics = {
         "threshold": round(threshold, 4),

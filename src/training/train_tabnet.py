@@ -36,7 +36,15 @@ class CostMetric(Metric):
         for t in thresholds:
             y_pred = (proba_pos > t).astype(int)
             tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
-            cost = self.alpha * fn + self.beta * fp
+
+            pos_total = tp + fn
+            neg_total = tn + fp
+
+            fn_rate = fn / pos_total if pos_total > 0 else 0
+            fp_rate = fp / neg_total if neg_total > 0 else 0
+
+            cost = self.alpha * fn_rate + self.beta * fp_rate
+
             best_cost = min(best_cost, cost)
 
         return best_cost
@@ -48,7 +56,11 @@ def compute_optimal_threshold_by_cost_function(y_true, y_proba, alpha, beta, sav
     for t in thresholds:
         y_pred = (y_proba > t).astype(int)
         tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
-        cost = alpha * fn + beta * fp
+        pos_total = tp + fn
+        neg_total = tn + fp
+        fn_rate = fn / pos_total if pos_total > 0 else 0
+        fp_rate = fp / neg_total if neg_total > 0 else 0
+        cost = alpha * fn_rate + beta * fp_rate
         costs.append(cost)
 
     min_idx = np.argmin(costs)

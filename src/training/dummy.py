@@ -30,7 +30,14 @@ def run_dummy_baseline(save_path="reports/dummy_metrics.csv",
     y_pred = dummy.predict(X_test)
 
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
-    cost = alpha * fn + beta * fp
+    pos_total = tp + fn
+    neg_total = tn + fp
+
+    fn_rate = fn / pos_total if pos_total > 0 else 0
+    fp_rate = fp / neg_total if neg_total > 0 else 0
+
+    cost = alpha * fn_rate + beta * fp_rate
+
     y_proba = dummy.predict_proba(X_test)[:, 1]
 
     # Metriken berechnen
