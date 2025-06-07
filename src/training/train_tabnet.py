@@ -49,56 +49,18 @@ class CostMetric(Metric):
 
         return best_cost
 
-def compute_optimal_threshold_by_cost_function(y_true, y_proba, alpha, beta, save_plot_path=None):
-    thresholds = np.linspace(0.0, 1.0, 200)
-    costs = []
-
-    for t in thresholds:
-        y_pred = (y_proba > t).astype(int)
-        tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
-        pos_total = tp + fn
-        neg_total = tn + fp
-        fn_rate = fn / pos_total if pos_total > 0 else 0
-        fp_rate = fp / neg_total if neg_total > 0 else 0
-        cost = alpha * fn_rate + beta * fp_rate
-        costs.append(cost)
-
-    min_idx = np.argmin(costs)
-    best_threshold = thresholds[min_idx]
-    best_cost = costs[min_idx]
-
-    if save_plot_path:
-        plt.figure(figsize=(10, 6))
-        plt.plot(thresholds, costs, label='Gesamtkosten')
-        plt.axvline(best_threshold, linestyle='--', color='gray', label=f"Optimal: {best_threshold:.2f}")
-        plt.xlabel("Threshold")
-        plt.ylabel("Kosten")
-        plt.title("Kostenbasierte Threshold-Optimierung")
-        plt.legend()
-        plt.grid(True)
-        plt.tight_layout()
-        plt.savefig(save_plot_path)
-        plt.close()
-        print(f"[\u2713] Kostenplot gespeichert: {save_plot_path}")
-
-    return best_threshold, best_cost
-
-def save_model_and_threshold(clf, threshold, path="src/models/tabnet"):
+def save_model(clf, path="src/models/tabnet"):
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     uid = uuid.uuid4().hex[:6]
     suffix = f"{timestamp}_{uid}"
 
     model_path = f"{path}_model_{suffix}"
-    threshold_path = f"{path}_threshold_{suffix}.json"
     metadata_path = "models/final_model_metadata.json"
 
     clf.save_model(model_path)
-    with open(threshold_path, "w") as f:
-        json.dump({"threshold": float(threshold)}, f)
 
     metadata = {
         "model_path": model_path,
-        "threshold_path": threshold_path,
         "timestamp": timestamp,
         "uid": uid,
     }
@@ -106,11 +68,10 @@ def save_model_and_threshold(clf, threshold, path="src/models/tabnet"):
         json.dump(metadata, f, indent=2)
 
     print(f"[✓] Modell gespeichert: {model_path}")
-    print(f"[✓] Threshold gespeichert: {threshold_path}")
     print(f"[✓] Metadaten gespeichert: {metadata_path}")
 
 
-def train_tabnet(X_train, y_train, X_val, y_val, params, threshold_plot_path, alpha, beta, fold_idx=None):
+def train_tabnet(X_train, y_train, X_val, y_val, params, alpha, beta, fold_idx=None):
     clf = TabNetClassifier(
         **params,
         optimizer_params=dict(lr=2e-2),
@@ -135,13 +96,7 @@ def train_tabnet(X_train, y_train, X_val, y_val, params, threshold_plot_path, al
     if fold_idx is not None:
         plot_training_history(clf, save_path=f"reports/figures/training_history_fold_{fold_idx+1}.png")
 
-    y_proba_val = clf.predict_proba(X_val.values)[:, 1]
-    threshold, cost = compute_optimal_threshold_by_cost_function(
-        y_val, y_proba_val, alpha, beta, save_plot_path=threshold_plot_path
-    )
-
-    print(f"[\u2713] Optimaler Threshold: {threshold:.2f}, Kosten: {cost:.2f}")
-    return clf, threshold, cost
+    return clf
 
 def run_training():
     print("[✓] Lade Trainingsdaten...")
@@ -165,7 +120,7 @@ def run_training():
     cost_tolerance = 1e-3
     bad_config_counter = 0
 
-    best_config, best_threshold = None, None
+    best_config = None
     lowest_avg_cost = float("inf")
     best_fold_metrics = None
     best_fold_models = None
@@ -181,26 +136,37 @@ def run_training():
             X_train, X_val = X_full.iloc[train_idx], X_full.iloc[val_idx]
             y_train, y_val = y_full.iloc[train_idx], y_full.iloc[val_idx]
 
-            clf, threshold, cost = train_tabnet(
+            clf = train_tabnet(
                 X_train, y_train, X_val, y_val,
-                params, threshold_plot_path=f"reports/figures/threshold_fold_{fold_idx+1}.png", alpha=alpha, beta=beta,
+                params, alpha=alpha, beta=beta,
                 fold_idx=fold_idx
             )
 
             y_proba = clf.predict_proba(X_val.values)[:, 1]
-            y_pred = (y_proba > threshold).astype(int)
+            thresholds = np.linspace(0.01, 0.99, 50)
+            best_cost = float("inf")
 
-            fold_costs.append(cost)
+            for t in thresholds:
+                y_pred = (y_proba > t).astype(int)
+                tn, fp, fn, tp = confusion_matrix(y_val, y_pred).ravel()
+                pos_total = tp + fn
+                neg_total = tn + fp
+                fn_rate = fn / pos_total if pos_total > 0 else 0
+                fp_rate = fp / neg_total if neg_total > 0 else 0
+                cost = alpha * fn_rate + beta * fp_rate
+                best_cost = min(best_cost, cost)
+
+            fold_costs.append(best_cost)
             fold_metrics.append({
-                "cost": cost,
-                "f1": f1_score(y_val, y_pred),
+                "cost": best_cost,
+                "f1": f1_score(y_val, (y_proba > 0.5).astype(int)),
                 "auc": roc_auc_score(y_val, y_proba),
-                "precision": precision_score(y_val, y_pred),
-                "recall": recall_score(y_val, y_pred)
+                "precision": precision_score(y_val, (y_proba > 0.5).astype(int)),
+                "recall": recall_score(y_val, (y_proba > 0.5).astype(int))
             })
-            fold_models.append((clf, threshold, cost))
+            fold_models.append((clf, best_cost))
 
-            print(f"  → Fold {fold_idx+1}: Cost={cost:.2f}")
+            print(f"  → Fold {fold_idx+1}: Cost={best_cost:.2f}")
 
         avg_cost = np.mean(fold_costs)
         std_cost = np.std(fold_costs)
@@ -230,10 +196,10 @@ def run_training():
         best_config=best_config
     )
 
-    best_fold_idx = np.argmin([m[2] for m in best_fold_models])
-    final_clf, best_threshold, best_cost = best_fold_models[best_fold_idx]
+    best_fold_idx = np.argmin([m[1] for m in best_fold_models])
+    final_clf, best_cost = best_fold_models[best_fold_idx]
     print(f"[✓] Bestes Fold-Modell: Fold {best_fold_idx+1} mit Cost {best_cost:.2f}")
 
     final_clf.forward_masks = True
-    save_model_and_threshold(final_clf, threshold=best_threshold, path="models/tabnet_final")
+    save_model(final_clf, path="models/tabnet_final")
     print("[✓] Finalmodell gespeichert.")

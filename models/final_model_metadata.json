@@ -1,6 +1,5 @@
 {
-  "model_path": "models/tabnet_final_model_20250607-171544_422a69",
-  "threshold_path": "models/tabnet_final_threshold_20250607-171544_422a69.json",
-  "timestamp": "20250607-171544",
-  "uid": "422a69"
+  "model_path": "models/tabnet_final_model_20250607-181938_8de334",
+  "timestamp": "20250607-181938",
+  "uid": "8de334"
 }

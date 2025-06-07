@@ -160,13 +160,11 @@ def save_instance_level_explanations(
     y_proba,
     y_pred,
     feature_names,
-    threshold,
     save_path,
     top_k=5,
     only_positive_predictions=False,
     include_scores=True
 ):
-    
     feature_masks, _ = clf.explain(X.values.astype(np.float32))  
     instance_feature_importances = feature_masks 
 
@@ -190,7 +188,6 @@ def save_instance_level_explanations(
             "index": int(idx),
             "predicted_proba": float(round(proba, 5)),
             "predicted_label": int(pred),
-            "threshold": float(round(threshold, 5)),
             "top_features": top_features
         })
 
@@ -200,17 +197,13 @@ def save_instance_level_explanations(
 
     print(f"[✓] Lokale Erklärungen gespeichert unter: {save_path}")
 
-def analyze_model_errors(clf, X_test, y_test, y_pred, y_proba, feature_names, threshold,
+def analyze_model_errors(clf, X_test, y_test, y_pred, y_proba, feature_names,
                          explanation_dir="reports/explanations/",
                          figure_dir="reports/figures/",
                          top_k_features=5):
-    
+
     Path(explanation_dir).mkdir(parents=True, exist_ok=True)
     Path(figure_dir).mkdir(parents=True, exist_ok=True)
-
-    # -----------------------------------
-    # 1. Lokale Erklärungen für FP und FN
-    # -----------------------------------
 
     mask_fn = (y_test == 1) & (y_pred == 0)
     mask_fp = (y_test == 0) & (y_pred == 1)
@@ -221,7 +214,6 @@ def analyze_model_errors(clf, X_test, y_test, y_pred, y_proba, feature_names, th
         y_proba=y_proba[mask_fn],
         y_pred=y_pred[mask_fn],
         feature_names=feature_names,
-        threshold=threshold,
         save_path=f"{explanation_dir}/false_negatives.json",
         top_k=top_k_features,
         only_positive_predictions=False
@@ -233,7 +225,6 @@ def analyze_model_errors(clf, X_test, y_test, y_pred, y_proba, feature_names, th
         y_proba=y_proba[mask_fp],
         y_pred=y_pred[mask_fp],
         feature_names=feature_names,
-        threshold=threshold,
         save_path=f"{explanation_dir}/false_positives.json",
         top_k=top_k_features,
         only_positive_predictions=False
@@ -241,11 +232,6 @@ def analyze_model_errors(clf, X_test, y_test, y_pred, y_proba, feature_names, th
 
     print("[✓] Lokale Erklärungen für FP und FN gespeichert.")
 
-    # -----------------------------------
-    # 2. Violinplots für Top-K-Features
-    # -----------------------------------
-
-    # Feature-Masken: Mittelung über alle Beispiele → Ranking
     feature_importances = clf.explain(X_test.values.astype(np.float32))[0].mean(axis=0)
     top_k_idx = np.argsort(feature_importances)[::-1][:top_k_features]
     top_k_feature_names = [feature_names[i] for i in top_k_idx]
@@ -268,9 +254,6 @@ def analyze_model_errors(clf, X_test, y_test, y_pred, y_proba, feature_names, th
         plt.close()
         print(f"[✓] Violinplot gespeichert: {figure_dir}/error_violin_{feature}.png")
 
-    # -----------------------------------
-    # 3. t-SNE Projektion nach Fehlerklassen
-    # -----------------------------------
     try:
         tsne = TSNE(n_components=2, perplexity=30, random_state=42)
         X_embedded = tsne.fit_transform(X_test.values.astype(np.float32))
@@ -290,33 +273,26 @@ def analyze_model_errors(clf, X_test, y_test, y_pred, y_proba, feature_names, th
     except Exception as e:
         print(f"[!] t-SNE konnte nicht berechnet werden: {e}")
 
-
 def run_final_test_model():
     print("[✓] Lade Holdout-Testdaten...")
     df_test = load_pickle("data/processed/test_holdout.pkl")
     y_test = df_test["attack_detected"]
     X_test = df_test.drop(columns=["attack_detected"])
 
-    print("[✓] Lade finales Modell und Threshold...")
-    
+    print("[✓] Lade finales Modell...")
     metadata_path = "models/final_model_metadata.json"
     if Path(metadata_path).exists():
         with open(metadata_path) as f:
             meta = json.load(f)
         model_path = meta["model_path"]
-        threshold_path = meta["threshold_path"]
     else:
         raise FileNotFoundError("Metadata-Datei zum Laden des finalen Modells fehlt.")
 
     clf = TabNetClassifier()
     clf.load_model(model_path + ".zip")
 
-    with open(threshold_path) as f:
-        threshold = json.load(f)["threshold"]
-
-    print(f"[✓] Verwende Threshold: {threshold:.4f}")
     y_proba = clf.predict_proba(X_test.values)[:, 1]
-    y_pred = (y_proba > threshold).astype(int)
+    y_pred = (y_proba > 0.5).astype(int)  # Standard-Threshold
 
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
     alpha, beta = 2, 1
@@ -325,12 +301,9 @@ def run_final_test_model():
 
     fn_rate = fn / pos_total if pos_total > 0 else 0
     fp_rate = fp / neg_total if neg_total > 0 else 0
-
     cost = alpha * fn_rate + beta * fp_rate
 
-
     metrics = {
-        "threshold": round(threshold, 4),
         "cost": cost,
         "f1": round(f1_score(y_test, y_pred), 4),
         "accuracy": round(accuracy_score(y_test, y_pred), 4),
@@ -366,7 +339,6 @@ def run_final_test_model():
         y_proba=y_proba,
         y_pred=y_pred,
         feature_names=X_test.columns.tolist(),
-        threshold=threshold,
         save_path="reports/explanations/test_instance_level.json",
         top_k=5,
         only_positive_predictions=True,
@@ -375,14 +347,13 @@ def run_final_test_model():
 
     print("[✓] Visualisiere Grenzen des Modells")
     analyze_model_errors(
-    clf=clf,
-    X_test=X_test,
-    y_test=y_test,
-    y_pred=y_pred,
-    y_proba=y_proba,
-    feature_names=X_test.columns.tolist(),
-    threshold=threshold,
-    top_k_features=5
-)
+        clf=clf,
+        X_test=X_test,
+        y_test=y_test,
+        y_pred=y_pred,
+        y_proba=y_proba,
+        feature_names=X_test.columns.tolist(),
+        top_k_features=5
+    )
 
     print("[✓] Testevaluation abgeschlossen.")
