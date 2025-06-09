@@ -80,6 +80,8 @@ def main():
     parser = argparse.ArgumentParser(description="Cybersecurity ML-Pipeline")
     parser.add_argument("step", choices=["preprocess", "train", "test", "test_dummy", "simulate_deployment", "simulate_drift"],
                         help="Wähle den Teil der Pipeline, den du ausführen willst.")
+    parser.add_argument("--threshold", type=float, default=0.5,
+                        help="Entscheidungsschwelle für attack_detected bei simulate_deployment (default=0.5)")
     args = parser.parse_args()
 
     if args.step == "preprocess":
@@ -92,7 +94,7 @@ def main():
     elif args.step == "test_dummy":
         run_dummy_baseline()
     elif args.step == "simulate_deployment":
-        run_deployment_simulation()
+        run_deployment_simulation(threshold=args.threshold)
 
 if __name__ == "__main__":
     main()

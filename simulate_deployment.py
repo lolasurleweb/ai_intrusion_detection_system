@@ -37,14 +37,14 @@ def finetune_on_replay_buffer(clf, buffer, model_save_path):
     print(f"[✓] Finetuned Modell gespeichert unter: {model_save_path}")
 
 def run_deployment_loop(df, clf, feature_names, explanation_path,
-                        adwin, replay_buffer, drift_flag, min_samples_to_refit, model_save_path):
+                        adwin, replay_buffer, drift_flag, min_samples_to_refit, model_save_path, threshold=0.5):
 
     X_all = df.drop(columns=["attack_detected"])
     y_true = df["attack_detected"].values
     X_np = X_all.values.astype(np.float32)
 
     y_proba = clf.predict_proba(X_np)[:, 1]
-    y_pred = clf.predict(X_np)
+    y_pred = (y_proba >= threshold).astype(int)
 
     save_instance_level_explanations(
         clf, X_all, y_proba, y_pred, feature_names, explanation_path,
@@ -68,7 +68,7 @@ def run_deployment_loop(df, clf, feature_names, explanation_path,
             drift_flag[0] = False
             replay_buffer.clear()
 
-def run_deployment_simulation():
+def run_deployment_simulation(threshold=0.5):
     # Modell laden
     metadata_path = Path("models/final_model_metadata.json")
     if metadata_path.exists():
@@ -101,14 +101,14 @@ def run_deployment_simulation():
     # Deployment-Simulation
     print("\n[2] Simuliere Deployment: early")
     run_deployment_loop(df_early, clf, feature_names, "explanations/early.json",
-                        adwin, replay_buffer, drift_flag, min_samples_to_refit, model_save_path)
+                        adwin, replay_buffer, drift_flag, min_samples_to_refit, model_save_path, threshold=threshold)
 
     print("\n[3] Simuliere Deployment: mid")
     run_deployment_loop(df_mid, clf, feature_names, "explanations/mid.json",
-                        adwin, replay_buffer, drift_flag, min_samples_to_refit, model_save_path)
+                        adwin, replay_buffer, drift_flag, min_samples_to_refit, model_save_path, threshold=threshold)
 
     print("\n[4] Simuliere Deployment: late")
     run_deployment_loop(df_late, clf, feature_names, "explanations/late.json",
-                        adwin, replay_buffer, drift_flag, min_samples_to_refit, model_save_path)
+                        adwin, replay_buffer, drift_flag, min_samples_to_refit, model_save_path, threshold=threshold)
 
     print("\n[✓] Deployment-Simulation abgeschlossen.")
