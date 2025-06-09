@@ -1,0 +1,35 @@
+{
+  "timestamp": "20250609-131420",
+  "uid": "a16ee5",
+  "base_path": "models/tabnet_cv_20250609-131420_a16ee5",
+  "model_paths": [
+    "models/tabnet_cv_20250609-131420_a16ee5/fold_1",
+    "models/tabnet_cv_20250609-131420_a16ee5/fold_2",
+    "models/tabnet_cv_20250609-131420_a16ee5/fold_3",
+    "models/tabnet_cv_20250609-131420_a16ee5/fold_4",
+    "models/tabnet_cv_20250609-131420_a16ee5/fold_5"
+  ],
+  "hyperparameters": {
+    "n_d": 16,
+    "n_a": 16,
+    "mask_type": "sparsemax",
+    "lambda_sparse": 0.0001
+  },
+  "validation_metrics": [
+    {
+      "cost": 1.5250544658986809
+    },
+    {
+      "cost": 1.3693434320938136
+    },
+    {
+      "cost": 1.1150314346110277
+    },
+    {
+      "cost": 1.3135897671263863
+    },
+    {
+      "cost": 1.130988881416709
+    }
+  ]
+}

@@ -15,7 +15,7 @@ from src.data.preprocessing import (
 from src.utils.io import save_pickle
 from src.training.train_tabnet import run_training
 from src.utils.seeding import set_seed
-from simulate_deployment import run_deployment_simulation
+from simulate_deployment import run_deployment_simulation_ensemble
 import json
 
 from src.training.evaluate_tabnet import run_final_test_model_ensemble
@@ -94,7 +94,7 @@ def main():
     elif args.step == "test_dummy":
         run_dummy_baseline()
     elif args.step == "simulate_deployment":
-        run_deployment_simulation(threshold=args.threshold)
+        run_deployment_simulation_ensemble(threshold=args.threshold)
 
 if __name__ == "__main__":
     main()
