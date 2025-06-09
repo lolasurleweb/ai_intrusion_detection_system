@@ -47,9 +47,8 @@ def run_dummy_baseline(save_path="reports/dummy_metrics.csv",
         "f1": round(f1_score(y_test, y_pred), 4),
         "precision": round(precision_score(y_test, y_pred), 4),
         "recall": round(recall_score(y_test, y_pred), 4),
-        "auc": round(roc_auc_score(y_test, y_proba), 4),
         "accuracy": round(accuracy_score(y_test, y_pred), 4),
-        "kappa": round(cohen_kappa_score(y_test, y_pred), 4),
+        "auc": round(roc_auc_score(y_test, y_proba), 4)
     }
 
     df_metrics = pd.DataFrame([metrics])
@@ -59,7 +58,7 @@ def run_dummy_baseline(save_path="reports/dummy_metrics.csv",
     print(df_metrics.to_string(index=False))
 
     disp = ConfusionMatrixDisplay.from_predictions(y_test, y_pred, cmap="Blues")
-    disp.ax_.set_title("Dummy Confusion Matrix")
+    disp.ax_.set_title("")
     plt.tight_layout()
     Path(matrix_path).parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(matrix_path)

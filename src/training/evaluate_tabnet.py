@@ -13,7 +13,7 @@ from sklearn.manifold import TSNE
 
 def save_confusion_matrix(y_true, y_pred, save_path):
     disp = ConfusionMatrixDisplay.from_predictions(y_true, y_pred, cmap="Blues")
-    disp.ax_.set_title("Confusion Matrix")
+    disp.ax_.set_title("")
     plt.tight_layout()
     Path(save_path).parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(save_path)
@@ -306,11 +306,10 @@ def run_final_test_model():
     metrics = {
         "cost": cost,
         "f1": round(f1_score(y_test, y_pred), 4),
-        "accuracy": round(accuracy_score(y_test, y_pred), 4),
         "precision": round(precision_score(y_test, y_pred), 4),
         "recall": round(recall_score(y_test, y_pred), 4),
-        "auc": round(roc_auc_score(y_test, y_proba), 4),
-        "kappa": round(cohen_kappa_score(y_test, y_pred), 4)
+        "accuracy": round(accuracy_score(y_test, y_pred), 4),
+        "auc": round(roc_auc_score(y_test, y_proba), 4)
     }
 
     pd.DataFrame.from_dict(metrics, orient="index", columns=["Wert"]).to_csv(

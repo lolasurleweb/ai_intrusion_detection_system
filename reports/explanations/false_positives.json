@@ -1,190 +1,109 @@
 [
   {
     "index": 0,
-    "predicted_proba": 0.5357999801635742,
+    "predicted_proba": 0.5696799755096436,
     "predicted_label": 1,
     "top_features": [
       {
-        "feature": "failed_logins",
-        "importance": 0.87368
+        "feature": "ip_reputation_score",
+        "importance": 1.53021
       },
       {
-        "feature": "ip_reputation_score",
-        "importance": 0.75001
+        "feature": "failed_logins",
+        "importance": 0.80208
       },
       {
         "feature": "login_attempts",
-        "importance": 0.49626
+        "importance": 0.35562
       },
       {
-        "feature": "browser_type_Firefox",
-        "importance": 0.29198
+        "feature": "session_duration_log",
+        "importance": 0.15281
       },
       {
-        "feature": "browser_type_Unknown",
-        "importance": 0.0
+        "feature": "unusual_time_access",
+        "importance": 0.06222
       }
     ]
   },
   {
     "index": 1,
-    "predicted_proba": 0.632669985294342,
+    "predicted_proba": 0.6906800270080566,
     "predicted_label": 1,
     "top_features": [
       {
         "feature": "ip_reputation_score",
-        "importance": 1.9007
+        "importance": 2.16646
       },
       {
         "feature": "failed_logins",
-        "importance": 0.94502
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 0.39353
+        "importance": 0.76038
       },
       {
         "feature": "login_attempts",
-        "importance": 0.20514
-      },
-      {
-        "feature": "protocol_type_UDP",
-        "importance": 0.12325
-      }
-    ]
-  },
-  {
-    "index": 2,
-    "predicted_proba": 0.6057199835777283,
-    "predicted_label": 1,
-    "top_features": [
-      {
-        "feature": "ip_reputation_score",
-        "importance": 2.4691
-      },
-      {
-        "feature": "failed_logins",
-        "importance": 0.65036
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 0.50863
-      },
-      {
-        "feature": "protocol_type_UDP",
-        "importance": 0.1319
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.05137
-      }
-    ]
-  },
-  {
-    "index": 3,
-    "predicted_proba": 0.5902500152587891,
-    "predicted_label": 1,
-    "top_features": [
-      {
-        "feature": "failed_logins",
-        "importance": 1.52424
-      },
-      {
-        "feature": "protocol_type_UDP",
-        "importance": 0.51826
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.33818
-      },
-      {
-        "feature": "session_duration_log",
-        "importance": 0.27311
-      },
-      {
-        "feature": "ip_reputation_score",
-        "importance": 0.24297
-      }
-    ]
-  },
-  {
-    "index": 4,
-    "predicted_proba": 0.6440200209617615,
-    "predicted_label": 1,
-    "top_features": [
-      {
-        "feature": "ip_reputation_score",
-        "importance": 2.78345
-      },
-      {
-        "feature": "failed_logins",
-        "importance": 0.96594
-      },
-      {
-        "feature": "unusual_time_access",
-        "importance": 0.51208
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 0.26026
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.20676
-      }
-    ]
-  },
-  {
-    "index": 5,
-    "predicted_proba": 0.6082599759101868,
-    "predicted_label": 1,
-    "top_features": [
-      {
-        "feature": "ip_reputation_score",
-        "importance": 1.43008
-      },
-      {
-        "feature": "failed_logins",
-        "importance": 0.80385
-      },
-      {
-        "feature": "browser_type_Firefox",
-        "importance": 0.49813
-      },
-      {
-        "feature": "login_attempts",
-        "importance": 0.28146
+        "importance": 0.65547
       },
       {
         "feature": "browser_type_Unknown",
+        "importance": 0.0
+      },
+      {
+        "feature": "browser_type_Safari",
         "importance": 0.0
       }
     ]
   },
   {
-    "index": 6,
-    "predicted_proba": 0.6846699714660645,
+    "index": 2,
+    "predicted_proba": 0.6633700132369995,
+    "predicted_label": 1,
+    "top_features": [
+      {
+        "feature": "browser_type_Unknown",
+        "importance": 0.95392
+      },
+      {
+        "feature": "ip_reputation_score",
+        "importance": 0.74238
+      },
+      {
+        "feature": "encryption_used_DES",
+        "importance": 0.4579
+      },
+      {
+        "feature": "browser_type_Firefox",
+        "importance": 0.36932
+      },
+      {
+        "feature": "login_attempts",
+        "importance": 0.2954
+      }
+    ]
+  },
+  {
+    "index": 3,
+    "predicted_proba": 0.5838500261306763,
     "predicted_label": 1,
     "top_features": [
       {
         "feature": "ip_reputation_score",
-        "importance": 1.24186
+        "importance": 1.35512
+      },
+      {
+        "feature": "login_attempts",
+        "importance": 0.71431
       },
       {
         "feature": "failed_logins",
-        "importance": 0.43411
+        "importance": 0.26196
       },
       {
-        "feature": "session_duration_log",
-        "importance": 0.38491
+        "feature": "browser_type_Unknown",
+        "importance": 0.0
       },
       {
-        "feature": "browser_type_Firefox",
-        "importance": 0.30265
-      },
-      {
-        "feature": "unusual_time_access",
-        "importance": 0.13154
+        "feature": "browser_type_Safari",
+        "importance": 0.0
       }
     ]
   }
