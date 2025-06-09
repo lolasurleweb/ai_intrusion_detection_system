@@ -8,7 +8,7 @@ from datetime import datetime
 from itertools import product
 from pytorch_tabnet.tab_model import TabNetClassifier
 from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score
 from src.utils.io import load_pickle
 from pytorch_tabnet.metrics import Metric
 
@@ -58,7 +58,7 @@ def save_fold_models(fold_models, params, fold_metrics, path_prefix="models/tabn
     print(f"[✓] Alle Fold-Modelle gespeichert unter: {base_path}")
     print(f"[✓] Metadaten gespeichert unter: {base_path}/metadata.json")
 
-def train_tabnet(X_train, y_train, X_val, y_val, params):
+def train_tabnet(X_train, y_train, X_val, y_val, params, fold_idx=None):
     clf = TabNetClassifier(
         **params,
         optimizer_params=dict(lr=2e-2),
@@ -69,9 +69,9 @@ def train_tabnet(X_train, y_train, X_val, y_val, params):
 
     clf.fit(
         X_train=X_train.values, y_train=y_train.values,
-        eval_set=[(X_val.values, y_val.values)],
-        eval_name=["val"],
-        eval_metric=[CostScore],
+        eval_set=[(X_train.values, y_train.values), (X_val.values, y_val.values)],
+        eval_name=["train", "val"],
+        eval_metric=["logloss", CostScore],
         max_epochs=100,
         patience=10,
         batch_size=1024,
@@ -81,6 +81,7 @@ def train_tabnet(X_train, y_train, X_val, y_val, params):
     )
 
     return clf
+
 
 def run_training():
     print("[✓] Lade Trainingsdaten...")
@@ -117,10 +118,20 @@ def run_training():
 
             clf = train_tabnet(X_train, y_train, X_val, y_val, params)
 
+            y_val_pred = clf.predict(X_val.values)
+            y_val_proba = clf.predict_proba(X_val.values)[:, 1]
+
             val_cost = clf.history["val_custom_cost"][-1]
 
             fold_costs.append(val_cost)
-            fold_metrics.append({"cost": val_cost})
+            fold_metrics.append({
+                "cost": val_cost,
+                "logloss": clf.history["val_logloss"][-1],
+                "f1": f1_score(y_val, y_val_pred),
+                "auc": roc_auc_score(y_val, y_val_proba),
+                "precision": precision_score(y_val, y_val_pred),
+                "recall": recall_score(y_val, y_val_pred)
+            })
             fold_models.append(clf)
 
             print(f"  → Fold {fold_idx+1}: Val-Cost = {val_cost:.4f}")
