@@ -1,3 +1,4 @@
+from glob import glob
 import json
 import pandas as pd
 import numpy as np
@@ -273,32 +274,38 @@ def analyze_model_errors(clf, X_test, y_test, y_pred, y_proba, feature_names,
     except Exception as e:
         print(f"[!] t-SNE konnte nicht berechnet werden: {e}")
 
-def run_final_test_model():
+def run_final_test_model_ensemble():
     print("[✓] Lade Holdout-Testdaten...")
     df_test = load_pickle("data/processed/test_holdout.pkl")
     y_test = df_test["attack_detected"]
     X_test = df_test.drop(columns=["attack_detected"])
 
-    print("[✓] Lade finales Modell...")
-    metadata_path = "models/final_model_metadata.json"
-    if Path(metadata_path).exists():
-        with open(metadata_path) as f:
-            meta = json.load(f)
-        model_path = meta["model_path"]
-    else:
-        raise FileNotFoundError("Metadata-Datei zum Laden des finalen Modells fehlt.")
+    print("[✓] Lade Ensemble-Modelle...")
+    metadata_path = sorted(glob("models/tabnet_cv_*/metadata.json"))[-1]
+    if not Path(metadata_path).exists():
+        raise FileNotFoundError(f"Metadata-Datei nicht gefunden: {metadata_path}")
 
-    clf = TabNetClassifier()
-    clf.load_model(model_path + ".zip")
+    with open(metadata_path) as f:
+        meta = json.load(f)
 
-    y_proba = clf.predict_proba(X_test.values)[:, 1]
-    y_pred = (y_proba > 0.5).astype(int)  # Standard-Threshold
+    model_paths = meta["model_paths"]
+    models = []
+    for path in model_paths:
+        clf = TabNetClassifier()
+        clf.load_model(path + ".zip")
+        models.append(clf)
+
+    print(f"[✓] {len(models)} Fold-Modelle erfolgreich geladen.")
+
+    print("[✓] Ensemble-Inferenz...")
+    y_proba_matrix = np.array([model.predict_proba(X_test.values)[:, 1] for model in models])
+    y_proba = y_proba_matrix.mean(axis=0)
+    y_pred = (y_proba > 0.5).astype(int)
 
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
     alpha, beta = 2, 1
     pos_total = tp + fn
     neg_total = tn + fp
-
     fn_rate = fn / pos_total if pos_total > 0 else 0
     fp_rate = fp / neg_total if neg_total > 0 else 0
     cost = alpha * fn_rate + beta * fp_rate
@@ -313,40 +320,40 @@ def run_final_test_model():
     }
 
     pd.DataFrame.from_dict(metrics, orient="index", columns=["Wert"]).to_csv(
-        "reports/final_test_metrics.csv")
-    print("[✓] Test-Metriken gespeichert unter: reports/final_test_metrics.csv")
+        "reports/final_test_metrics_ensemble.csv")
+    print("[✓] Test-Metriken gespeichert unter: reports/final_test_metrics_ensemble.csv")
 
     print("[✓] Speichere Confusion Matrix...")
-    save_confusion_matrix(y_test, y_pred, "reports/figures/confusion_matrix_test.png")
+    save_confusion_matrix(y_test, y_pred, "reports/figures/confusion_matrix_test_ensemble.png")
 
-    print("[✓] Visualisiere Feature-Masken...")
-    plot_tabnet_feature_importance(clf, X_test, X_test.columns.tolist(), 
-                                   save_path="reports/figures/tabnet_feature_masks_test.png")
+    print("[✓] Visualisiere Feature-Masken (erstes Modell repräsentativ)...")
+    plot_tabnet_feature_importance(models[0], X_test, X_test.columns.tolist(), 
+                                   save_path="reports/figures/tabnet_feature_masks_test_ensemble.png")
 
-    print("[✓] Berechne Permutation Importance...")
+    print("[✓] Berechne Permutation Importance (erstes Modell)...")
     compute_and_plot_permutation_importance(
-        clf, X_val=X_test, y_val=y_test,
+        models[0], X_val=X_test, y_val=y_test,
         feature_names=X_test.columns.tolist(),
-        save_path="reports/figures/permutation_importance_test.png",
+        save_path="reports/figures/permutation_importance_test_ensemble.png",
         scoring='f1'
     )
 
-    print("[✓] Speichere lokale Erklärungen für positive IDS-Warnungen...")
+    print("[✓] Speichere lokale Erklärungen (nur für Modell 1)...")
     save_instance_level_explanations(
-        clf=clf,
+        clf=models[0],
         X=X_test,
         y_proba=y_proba,
         y_pred=y_pred,
         feature_names=X_test.columns.tolist(),
-        save_path="reports/explanations/test_instance_level.json",
+        save_path="reports/explanations/test_instance_level_ensemble.json",
         top_k=5,
         only_positive_predictions=True,
         include_scores=True
     )
 
-    print("[✓] Visualisiere Grenzen des Modells")
+    print("[✓] Visualisiere Fehlerklassen (mit Modell 1)...")
     analyze_model_errors(
-        clf=clf,
+        clf=models[0],
         X_test=X_test,
         y_test=y_test,
         y_pred=y_pred,
@@ -355,4 +362,4 @@ def run_final_test_model():
         top_k_features=5
     )
 
-    print("[✓] Testevaluation abgeschlossen.")
+    print("[✓] Testevaluation des Ensembles abgeschlossen.")

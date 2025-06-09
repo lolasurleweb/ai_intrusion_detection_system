@@ -1,3 +1,4 @@
+import os
 import torch
 import numpy as np
 import pandas as pd
@@ -16,27 +17,54 @@ from src.training.evaluate_tabnet import (
     evaluate_cross_validation_results,
     plot_training_history
 )
+from sklearn.metrics import confusion_matrix
+from pytorch_tabnet.metrics import Metric
 
-def save_model(clf, path="src/models/tabnet"):
+class CostScore(Metric):
+    def __init__(self, alpha=5.0, beta=1.0):
+        self.alpha = alpha
+        self.beta = beta
+        self._name = "custom_cost"
+        self._maximize = False
+
+    def __call__(self, y_true, y_score):
+        if y_score.ndim == 2:
+            y_pred = np.argmax(y_score, axis=1)
+        else:
+            y_pred = (y_score > 0.5).astype(int)
+
+        tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+        fnr = fn / (tp + fn + 1e-7)
+        fpr = fp / (fp + tn + 1e-7)
+        return self.alpha * fnr + self.beta * fpr
+
+def save_fold_models(fold_models, params, fold_metrics, path_prefix="models/tabnet_cv"):
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     uid = uuid.uuid4().hex[:6]
-    suffix = f"{timestamp}_{uid}"
+    base_path = f"{path_prefix}_{timestamp}_{uid}"
+    os.makedirs(base_path, exist_ok=True)
 
-    model_path = f"{path}_model_{suffix}"
-    metadata_path = "models/final_model_metadata.json"
+    model_paths = []
 
-    clf.save_model(model_path)
+    for i, (clf, cost) in enumerate(fold_models):
+        model_path = f"{base_path}/fold_{i+1}"
+        clf.save_model(model_path)
+        model_paths.append(model_path)
 
     metadata = {
-        "model_path": model_path,
         "timestamp": timestamp,
         "uid": uid,
+        "base_path": base_path,
+        "model_paths": model_paths,
+        "hyperparameters": params,
+        "validation_metrics": fold_metrics
     }
-    with open(metadata_path, "w") as f:
+
+    with open(f"{base_path}/metadata.json", "w") as f:
         json.dump(metadata, f, indent=2)
 
-    print(f"[✓] Modell gespeichert: {model_path}")
-    print(f"[✓] Metadaten gespeichert: {metadata_path}")
+    print(f"[✓] Alle Fold-Modelle gespeichert unter: {base_path}")
+    print(f"[✓] Metadaten gespeichert unter: {base_path}/metadata.json")
 
 
 def train_tabnet(X_train, y_train, X_val, y_val, params, fold_idx=None):
@@ -52,7 +80,7 @@ def train_tabnet(X_train, y_train, X_val, y_val, params, fold_idx=None):
         X_train=X_train.values, y_train=y_train.values,
         eval_set=[(X_train.values, y_train.values), (X_val.values, y_val.values)],
         eval_name=["train", "val"],
-        eval_metric=["logloss"],
+        eval_metric=["logloss", CostScore],
         max_epochs=100,
         patience=10,
         batch_size=1024,
@@ -84,11 +112,10 @@ def run_training():
     print(f"Starte Grid Search mit {len(configs)} Konfigurationen...")
 
     early_stop_rounds = 5
-    logloss_tolerance = 1e-3
     bad_config_counter = 0
 
     best_config = None
-    lowest_avg_logloss = float("inf")
+    lowest_avg_cost = float("inf")
     best_fold_metrics = None
     best_fold_models = None
 
@@ -96,8 +123,7 @@ def run_training():
         params = dict(zip(search_space.keys(), values))
         print(f"\n[{i+1}/{len(configs)}] Konfiguration: {params}")
 
-        fold_loglosses, fold_metrics = [], []
-        fold_models = []
+        fold_costs, fold_metrics, fold_models = [], [], []
 
         for fold_idx, (train_idx, val_idx) in enumerate(skf.split(X_full, y_full)):
             X_train, X_val = X_full.iloc[train_idx], X_full.iloc[val_idx]
@@ -105,30 +131,33 @@ def run_training():
 
             clf = train_tabnet(X_train, y_train, X_val, y_val, params, fold_idx=fold_idx)
 
-            # LogLoss für letzte Epoche aus clf.history
-            val_logloss = clf.history["val_logloss"][-1]
+            y_val_pred = clf.predict(X_val.values)
+            y_val_proba = clf.predict_proba(X_val.values)[:, 1]
 
-            fold_loglosses.append(val_logloss)
+            val_cost = clf.history["val_custom_cost"][-1]
+
+            fold_costs.append(val_cost)
             fold_metrics.append({
-                "logloss": val_logloss,
-                "f1": f1_score(y_val, (clf.predict(X_val.values))),
-                "auc": roc_auc_score(y_val, clf.predict_proba(X_val.values)[:, 1]),
-                "precision": precision_score(y_val, clf.predict(X_val.values)),
-                "recall": recall_score(y_val, clf.predict(X_val.values))
+                "cost": val_cost,
+                "logloss": clf.history["val_logloss"][-1],
+                "f1": f1_score(y_val, y_val_pred),
+                "auc": roc_auc_score(y_val, y_val_proba),
+                "precision": precision_score(y_val, y_val_pred),
+                "recall": recall_score(y_val, y_val_pred)
             })
-            fold_models.append((clf, val_logloss))
+            fold_models.append((clf, val_cost))
 
-            print(f"  → Fold {fold_idx+1}: Val-LogLoss = {val_logloss:.4f}")
+            print(f"  → Fold {fold_idx+1}: Val-Cost = {val_cost:.4f}")
 
-        avg_logloss = np.mean(fold_loglosses)
-        std_logloss = np.std(fold_loglosses)
-        print(f"→ Durchschnittlicher LogLoss: {avg_logloss:.4f} ± {std_logloss:.4f}")
+        avg_cost = np.mean(fold_costs)
+        std_cost = np.std(fold_costs)
+        print(f"→ Durchschnittlicher Cost: {avg_cost:.4f} ± {std_cost:.4f}")
 
-        if avg_logloss < (lowest_avg_logloss - logloss_tolerance):
+        if avg_cost < lowest_avg_cost:
             best_config = params
             best_fold_metrics = fold_metrics
             best_fold_models = fold_models
-            lowest_avg_logloss = avg_logloss
+            lowest_avg_cost = avg_cost
             bad_config_counter = 0
             print("[✓] Neue beste Konfiguration gefunden.")
         else:
@@ -141,14 +170,13 @@ def run_training():
 
     print("\nGrid Search abgeschlossen.")
     print(f"Beste Konfiguration: {best_config}")
-    print(f"LogLoss: {lowest_avg_logloss:.4f} (Durchschnitt über 5 Folds)")
+    print(f"CustomCost: {lowest_avg_cost:.4f} (Durchschnitt über 5 Folds)")
 
-    #evaluate_cross_validation_results(best_fold_metrics,best_config=best_config)
+    save_fold_models(
+    fold_models=best_fold_models,
+    params=best_config,
+    fold_metrics=best_fold_metrics,
+    path_prefix="models/tabnet_cv"
+    )
 
-    best_fold_idx = np.argmin([m[1] for m in best_fold_models])
-    final_clf, best_logloss = best_fold_models[best_fold_idx]
-    print(f"[✓] Bestes Fold-Modell: Fold {best_fold_idx+1} mit LogLoss {best_logloss:.4f}")
-
-    final_clf.forward_masks = True
-    save_model(final_clf, path="models/tabnet_final")
-    print("[✓] Finalmodell gespeichert.")
+    print("[✓] Finalmodelle gespeichert.")

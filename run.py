@@ -18,7 +18,7 @@ from src.utils.seeding import set_seed
 from simulate_deployment import run_deployment_simulation
 import json
 
-from src.training.evaluate_tabnet import run_final_test_model
+from src.training.evaluate_tabnet import run_final_test_model_ensemble
 from src.training.dummy import run_dummy_baseline
 
 def preprocess():
@@ -90,7 +90,7 @@ def main():
         set_seed(42)
         run_training()
     elif args.step == "test":
-        run_final_test_model()
+        run_final_test_model_ensemble()
     elif args.step == "test_dummy":
         run_dummy_baseline()
     elif args.step == "simulate_deployment":
