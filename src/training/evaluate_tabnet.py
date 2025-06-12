@@ -13,8 +13,10 @@ from sklearn.metrics import (
     roc_auc_score, accuracy_score
 )
 from pytorch_tabnet.tab_model import TabNetClassifier
-import torch
 from src.utils.io import load_pickle
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+import umap.umap_ as umap
 
 def save_confusion_matrix(y_true, y_pred, save_path):
     disp = ConfusionMatrixDisplay.from_predictions(y_true, y_pred, cmap="Blues")
@@ -93,8 +95,8 @@ def plot_feature_mask_bar(mean_mask, std_mask, cls_name, feature_names, save_dir
     plt.savefig(filepath)
     plt.close()
 
-def plot_feature_mask_heatmap(df_masks, df_significance, save_dir):
-    df_all = df_masks.merge(df_significance, on="feature").set_index("feature")
+def plot_feature_mask_heatmap(df_masks, save_dir, std_threshold=0.5):
+    df_all = df_masks.set_index("feature")
 
     annot = pd.DataFrame(index=df_all.index)
     for cls in ["tp", "fn", "fp", "tn"]:
@@ -106,26 +108,28 @@ def plot_feature_mask_heatmap(df_masks, df_significance, save_dir):
     heatmap_data.columns = ["TP", "FN", "FP", "TN"]
 
     plt.figure(figsize=(10, 8))
-    ax = sns.heatmap(heatmap_data, annot=annot, fmt="", cmap="Blues", linewidths=0.5,
-                     cbar_kws={"label": "Feature Importance (Mean)"})
+    ax = sns.heatmap(
+        heatmap_data,
+        annot=annot,
+        fmt="",
+        cmap="Blues",
+        linewidths=0.5,
+        cbar_kws={"label": "Feature Importance (Mean)"}
+    )
     plt.ylabel("Feature")
     plt.xlabel("Fehlerklasse")
 
-    # Signifikanzrahmen einzeichnen
-    sig_map = {
-        (i, 1): sig for i, sig in enumerate(df_all["significant_fn_tp"])  # FN
-    }
-    sig_map.update({
-        (i, 2): sig for i, sig in enumerate(df_all["significant_fp_tn"])  # FP
-    })
-    for (y, x), sig in sig_map.items():
-        if sig:
-            ax.add_patch(Rectangle((x, y), 1, 1, fill=False, edgecolor='red', lw=2))
+    for row_idx, feature in enumerate(df_all.index):
+        for col_idx, cls in enumerate(["tp", "fn", "fp", "tn"]):
+            std_val = df_all.loc[feature, f"std_{cls}"]
+            if std_val > std_threshold:
+                ax.add_patch(Rectangle((col_idx, row_idx), 1, 1, fill=False, edgecolor='red', lw=2))
 
     plt.tight_layout()
-    heatmap_path = os.path.join(save_dir, "feature_mask_heatmap_significance.png")
+    heatmap_path = os.path.join(save_dir, "feature_mask_heatmap_instability.png")
     plt.savefig(heatmap_path)
     plt.close()
+    print(f"[✓] Instabilitäts-Heatmap gespeichert unter: {heatmap_path}")
 
 def analyze_feature_masks(models, X_test, y_test, y_pred, save_dir="reports/figures/feature_masks"):
     os.makedirs(save_dir, exist_ok=True)
@@ -163,14 +167,8 @@ def analyze_feature_masks(models, X_test, y_test, y_pred, save_dir="reports/figu
     for cls in stats:
         plot_feature_mask_bar(stats[cls][0], stats[cls][1], cls.upper(), feature_names, save_dir)
 
-    plot_feature_mask_heatmap(df_masks, df_combined, save_dir)
+    plot_feature_mask_heatmap(df_masks, save_dir)
     print("[✓] Alle Feature-Masken und Signifikanzplots wurden gespeichert.")
-
-import os
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 def analyze_ensemble_uncertainty(models, X_test, y_test, y_pred, save_dir="reports/figures/ensemble_uncertainty"):
     os.makedirs(save_dir, exist_ok=True)
@@ -203,6 +201,97 @@ def analyze_ensemble_uncertainty(models, X_test, y_test, y_pred, save_dir="repor
     plt.savefig(path_violin)
     plt.close()
     print(f"[✓] Violinplot gespeichert unter: {path_violin}")
+
+def visualize_embeddings_3d(mean_mask, y_true, y_pred, save_dir="reports/figures/embeddings_3d"):
+    os.makedirs(save_dir, exist_ok=True)
+
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    
+    def plot_3d(data_3d, title, name):
+        fig = plt.figure(figsize=(8, 6))
+        ax = fig.add_subplot(111, projection='3d')
+        
+        for label, color in [("TP", "green"), ("FN", "red"), ("FP", "orange"), ("TN", "blue")]:
+            if label == "TP":
+                idx = np.where((y_true == 1) & (y_pred == 1))
+            elif label == "FN":
+                idx = np.where((y_true == 1) & (y_pred == 0))
+            elif label == "FP":
+                idx = np.where((y_true == 0) & (y_pred == 1))
+            else:  # TN
+                idx = np.where((y_true == 0) & (y_pred == 0))
+
+            ax.scatter(
+                data_3d[idx, 0],
+                data_3d[idx, 1],
+                data_3d[idx, 2],
+                label=label,
+                alpha=0.6,
+                s=30,
+                c=color
+            )
+
+        ax.set_title(title)
+        ax.set_xlabel("Dim 1")
+        ax.set_ylabel("Dim 2")
+        ax.set_zlabel("Dim 3")
+        ax.legend()
+        plt.tight_layout()
+        plt.savefig(os.path.join(save_dir, f"embedding_3d_{name}.png"))
+        plt.close()
+
+    print("[✓] Starte PCA 3D...")
+    pca_3d = PCA(n_components=3).fit_transform(mean_mask)
+    plot_3d(pca_3d, "PCA 3D Embedding", "pca")
+
+    print("[✓] Starte t-SNE 3D...")
+    tsne_3d = TSNE(n_components=3, random_state=42, perplexity=30).fit_transform(mean_mask)
+    plot_3d(tsne_3d, "t-SNE 3D Embedding", "tsne")
+
+    print("[✓] Starte UMAP 3D...")
+    reducer = umap.UMAP(n_components=3, random_state=42)
+    umap_3d = reducer.fit_transform(mean_mask)
+    plot_3d(umap_3d, "UMAP 3D Embedding", "umap")
+
+    print(f"[✓] 3D-Visualisierungen gespeichert unter: {save_dir}")
+
+def compare_fn_tp_feature_means(X_test, y_true, y_pred, save_path="reports/figures/fn_tp_feature_diff.png"):
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    fn_idx = (y_true == 1) & (y_pred == 0)
+    tp_idx = (y_true == 1) & (y_pred == 1)
+
+    if fn_idx.sum() == 0 or tp_idx.sum() == 0:
+        print("[!] Nicht genügend FN oder TP vorhanden.")
+        return
+
+    df_fn = X_test.loc[fn_idx]
+    df_tp = X_test.loc[tp_idx]
+
+    fn_means = df_fn.mean()
+    tp_means = df_tp.mean()
+    diff = fn_means - tp_means
+
+    df_plot = pd.DataFrame({
+        "FN mean": fn_means,
+        "TP mean": tp_means,
+        "Difference (FN - TP)": diff
+    }).sort_values("Difference (FN - TP)", key=np.abs, ascending=False)
+
+    # Plot
+    plt.figure(figsize=(10, 6))
+    df_plot["Difference (FN - TP)"].plot(kind="barh", color="coral")
+    plt.axvline(0, color="gray", linestyle="--")
+    plt.title("Feature-Mittelwertdifferenz: FN vs. TP")
+    plt.xlabel("Differenz")
+    plt.tight_layout()
+    plt.savefig(save_path)
+    plt.close()
+    print(f"[✓] FN vs. TP Featurevergleich gespeichert unter: {save_path}")
 
 def run_final_test_model_ensemble(alpha=2, beta=1):
     print("[✓] Lade Holdout-Testdaten...")
@@ -268,5 +357,14 @@ def run_final_test_model_ensemble(alpha=2, beta=1):
 
     print("[✓] Starte Konsistenzanalyse des Ensembles...")
     analyze_ensemble_uncertainty(models, X_test, y_test.values, y_pred)
+
+    print("[✓] Berechne mittlere Feature-Masken für alle Modelle...")
+    all_masks = [model.explain(X_test.values.astype(np.float32))[0] for model in models]
+    mean_mask = np.mean(all_masks, axis=0)
+
+    print("[✓] Starte Embedding-Visualisierung...")
+    visualize_embeddings_3d(mean_mask, y_test, y_pred)
+
+    compare_fn_tp_feature_means(X_test, y_test, y_pred)
 
     print("[✓] Testevaluation des Ensembles abgeschlossen.")
