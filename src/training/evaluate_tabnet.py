@@ -1,25 +1,27 @@
 from glob import glob
 import json
 import os
-from matplotlib.patches import Rectangle
-import pandas as pd
+from pathlib import Path
+
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from pathlib import Path
+import plotly.express as px
+
+from matplotlib.patches import Rectangle
 from sklearn.metrics import (
-    ConfusionMatrixDisplay, confusion_matrix, 
-    f1_score, precision_score, recall_score, 
-    roc_auc_score, accuracy_score
+    ConfusionMatrixDisplay, confusion_matrix, f1_score, 
+    precision_score, recall_score, roc_auc_score, accuracy_score
 )
-from pytorch_tabnet.tab_model import TabNetClassifier
-from src.utils.io import load_pickle
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-import umap.umap_ as umap
-import plotly.express as px
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
+import umap.umap_ as umap
+
+from pytorch_tabnet.tab_model import TabNetClassifier
+from src.utils.io import load_pickle
 
 def save_confusion_matrix(y_true, y_pred, save_path):
     disp = ConfusionMatrixDisplay.from_predictions(y_true, y_pred, cmap="Blues")
@@ -30,10 +32,6 @@ def save_confusion_matrix(y_true, y_pred, save_path):
     fig.savefig(save_path)
     print(f"[✓] Confusion Matrix gespeichert unter: {save_path}")
     plt.close(fig)
-
-import os
-import numpy as np
-import matplotlib.pyplot as plt
 
 def compute_null_distribution(mean_mask, labels, n_iter=1000, seed=42):
     np.random.seed(seed)
@@ -69,7 +67,6 @@ def compute_significance(mask_group1, mask_group2, feature_names, diff_label, sa
     real_diff = mask_group2.mean(axis=0) - mask_group1.mean(axis=0)
     significant = (real_diff < lower_ci) | (real_diff > upper_ci)
 
-    # Plot
     plt.figure(figsize=(10, 6))
     plt.barh(
         feature_names,
@@ -194,7 +191,6 @@ def analyze_ensemble_uncertainty(models, X_test, y_test, y_pred, save_dir="repor
     df.loc[(df.y_true == 1) & (df.y_pred == 0), "error_type"] = "False Negative"
     df.loc[(df.y_true == 0) & (df.y_pred == 1), "error_type"] = "False Positive"
 
-    # Violinplot der Streuung pro Fehlerklasse
     plt.figure(figsize=(8, 5))
     sns.violinplot(data=df, x="error_type", y="proba_std", inner="box", cut=0)
     plt.ylabel("Standardabweichung der Modell-Vorhersagen")
@@ -306,7 +302,7 @@ def visualize_embeddings_3d(mean_mask, y_true, y_pred, save_dir="reports/figures
     umap_3d = reducer.fit_transform(mean_mask)
     plot_3d(umap_3d, "UMAP 3D Embedding", "umap")
 
-    print("[✓] Starte t-SNE 3D...")
+    print("[✓] Starte t-SNE 3D (Interaktive Version)...")
     tsne_3d = TSNE(n_components=3, random_state=42, perplexity=30).fit_transform(mean_mask)
     plot_3d(tsne_3d, "t-SNE 3D Embedding", "tsne")
     plot_3d_interactive(tsne_3d, y_true, y_pred, save_path=os.path.join(save_dir, "tsne_3d_interactive.html"))
@@ -341,7 +337,7 @@ def compare_fn_tp_feature_means(X_test, y_true, y_pred, save_path="reports/figur
 
     # Plot
     plt.figure(figsize=(10, 6))
-    df_plot["Difference (FN - TP)"].plot(kind="barh", color="coral")
+    df_plot["Difference (FN - TP)"].plot(kind="barh", color="#4C72B0")
     plt.axvline(0, color="gray", linestyle="--")
     plt.xlabel("Differenz")
     plt.tight_layout()
@@ -350,7 +346,6 @@ def compare_fn_tp_feature_means(X_test, y_true, y_pred, save_path="reports/figur
     print(f"[✓] FN vs. TP Featurevergleich gespeichert unter: {save_path}")
 
 def plot_tp_kmeans_clusters_interactive(tsne_3d, y_true, y_pred, cluster_labels, save_path="reports/figures/embeddings_3d/tp_kmeans_clusters_3d.html"):
-    # Nur TP auswählen
     tp_idx = np.where((y_true == 1) & (y_pred == 1))[0]
     if len(tp_idx) != len(cluster_labels):
         print("[!] Länge der Clusterlabels stimmt nicht mit TP-Anzahl überein.")
@@ -372,7 +367,6 @@ def plot_tp_kmeans_clusters_interactive(tsne_3d, y_true, y_pred, cluster_labels,
     print(f"[✓] Interaktive TP-KMeans-Cluster-Visualisierung gespeichert unter: {save_path}")
 
 def analyze_tp_clusters(tsne_3d, y_true, y_pred, X_test, save_path=None):
-    # Nur korrekt erkannte Angriffe (True Positives)
     tp_idx = np.where((y_true == 1) & (y_pred == 1))[0]
     if len(tp_idx) == 0:
         print("[!] Keine True Positives vorhanden.")
@@ -381,7 +375,6 @@ def analyze_tp_clusters(tsne_3d, y_true, y_pred, X_test, save_path=None):
     tp_embeds = tsne_3d[tp_idx]
     scaled_tp = StandardScaler().fit_transform(tp_embeds)
 
-    # KMeans mit exakt 3 Clustern
     kmeans = KMeans(n_clusters=3, random_state=42)
     labels = kmeans.fit_predict(scaled_tp)
 
@@ -398,7 +391,6 @@ def analyze_tp_clusters(tsne_3d, y_true, y_pred, X_test, save_path=None):
 
     mean_df = df_tp.groupby("cluster").mean()
 
-    # Heatmap der Mittelwerte
     plt.figure(figsize=(10, 6))
     sns.heatmap(mean_df.T, cmap="viridis", annot=True, fmt=".2f")
     plt.xlabel("Cluster")
@@ -415,46 +407,39 @@ def analyze_tp_clusters(tsne_3d, y_true, y_pred, X_test, save_path=None):
     plt.close()
 
 def run_final_test_model_ensemble(alpha=2, beta=1):
-    print("[✓] Lade Holdout-Testdaten...")
+    print("[\u2713] Lade Holdout-Testdaten...")
     df_test = load_pickle("data/processed/test_holdout.pkl")
     y_test = df_test["attack_detected"]
     X_test = df_test.drop(columns=["attack_detected"])
 
-    print("[✓] Suche Ensemble-Metadaten...")
-    matches = sorted(glob("models/tabnet_cv_*/metadata.json"))
-    if not matches:
-        raise FileNotFoundError("Keine metadata.json gefunden unter models/tabnet_cv_*/")
-    metadata_path = matches[-1]
-
+    print("[\u2713] Suche Ensemble-Metadaten...")
+    metadata_path = sorted(glob("models/tabnet_cv_*/metadata.json"))[-1]
     with open(metadata_path) as f:
         meta = json.load(f)
 
     model_paths = meta["model_paths"]
     models = []
-    print("[✓] Lade Ensemble-Modelle...")
+
+    print("[\u2713] Lade Ensemble-Modelle...")
     for path in model_paths:
         model_file = f"{path}.zip"
-        if not Path(model_file).exists():
-            raise FileNotFoundError(f"Modell-Datei fehlt: {model_file}")
         clf = TabNetClassifier()
         clf.load_model(model_file)
         models.append(clf)
 
-    print(f"[✓] {len(models)} Fold-Modelle erfolgreich geladen.")
+    print(f"[\u2713] {len(models)} Fold-Modelle erfolgreich geladen.")
 
-    print("[✓] Ensemble-Inferenz...")
+    print("[\u2713] Ensemble-Inferenz...")
     y_proba_matrix = np.array([model.predict_proba(X_test.values)[:, 1] for model in models])
     y_proba = y_proba_matrix.mean(axis=0)
     y_pred = (y_proba > 0.5).astype(int)
 
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
-    pos_total = tp + fn
-    neg_total = tn + fp
-    fn_rate = fn / pos_total if pos_total > 0 else 0
-    fp_rate = fp / neg_total if neg_total > 0 else 0
+    fn_rate = fn / (tp + fn) if (tp + fn) > 0 else 0
+    fp_rate = fp / (tn + fp) if (tn + fp) > 0 else 0
     cost = alpha * fn_rate + beta * fp_rate
 
-    metrics_raw = {
+    metrics = {
         "cost": cost,
         "f1": f1_score(y_test, y_pred),
         "precision": precision_score(y_test, y_pred),
@@ -463,36 +448,35 @@ def run_final_test_model_ensemble(alpha=2, beta=1):
         "auc": roc_auc_score(y_test, y_proba)
     }
 
-    metrics_rounded = {k: round(v, 4) for k, v in metrics_raw.items()}
-
-    pd.DataFrame.from_dict(metrics_rounded, orient="index", columns=["Wert"]).to_csv(
-        "reports/final_test_metrics_ensemble.csv"
+    pd.DataFrame.from_dict({k: [round(v, 4)] for k, v in metrics.items()}).T.to_csv(
+        "reports/final_test_metrics_ensemble.csv", header=["Wert"]
     )
-    print("[✓] Test-Metriken gespeichert unter: reports/final_test_metrics_ensemble.csv")
+    print("[\u2713] Test-Metriken gespeichert.")
 
-    print("[✓] Speichere Confusion Matrix...")
+    print("[\u2713] Speichere Confusion Matrix...")
     save_confusion_matrix(y_test, y_pred, "reports/figures/confusion_matrix_test_ensemble.png")
 
-    print("[✓] Starte Feature-Mask-Analyse...")
+    print("[\u2713] Starte Feature-Mask-Analyse...")
     analyze_feature_masks(models, X_test, y_test.values, y_pred)
 
-    print("[✓] Starte Konsistenzanalyse des Ensembles...")
+    print("[\u2713] Starte Konsistenzanalyse des Ensembles...")
     analyze_ensemble_uncertainty(models, X_test, y_test.values, y_pred)
 
-    print("[✓] Berechne mittlere Feature-Masken für alle Modelle...")
-    all_masks = [model.explain(X_test.values.astype(np.float32))[0] for model in models]
-    mean_mask = np.mean(all_masks, axis=0)
+    print("[\u2713] Berechne mittlere Feature-Masken...")
+    mean_mask = np.mean([model.explain(X_test.values.astype(np.float32))[0] for model in models], axis=0)
 
-    print("[✓] Starte t-SNE 3D für Clusteranalyse...")
+    print("[\u2713] Starte t-SNE 3D...")
     tsne_3d = TSNE(n_components=3, random_state=42, perplexity=30).fit_transform(mean_mask)
 
-    # Visualisierungen erzeugen
     plot_3d_interactive(tsne_3d, y_test, y_pred, save_path="reports/figures/embeddings_3d/tsne_3d_interactive.html")
 
-    # Clusteranalyse für TP
-    print("[✓] Starte TP-Clusteranalyse...")
-    analyze_tp_clusters(tsne_3d, y_test.values, y_pred, X_test, save_path="reports/figures/tp_clusters_tsne_kmeans.png")
+    print("[\u2713] Starte TP-Clusteranalyse...")
+    analyze_tp_clusters(
+        tsne_3d, y_test.values, y_pred, X_test,
+        save_path="reports/figures/tp_clusters_tsne_kmeans.png"
+    )
 
+    print("[\u2713] Starte Vergleich FN vs. TP...")
     compare_fn_tp_feature_means(X_test, y_test, y_pred)
 
-    print("[✓] Testevaluation des Ensembles abgeschlossen.")
+    print("[\u2713] Testevaluation abgeschlossen.")
