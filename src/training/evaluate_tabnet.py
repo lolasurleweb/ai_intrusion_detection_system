@@ -17,6 +17,9 @@ from src.utils.io import load_pickle
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import umap.umap_ as umap
+import plotly.express as px
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 
 def save_confusion_matrix(y_true, y_pred, save_path):
     disp = ConfusionMatrixDisplay.from_predictions(y_true, y_pred, cmap="Blues")
@@ -202,17 +205,66 @@ def analyze_ensemble_uncertainty(models, X_test, y_test, y_pred, save_dir="repor
     plt.close()
     print(f"[✓] Violinplot gespeichert unter: {path_violin}")
 
+def plot_3d_interactive(data_3d, y_true, y_pred, save_path="tsne_3d_interactive.html"):
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    labels = []
+    for yt, yp in zip(y_true, y_pred):
+        if yt == 1 and yp == 1:
+            labels.append("TP")
+        elif yt == 1 and yp == 0:
+            labels.append("FN")
+        elif yt == 0 and yp == 1:
+            labels.append("FP")
+        else:
+            labels.append("TN")
+
+    df = pd.DataFrame(data_3d, columns=["Dim 1", "Dim 2", "Dim 3"])
+    df["Label"] = labels
+
+    color_map = {
+        "TP": "#4C72B0",
+        "FN": "#55A868",
+        "FP": "#C44E52",
+        "TN": "#DD8452"
+    }
+
+    fig = px.scatter_3d(
+        df,
+        x="Dim 1",
+        y="Dim 2",
+        z="Dim 3",
+        color="Label",
+        color_discrete_map=color_map,
+        opacity=0.7
+    )
+    fig.update_traces(marker=dict(size=4))
+    fig.update_layout(title="Interaktives t-SNE 3D Embedding")
+
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    fig.write_html(save_path)
+    print(f"[✓] Interaktiver t-SNE-Plot gespeichert unter: {save_path}")
+
 def visualize_embeddings_3d(mean_mask, y_true, y_pred, save_dir="reports/figures/embeddings_3d"):
     os.makedirs(save_dir, exist_ok=True)
 
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
+
+    label_colors = {
+    "TP": "#4C72B0",     
+    "FN": "#55A868",     
+    "FP": "#C44E52",    
+    "TN": "#DD8452"    
+    }
     
     def plot_3d(data_3d, title, name):
         fig = plt.figure(figsize=(8, 6))
         ax = fig.add_subplot(111, projection='3d')
         
-        for label, color in [("TP", "green"), ("FN", "red"), ("FP", "orange"), ("TN", "blue")]:
+        for label in ["TP", "FN", "FP", "TN"]:
+            color = label_colors[label]
             if label == "TP":
                 idx = np.where((y_true == 1) & (y_pred == 1))
             elif label == "FN":
@@ -254,6 +306,11 @@ def visualize_embeddings_3d(mean_mask, y_true, y_pred, save_dir="reports/figures
     umap_3d = reducer.fit_transform(mean_mask)
     plot_3d(umap_3d, "UMAP 3D Embedding", "umap")
 
+    print("[✓] Starte t-SNE 3D...")
+    tsne_3d = TSNE(n_components=3, random_state=42, perplexity=30).fit_transform(mean_mask)
+    plot_3d(tsne_3d, "t-SNE 3D Embedding", "tsne")
+    plot_3d_interactive(tsne_3d, y_true, y_pred, save_path=os.path.join(save_dir, "tsne_3d_interactive.html"))
+
     print(f"[✓] 3D-Visualisierungen gespeichert unter: {save_dir}")
 
 def compare_fn_tp_feature_means(X_test, y_true, y_pred, save_path="reports/figures/fn_tp_feature_diff.png"):
@@ -286,12 +343,76 @@ def compare_fn_tp_feature_means(X_test, y_true, y_pred, save_path="reports/figur
     plt.figure(figsize=(10, 6))
     df_plot["Difference (FN - TP)"].plot(kind="barh", color="coral")
     plt.axvline(0, color="gray", linestyle="--")
-    plt.title("Feature-Mittelwertdifferenz: FN vs. TP")
     plt.xlabel("Differenz")
     plt.tight_layout()
     plt.savefig(save_path)
     plt.close()
     print(f"[✓] FN vs. TP Featurevergleich gespeichert unter: {save_path}")
+
+def plot_tp_kmeans_clusters_interactive(tsne_3d, y_true, y_pred, cluster_labels, save_path="reports/figures/embeddings_3d/tp_kmeans_clusters_3d.html"):
+    # Nur TP auswählen
+    tp_idx = np.where((y_true == 1) & (y_pred == 1))[0]
+    if len(tp_idx) != len(cluster_labels):
+        print("[!] Länge der Clusterlabels stimmt nicht mit TP-Anzahl überein.")
+        return
+
+    df = pd.DataFrame(tsne_3d[tp_idx], columns=["Dim 1", "Dim 2", "Dim 3"])
+    df["Cluster"] = cluster_labels.astype(str)
+
+    fig = px.scatter_3d(
+        df,
+        x="Dim 1", y="Dim 2", z="Dim 3",
+        color="Cluster",
+        title="True Positives – KMeans Cluster im t-SNE-Raum",
+        opacity=0.8
+    )
+    fig.update_traces(marker=dict(size=4))
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    fig.write_html(save_path)
+    print(f"[✓] Interaktive TP-KMeans-Cluster-Visualisierung gespeichert unter: {save_path}")
+
+def analyze_tp_clusters(tsne_3d, y_true, y_pred, X_test, save_path=None):
+    # Nur korrekt erkannte Angriffe (True Positives)
+    tp_idx = np.where((y_true == 1) & (y_pred == 1))[0]
+    if len(tp_idx) == 0:
+        print("[!] Keine True Positives vorhanden.")
+        return
+
+    tp_embeds = tsne_3d[tp_idx]
+    scaled_tp = StandardScaler().fit_transform(tp_embeds)
+
+    # KMeans mit exakt 3 Clustern
+    kmeans = KMeans(n_clusters=3, random_state=42)
+    labels = kmeans.fit_predict(scaled_tp)
+
+    plot_tp_kmeans_clusters_interactive(
+    tsne_3d=tsne_3d,
+    y_true=y_true,
+    y_pred=y_pred,
+    cluster_labels=labels,
+    save_path="reports/figures/embeddings_3d/tp_kmeans_clusters_3d.html"
+    )
+
+    df_tp = X_test.iloc[tp_idx].copy()
+    df_tp["cluster"] = labels
+
+    mean_df = df_tp.groupby("cluster").mean()
+
+    # Heatmap der Mittelwerte
+    plt.figure(figsize=(10, 6))
+    sns.heatmap(mean_df.T, cmap="viridis", annot=True, fmt=".2f")
+    plt.xlabel("Cluster")
+    plt.ylabel("Feature")
+    plt.tight_layout()
+
+    if save_path:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        plt.savefig(save_path)
+        print(f"[✓] KMeans TP-Cluster-Heatmap gespeichert unter: {save_path}")
+    else:
+        plt.show()
+
+    plt.close()
 
 def run_final_test_model_ensemble(alpha=2, beta=1):
     print("[✓] Lade Holdout-Testdaten...")
@@ -362,8 +483,15 @@ def run_final_test_model_ensemble(alpha=2, beta=1):
     all_masks = [model.explain(X_test.values.astype(np.float32))[0] for model in models]
     mean_mask = np.mean(all_masks, axis=0)
 
-    print("[✓] Starte Embedding-Visualisierung...")
-    visualize_embeddings_3d(mean_mask, y_test, y_pred)
+    print("[✓] Starte t-SNE 3D für Clusteranalyse...")
+    tsne_3d = TSNE(n_components=3, random_state=42, perplexity=30).fit_transform(mean_mask)
+
+    # Visualisierungen erzeugen
+    plot_3d_interactive(tsne_3d, y_test, y_pred, save_path="reports/figures/embeddings_3d/tsne_3d_interactive.html")
+
+    # Clusteranalyse für TP
+    print("[✓] Starte TP-Clusteranalyse...")
+    analyze_tp_clusters(tsne_3d, y_test.values, y_pred, X_test, save_path="reports/figures/tp_clusters_tsne_kmeans.png")
 
     compare_fn_tp_feature_means(X_test, y_test, y_pred)
 
