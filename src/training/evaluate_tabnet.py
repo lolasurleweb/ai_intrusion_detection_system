@@ -1,9 +1,11 @@
 from glob import glob
 import json
 import os
+from matplotlib.patches import Rectangle
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 from pathlib import Path
 from sklearn.metrics import (
     ConfusionMatrixDisplay, confusion_matrix, 
@@ -28,64 +30,179 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
+def compute_null_distribution(mean_mask, labels, n_iter=1000, seed=42):
+    np.random.seed(seed)
+    null_diffs = []
+
+    for _ in range(n_iter):
+        permuted = np.random.permutation(labels)
+        group1 = mean_mask[permuted == 0]
+        group2 = mean_mask[permuted == 1]
+
+        if len(group1) == 0 or len(group2) == 0:
+            continue
+
+        diff = group1.mean(axis=0) - group2.mean(axis=0)
+        null_diffs.append(diff)
+
+    return np.array(null_diffs)
+
+def compute_feature_mask_statistics(mean_mask, idx, feature_names):
+    if len(idx) == 0:
+        return np.zeros(len(feature_names)), np.zeros(len(feature_names))
+    subset = mean_mask[idx]
+    return subset.mean(axis=0), subset.std(axis=0)
+
+def compute_significance(mask_group1, mask_group2, feature_names, diff_label, save_dir):
+    labels = np.array([0] * len(mask_group1) + [1] * len(mask_group2))
+    masks_combined = np.vstack([mask_group1, mask_group2])
+
+    null_diffs = compute_null_distribution(masks_combined, labels, n_iter=1000)
+    lower_ci = np.percentile(null_diffs, 2.5, axis=0)
+    upper_ci = np.percentile(null_diffs, 97.5, axis=0)
+
+    real_diff = mask_group2.mean(axis=0) - mask_group1.mean(axis=0)
+    significant = (real_diff < lower_ci) | (real_diff > upper_ci)
+
+    # Plot
+    plt.figure(figsize=(10, 6))
+    plt.barh(
+        feature_names,
+        real_diff,
+        color=["#1f77b4" if sig else "#d3d3d3" for sig in significant]
+    )
+    plt.axvline(0, color='gray', linestyle='--')
+    plt.tight_layout()
+    filepath = os.path.join(save_dir, f"diff_{diff_label.replace(' ', '_').lower()}_significant.png")
+    plt.savefig(filepath)
+    plt.close()
+
+    return pd.DataFrame({
+        "feature": feature_names,
+        f"diff_{diff_label.lower().replace(' ', '_')}": real_diff,
+        f"ci_lower_{diff_label.lower().replace(' ', '_')}": lower_ci,
+        f"ci_upper_{diff_label.lower().replace(' ', '_')}": upper_ci,
+        f"significant_{diff_label.lower().replace(' ', '_')}": significant
+    })
+
+def plot_feature_mask_bar(mean_mask, std_mask, cls_name, feature_names, save_dir):
+    plt.figure(figsize=(10, 6))
+    plt.barh(feature_names, mean_mask, xerr=std_mask, ecolor="red", capsize=4)
+    plt.tight_layout()
+    filepath = os.path.join(save_dir, f"featuremask_{cls_name.lower()}.png")
+    plt.savefig(filepath)
+    plt.close()
+
+def plot_feature_mask_heatmap(df_masks, df_significance, save_dir):
+    df_all = df_masks.merge(df_significance, on="feature").set_index("feature")
+
+    annot = pd.DataFrame(index=df_all.index)
+    for cls in ["tp", "fn", "fp", "tn"]:
+        mean = df_all[f"mean_{cls}"]
+        std = df_all[f"std_{cls}"]
+        annot[cls.upper()] = [f"{m:.2f} ± {s:.2f}" for m, s in zip(mean, std)]
+
+    heatmap_data = df_all[[f"mean_tp", f"mean_fn", f"mean_fp", f"mean_tn"]]
+    heatmap_data.columns = ["TP", "FN", "FP", "TN"]
+
+    plt.figure(figsize=(10, 8))
+    ax = sns.heatmap(heatmap_data, annot=annot, fmt="", cmap="Blues", linewidths=0.5,
+                     cbar_kws={"label": "Feature Importance (Mean)"})
+    plt.ylabel("Feature")
+    plt.xlabel("Fehlerklasse")
+
+    # Signifikanzrahmen einzeichnen
+    sig_map = {
+        (i, 1): sig for i, sig in enumerate(df_all["significant_fn_tp"])  # FN
+    }
+    sig_map.update({
+        (i, 2): sig for i, sig in enumerate(df_all["significant_fp_tn"])  # FP
+    })
+    for (y, x), sig in sig_map.items():
+        if sig:
+            ax.add_patch(Rectangle((x, y), 1, 1, fill=False, edgecolor='red', lw=2))
+
+    plt.tight_layout()
+    heatmap_path = os.path.join(save_dir, "feature_mask_heatmap_significance.png")
+    plt.savefig(heatmap_path)
+    plt.close()
+
 def analyze_feature_masks(models, X_test, y_test, y_pred, save_dir="reports/figures/feature_masks"):
     os.makedirs(save_dir, exist_ok=True)
     feature_names = X_test.columns.tolist()
 
-    # Schritt 1: Ensemble-Mittelwert der Feature Masks sammeln
-    all_masks = []
-    for model in models:
-        mask, _ = model.explain(X_test.values.astype(np.float32))  # Achtung: explain() statt predict()
-        all_masks.append(mask)
+    all_masks = [model.explain(X_test.values.astype(np.float32))[0] for model in models]
+    mean_mask = np.mean(all_masks, axis=0)
 
-    mean_mask = np.mean(all_masks, axis=0)  # shape: [n_samples, n_features]
-
-    # Schritt 2: Fehlerklassen-Indizes
     y_test = np.array(y_test)
-    tp_idx = np.where((y_test == 1) & (y_pred == 1))[0]
-    fp_idx = np.where((y_test == 0) & (y_pred == 1))[0]
-    fn_idx = np.where((y_test == 1) & (y_pred == 0))[0]
-    tn_idx = np.where((y_test == 0) & (y_pred == 0))[0]
+    idx = {
+        "tp": np.where((y_test == 1) & (y_pred == 1))[0],
+        "fp": np.where((y_test == 0) & (y_pred == 1))[0],
+        "fn": np.where((y_test == 1) & (y_pred == 0))[0],
+        "tn": np.where((y_test == 0) & (y_pred == 0))[0]
+    }
 
-    # Schritt 3: Klassenspezifische Mittelwerte
-    mean_mask_tp = mean_mask[tp_idx].mean(axis=0) if len(tp_idx) > 0 else np.zeros(len(feature_names))
-    mean_mask_fp = mean_mask[fp_idx].mean(axis=0) if len(fp_idx) > 0 else np.zeros(len(feature_names))
-    mean_mask_fn = mean_mask[fn_idx].mean(axis=0) if len(fn_idx) > 0 else np.zeros(len(feature_names))
-    mean_mask_tn = mean_mask[tn_idx].mean(axis=0) if len(tn_idx) > 0 else np.zeros(len(feature_names))
+    stats = {
+        cls: compute_feature_mask_statistics(mean_mask, idx[cls], feature_names)
+        for cls in idx
+    }
 
-    # Schritt 4: Differenzplots
-    def plot_difference(diff, title, filename):
-        plt.figure(figsize=(10, 6))
-        plt.barh(feature_names, diff)
-        plt.title(title)
-        plt.axvline(0, color='gray', linestyle='--')
-        plt.tight_layout()
-        filepath = os.path.join(save_dir, filename)
-        plt.savefig(filepath)
-        plt.close()
-        print(f"[✓] Plot gespeichert unter: {filepath}")
+    df_masks = pd.DataFrame({
+        "feature": feature_names,
+        **{f"mean_{cls}": stats[cls][0] for cls in stats},
+        **{f"std_{cls}": stats[cls][1] for cls in stats},
+    })
 
-    plot_difference(mean_mask_fn - mean_mask_tp,
-                    "Feature-Mask-Differenz (False Negatives - True Positives)",
-                    "diff_fn_vs_tp.png")
+    df_fn_tp = compute_significance(mean_mask[idx["tp"]], mean_mask[idx["fn"]], feature_names, "FN TP", save_dir)
+    df_fp_tn = compute_significance(mean_mask[idx["tn"]], mean_mask[idx["fp"]], feature_names, "FP TN", save_dir)
 
-    plot_difference(mean_mask_fp - mean_mask_tn,
-                    "Feature-Mask-Differenz (False Positives - True Negatives)",
-                    "diff_fp_vs_tn.png")
+    df_combined = df_fn_tp.merge(df_fp_tn, on="feature")
+    df_masks.to_csv(os.path.join(save_dir, "feature_mask_means_stds.csv"), index=False)
+    df_combined.to_csv(os.path.join(save_dir, "feature_mask_significance.csv"), index=False)
 
-    # Schritt 5: Absolute Klassenmasken
-    for cls_name, mask in zip(
-        ["TP", "FP", "FN", "TN"],
-        [mean_mask_tp, mean_mask_fp, mean_mask_fn, mean_mask_tn]
-    ):
-        plt.figure(figsize=(10, 6))
-        plt.barh(feature_names, mask)
-        plt.title(f"Durchschnittliche Feature-Masken für {cls_name}")
-        plt.tight_layout()
-        filepath = os.path.join(save_dir, f"featuremask_{cls_name.lower()}.png")
-        plt.savefig(filepath)
-        plt.close()
-        print(f"[✓] Plot gespeichert unter: {filepath}")
+    for cls in stats:
+        plot_feature_mask_bar(stats[cls][0], stats[cls][1], cls.upper(), feature_names, save_dir)
+
+    plot_feature_mask_heatmap(df_masks, df_combined, save_dir)
+    print("[✓] Alle Feature-Masken und Signifikanzplots wurden gespeichert.")
+
+import os
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+def analyze_ensemble_uncertainty(models, X_test, y_test, y_pred, save_dir="reports/figures/ensemble_uncertainty"):
+    os.makedirs(save_dir, exist_ok=True)
+
+    print("[✓] Berechne predict_proba pro Fold-Modell...")
+    probas = np.array([model.predict_proba(X_test.values)[:, 1] for model in models])  # [n_models, n_samples]
+
+    print("[✓] Berechne Streuung und Mittelwert je Instanz...")
+    proba_std = np.std(probas, axis=0)    # [n_samples]
+    proba_mean = np.mean(probas, axis=0)  # [n_samples]
+
+    df = pd.DataFrame({
+        "y_true": y_test,
+        "y_pred": y_pred,
+        "proba_mean": proba_mean,
+        "proba_std": proba_std
+    })
+
+    df["error_type"] = "Correct"
+    df.loc[(df.y_true == 1) & (df.y_pred == 0), "error_type"] = "False Negative"
+    df.loc[(df.y_true == 0) & (df.y_pred == 1), "error_type"] = "False Positive"
+
+    # Violinplot der Streuung pro Fehlerklasse
+    plt.figure(figsize=(8, 5))
+    sns.violinplot(data=df, x="error_type", y="proba_std", inner="box", cut=0)
+    plt.ylabel("Standardabweichung der Modell-Vorhersagen")
+    plt.xlabel("Fehlerklasse")
+    plt.tight_layout()
+    path_violin = os.path.join(save_dir, "ensemble_std_per_error_type_violin.png")
+    plt.savefig(path_violin)
+    plt.close()
+    print(f"[✓] Violinplot gespeichert unter: {path_violin}")
 
 def run_final_test_model_ensemble(alpha=2, beta=1):
     print("[✓] Lade Holdout-Testdaten...")
@@ -148,5 +265,8 @@ def run_final_test_model_ensemble(alpha=2, beta=1):
 
     print("[✓] Starte Feature-Mask-Analyse...")
     analyze_feature_masks(models, X_test, y_test.values, y_pred)
+
+    print("[✓] Starte Konsistenzanalyse des Ensembles...")
+    analyze_ensemble_uncertainty(models, X_test, y_test.values, y_pred)
 
     print("[✓] Testevaluation des Ensembles abgeschlossen.")
