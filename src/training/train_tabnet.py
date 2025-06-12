@@ -1,4 +1,5 @@
 import os
+from matplotlib import pyplot as plt
 import torch
 import numpy as np
 import pandas as pd
@@ -8,9 +9,10 @@ from datetime import datetime
 from itertools import product
 from pytorch_tabnet.tab_model import TabNetClassifier
 from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score
+from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score, accuracy_score
 from src.utils.io import load_pickle
 from pytorch_tabnet.metrics import Metric
+from pandas.plotting import parallel_coordinates
 
 class CostScore(Metric):
     def __init__(self, alpha=5.0, beta=1.0):
@@ -82,8 +84,6 @@ def train_tabnet(X_train, y_train, X_val, y_val, params, fold_idx=None):
 
     return clf
 
-import matplotlib.pyplot as plt
-
 def plot_learning_curves(history, fold_idx, out_dir="reports/learning_curves"):
     os.makedirs(out_dir, exist_ok=True)
     epochs = range(1, len(history["train_logloss"]) + 1)
@@ -113,6 +113,92 @@ def plot_learning_curves(history, fold_idx, out_dir="reports/learning_curves"):
     plt.tight_layout()
     plt.savefig(f"{out_dir}/fold_{fold_idx+1}.png")
     plt.close()
+
+def plot_parallel_per_mask_type(df, metric="avg_cost", out_dir="reports/grid_search/parallel_by_mask"):
+    os.makedirs(out_dir, exist_ok=True)
+
+    for mt in df["mask_type"].unique():
+        subset = df[df["mask_type"] == mt].copy()
+
+        # Fallback bei zu wenigen Konfigurationen
+        if len(subset) < 4:
+            print(f"[!] Zu wenige Konfigurationen für mask_type = {mt} → übersprungen")
+            continue
+
+        # Farbklassifizierung (Quartile)
+        subset["score_bin"] = pd.qcut(subset[metric], q=4, labels=["best", "good", "avg", "bad"])
+
+        axis_cols = ["n_d", "n_a", "lambda_sparse"]
+        plot_df = subset[axis_cols + ["score_bin"]].copy()
+
+        # Normierung der Achsenwerte
+        for col in axis_cols:
+            plot_df[col] = (plot_df[col] - plot_df[col].min()) / (plot_df[col].max() - plot_df[col].min())
+
+        # Plot erstellen
+        plt.figure(figsize=(10, 6))
+        parallel_coordinates(plot_df, class_column="score_bin", colormap="viridis")
+        plt.title(f"Parallel Coordinates Plot für mask_type = {mt}")
+        plt.ylabel("Skalierte Hyperparameterwerte")
+        plt.grid(True)
+        plt.tight_layout()
+        plt.savefig(f"{out_dir}/parallel_{mt}.png")
+        plt.close()
+
+        print(f"[✓] Parallelplot gespeichert unter: {out_dir}/parallel_{mt}.png")
+
+def plot_final_metric_matrix(df, metrics, highlight_metric="avg_cost", out_path="reports/grid_search/final_metric_matrix.png"):
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+
+    df = df.copy()
+    df["config_label"] = df.apply(
+        lambda r: f"{r['n_d']}-{r['n_a']}-{r['mask_type']}-{r['lambda_sparse']}", axis=1
+    )
+
+    x = list(range(len(df)))
+    labels = df["config_label"].tolist()
+
+    best_idx = df[highlight_metric].idxmin()
+    best_x = x[best_idx]
+
+    plt.figure(figsize=(len(df) * 0.5 + 3, 6))
+
+    for metric in metrics:
+        plt.scatter(x, df[metric], label=metric, s=60)
+
+    for xi in x:
+        plt.axvline(x=xi, color="gray", linestyle="--", alpha=0.2)
+
+    # Highlight der besten Konfiguration
+    plt.axvspan(best_x - 0.5, best_x + 0.5, color="red", alpha=0.1)
+
+    for metric in metrics:
+        plt.scatter(best_x, df.loc[best_idx, metric], 
+                    s=150, edgecolors='black', linewidths=1.5, 
+                    color=plt.rcParams['axes.prop_cycle'].by_key()['color'][metrics.index(metric)],
+                    zorder=5)
+        
+    plt.annotate("⬇", (best_x, plt.ylim()[1] * 0.99), 
+             ha="center", va="top", fontsize=16, color="red")
+    
+    plt.text(
+        best_x, plt.ylim()[1] * 1.01,
+        f"Beste Konfiguration:",
+        ha="center", va="bottom", fontsize=9,
+        bbox=dict(facecolor="white", edgecolor="red", boxstyle="round,pad=0.3")
+    )
+
+    plt.xticks(x, labels, rotation=45, ha="right")
+    plt.xlabel("Konfiguration (n_d - n_a - mask_type - lambda_sparse)")
+    plt.ylabel("Wert")
+    plt.title("Metriken über alle Konfigurationen")
+    plt.grid(True, axis="y", linestyle="--", alpha=0.5)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(out_path, dpi=300)
+    plt.close()
+
+    print(f"[✓] Grid-Sreach Metrikplot gespeichert unter: {out_path}")
 
 def run_training():
     print("[✓] Lade Trainingsdaten...")
@@ -162,21 +248,30 @@ def run_training():
                 "f1": f1_score(y_val, y_val_pred),
                 "auc": roc_auc_score(y_val, y_val_proba),
                 "precision": precision_score(y_val, y_val_pred),
-                "recall": recall_score(y_val, y_val_pred)
+                "recall": recall_score(y_val, y_val_pred),
+                "accuracy": accuracy_score(y_val, y_val_pred)
             })
             fold_models.append(clf)
 
             print(f"  → Fold {fold_idx+1}: Val-Cost = {val_cost:.4f}")
 
-        avg_cost = np.mean(fold_costs)
-        std_cost = np.std(fold_costs)
-        print(f"→ Durchschnittlicher Cost: {avg_cost:.4f} ± {std_cost:.4f}")
+        # Mittelwerte der Metriken über alle 5 Folds berechnen
+        avg_metrics = {
+            "avg_cost": np.mean([m["cost"] for m in fold_metrics]),
+            "std_cost": np.std([m["cost"] for m in fold_metrics]),
+            "f1": np.mean([m["f1"] for m in fold_metrics]),
+            "precision": np.mean([m["precision"] for m in fold_metrics]),
+            "recall": np.mean([m["recall"] for m in fold_metrics]),
+            "auc": np.mean([m["auc"] for m in fold_metrics]),
+            "accuracy": np.mean([m["accuracy"] for m in fold_metrics])
+        }
 
         grid_search_results.append({
             **params,
-            "avg_cost": float(avg_cost),
-            "std_cost": float(std_cost)
+            **avg_metrics
         })
+
+        avg_cost = avg_metrics["avg_cost"]
 
         if avg_cost < lowest_avg_cost:
             best_config = params
@@ -194,6 +289,11 @@ def run_training():
     df_results.to_csv("reports/cv_summary/grid_search_results.csv", index=False)
     print("[✓] Grid Search Ergebnisse gespeichert unter: reports/cv_summary/grid_search_results.csv")
 
+    plot_parallel_per_mask_type(df_results)
+    print("[✓] Parallel Coordinates Plot gespeichert unter: reports/grid_search/parallel_coordinates.png")
+
+    plot_final_metric_matrix(df_results, metrics=["avg_cost", "f1", "precision", "recall", "accuracy", "auc"], highlight_metric="avg_cost")
+    
     save_fold_models(
         fold_models=best_fold_models,
         params=best_config,
