@@ -82,6 +82,37 @@ def train_tabnet(X_train, y_train, X_val, y_val, params, fold_idx=None):
 
     return clf
 
+import matplotlib.pyplot as plt
+
+def plot_learning_curves(history, fold_idx, out_dir="reports/learning_curves"):
+    os.makedirs(out_dir, exist_ok=True)
+    epochs = range(1, len(history["train_logloss"]) + 1)
+
+    plt.figure(figsize=(10, 5))
+
+    # Plot Logloss
+    plt.subplot(1, 2, 1)
+    plt.plot(epochs, history["train_logloss"], label="Train Logloss")
+    plt.plot(epochs, history["val_logloss"], label="Val Logloss")
+    plt.xlabel("Epoch")
+    plt.ylabel("Logloss")
+    plt.title(f"Logloss Fold {fold_idx+1}")
+    plt.legend()
+    plt.grid(True)
+
+    # Plot Custom Cost
+    plt.subplot(1, 2, 2)
+    plt.plot(epochs, history["train_custom_cost"], label="Train Cost")
+    plt.plot(epochs, history["val_custom_cost"], label="Val Cost")
+    plt.xlabel("Epoch")
+    plt.ylabel("Cost")
+    plt.title(f"Custom Cost Fold {fold_idx+1}")
+    plt.legend()
+    plt.grid(True)
+
+    plt.tight_layout()
+    plt.savefig(f"{out_dir}/fold_{fold_idx+1}.png")
+    plt.close()
 
 def run_training():
     print("[✓] Lade Trainingsdaten...")
@@ -117,6 +148,7 @@ def run_training():
             y_train, y_val = y_full.iloc[train_idx], y_full.iloc[val_idx]
 
             clf = train_tabnet(X_train, y_train, X_val, y_val, params)
+            plot_learning_curves(clf.history, fold_idx)
 
             y_val_pred = clf.predict(X_val.values)
             y_val_proba = clf.predict_proba(X_val.values)[:, 1]
