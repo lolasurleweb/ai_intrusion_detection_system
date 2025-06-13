@@ -13,6 +13,8 @@ from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_
 from src.utils.io import load_pickle
 from pytorch_tabnet.metrics import Metric
 from pandas.plotting import parallel_coordinates
+import optuna
+import optuna.visualization as vis
 
 class CostScore(Metric):
     def __init__(self, alpha=5.0, beta=1.0):
@@ -102,62 +104,6 @@ def plot_learning_curves(history, fold_idx, out_dir="reports/learning_curves"):
     plt.savefig(f"{out_dir}/fold_{fold_idx+1}.png")
     plt.close()
 
-def plot_parallel_per_mask_type(df, metric="avg_cost", out_dir="reports/grid_search/parallel_by_mask"):
-    import matplotlib.pyplot as plt
-    from pandas.plotting import parallel_coordinates
-    import os
-
-    os.makedirs(out_dir, exist_ok=True)
-
-    # Fallback, falls mask_type nicht optimiert wurde
-    if "mask_type" not in df.columns:
-        df["mask_type"] = "all"
-
-    for mt in df["mask_type"].unique():
-        subset = df[df["mask_type"] == mt].copy()
-
-        # Fallback bei zu wenigen Konfigurationen
-        if len(subset) < 4:
-            print(f"[!] Zu wenige Konfigurationen für mask_type = {mt} → übersprungen")
-            continue
-
-        try:
-            # Farbklassifizierung (Quartile)
-            subset["score_bin"] = pd.qcut(subset[metric], q=4, labels=["best", "good", "avg", "bad"])
-        except ValueError:
-            print(f"[!] Quartile für {mt} nicht berechenbar → übersprungen")
-            continue
-
-        # Wichtige Hyperparameterachsen (ggf. erweitern)
-        axis_cols = ["n_d", "n_a", "lambda_sparse", "n_steps"]
-        axis_cols = [col for col in axis_cols if col in subset.columns]
-
-        if len(axis_cols) < 2:
-            print(f"[!] Zu wenige gemeinsame Parameter für mask_type = {mt} → übersprungen")
-            continue
-
-        plot_df = subset[axis_cols + ["score_bin"]].copy()
-
-        # Normierung der Achsenwerte (robust)
-        for col in axis_cols:
-            range_val = plot_df[col].max() - plot_df[col].min()
-            if range_val == 0:
-                plot_df[col] = 0.5  # alle Werte gleich → mittig
-            else:
-                plot_df[col] = (plot_df[col] - plot_df[col].min()) / range_val
-
-        # Plot erstellen
-        plt.figure(figsize=(10, 6))
-        parallel_coordinates(plot_df, class_column="score_bin", colormap="viridis")
-        plt.title(f"Parallel Coordinates Plot für mask_type = {mt}")
-        plt.ylabel("Skalierte Hyperparameterwerte")
-        plt.grid(True)
-        plt.tight_layout()
-        plt.savefig(f"{out_dir}/parallel_{mt}.png")
-        plt.close()
-
-        print(f"[✓] Parallelplot gespeichert unter: {out_dir}/parallel_{mt}.png")
-
 def plot_final_metric_matrix(df, metrics, highlight_metric="avg_cost", out_path="reports/grid_search/final_metric_matrix.png"):
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
@@ -191,27 +137,26 @@ def plot_final_metric_matrix(df, metrics, highlight_metric="avg_cost", out_path=
         
     plt.annotate("⬇", (best_x, plt.ylim()[1] * 0.99), 
              ha="center", va="top", fontsize=16, color="red")
-    
-    plt.text(
-        best_x, plt.ylim()[1] * 1.01,
-        f"Beste Konfiguration:",
-        ha="center", va="bottom", fontsize=9,
-        bbox=dict(facecolor="white", edgecolor="red", boxstyle="round,pad=0.3")
-    )
 
-    plt.xticks(x, labels, rotation=45, ha="right")
+    plt.xticks(x, labels, rotation=45, ha="right", fontsize=8)
     plt.xlabel("Konfiguration (n_d - n_a - mask_type - lambda_sparse)")
     plt.ylabel("Wert")
     plt.title("Metriken über alle Konfigurationen")
     plt.grid(True, axis="y", linestyle="--", alpha=0.5)
-    plt.legend()
+
+    plt.legend(
+        loc="upper left",
+        bbox_to_anchor=(1.02, 1),
+        borderaxespad=0.,
+        fontsize=8,
+        frameon=False
+    )
+
     plt.tight_layout()
-    plt.savefig(out_path, dpi=300)
+    plt.savefig(out_path, dpi=300, bbox_inches="tight")
     plt.close()
 
     print(f"[✓] Grid-Sreach Metrikplot gespeichert unter: {out_path}")
-
-import optuna
 
 def run_training(n_trials=20):
     print("[✓] Lade Trainingsdaten...")
@@ -220,6 +165,8 @@ def run_training(n_trials=20):
     y_full = trainval_df["attack_detected"]
 
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+    trial_metrics_list = []
 
     def objective(trial):
         params = {
@@ -232,6 +179,7 @@ def run_training(n_trials=20):
         }
 
         fold_costs = []
+        fold_metrics = []
 
         for fold_idx, (train_idx, val_idx) in enumerate(skf.split(X_full, y_full)):
             X_train, X_val = X_full.iloc[train_idx], X_full.iloc[val_idx]
@@ -246,19 +194,50 @@ def run_training(n_trials=20):
 
             fold_costs.append(val_cost)
 
-        avg_cost = np.mean(fold_costs)
-        return avg_cost
+            fold_metrics.append({
+                "cost": val_cost,
+                "logloss": clf.history["val_logloss"][-1],
+                "f1": f1_score(y_val, y_val_pred),
+                "auc": roc_auc_score(y_val, y_val_proba),
+                "precision": precision_score(y_val, y_val_pred),
+                "recall": recall_score(y_val, y_val_pred),
+                "accuracy": accuracy_score(y_val, y_val_pred)
+            })
+
+        # Logging für spätere Analyse
+        trial_metrics_list.append({
+            **params,
+            "avg_cost": np.mean([m["cost"] for m in fold_metrics]),
+            "f1": np.mean([m["f1"] for m in fold_metrics]),
+            "precision": np.mean([m["precision"] for m in fold_metrics]),
+            "recall": np.mean([m["recall"] for m in fold_metrics]),
+            "accuracy": np.mean([m["accuracy"] for m in fold_metrics]),
+            "auc": np.mean([m["auc"] for m in fold_metrics]),
+            "logloss": np.mean([m["logloss"] for m in fold_metrics])
+        })
+
+        return np.mean(fold_costs)
 
     study = optuna.create_study(direction="minimize")
     study.optimize(objective, n_trials=n_trials)
+
+    os.makedirs("reports/optuna", exist_ok=True)
+
+    vis.plot_optimization_history(study).write_html("reports/optuna/history.html")
+    vis.plot_parallel_coordinate(study).write_html("reports/optuna/parallel_coordinates.html")
+    vis.plot_param_importances(study).write_html("reports/optuna/importance.html")
+    vis.plot_slice(study).write_html("reports/optuna/slice_plot.html")
+    vis.plot_contour(study).write_html("reports/optuna/contour_plot.html")
+
+    print("[✓] Optuna-Visualisierungen gespeichert unter: reports/optuna/")
 
     print("\n[✓] Bayesian Optimization abgeschlossen.")
     print(f"Beste Konfiguration: {study.best_params}")
     print(f"Bestwert (CostScore): {study.best_value:.4f}")
 
-    # Bestes Modell mit 5-Fold-CV trainieren und speichern
+    # Bestes Modell final trainieren
     best_params = study.best_params
-    best_params["gamma"] = 1.5  # Fix setzen
+    best_params["gamma"] = 1.5
 
     fold_metrics = []
     fold_models = []
@@ -285,17 +264,11 @@ def run_training(n_trials=20):
         })
         fold_models.append(clf)
 
-    df_results = pd.DataFrame([
-    {
-        **trial.params,
-        "avg_cost": trial.value
-    }
-    for trial in study.trials if trial.value is not None
-    ])
+    # Speichern + Visualisieren
+    df_results = pd.DataFrame(trial_metrics_list)
     df_results.to_csv("reports/cv_summary/bayesopt_results.csv", index=False)
-    plot_parallel_per_mask_type(df_results)
 
-    metrics_to_plot = ["avg_cost"]
+    metrics_to_plot = ["avg_cost", "f1", "precision", "recall", "accuracy", "auc"]
     plot_final_metric_matrix(
         df_results,
         metrics=metrics_to_plot,
