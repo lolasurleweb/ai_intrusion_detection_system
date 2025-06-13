@@ -73,7 +73,7 @@ def train_tabnet(X_train, y_train, X_val, y_val, params, fold_idx=None):
         X_train=X_train.values, y_train=y_train.values,
         eval_set=[(X_train.values, y_train.values), (X_val.values, y_val.values)],
         eval_name=["train", "val"],
-        eval_metric=["logloss", CostScore],
+        eval_metric=["logloss"],
         max_epochs=100,
         patience=10,
         batch_size=1024,
@@ -88,25 +88,13 @@ def plot_learning_curves(history, fold_idx, out_dir="reports/learning_curves"):
     os.makedirs(out_dir, exist_ok=True)
     epochs = range(1, len(history["train_logloss"]) + 1)
 
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(6, 5))
 
-    # Plot Logloss
-    plt.subplot(1, 2, 1)
     plt.plot(epochs, history["train_logloss"], label="Train Logloss")
     plt.plot(epochs, history["val_logloss"], label="Val Logloss")
     plt.xlabel("Epoch")
     plt.ylabel("Logloss")
     plt.title(f"Logloss Fold {fold_idx+1}")
-    plt.legend()
-    plt.grid(True)
-
-    # Plot Custom Cost
-    plt.subplot(1, 2, 2)
-    plt.plot(epochs, history["train_custom_cost"], label="Train Cost")
-    plt.plot(epochs, history["val_custom_cost"], label="Val Cost")
-    plt.xlabel("Epoch")
-    plt.ylabel("Cost")
-    plt.title(f"Custom Cost Fold {fold_idx+1}")
     plt.legend()
     plt.grid(True)
 
@@ -239,7 +227,7 @@ def run_training():
             y_val_pred = clf.predict(X_val.values)
             y_val_proba = clf.predict_proba(X_val.values)[:, 1]
 
-            val_cost = clf.history["val_custom_cost"][-1]
+            val_cost = CostScore()(y_val.values, y_val_proba)
 
             fold_costs.append(val_cost)
             fold_metrics.append({

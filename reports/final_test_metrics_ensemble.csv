@@ -1,7 +1,7 @@
 ,Wert
-cost,0.491
-f1,0.8566
-precision,0.9798
-recall,0.7609
-accuracy,0.8858
-auc,0.8796
+cost,0.4965
+f1,0.8552
+precision,0.9819
+recall,0.7574
+accuracy,0.885
+auc,0.8806
