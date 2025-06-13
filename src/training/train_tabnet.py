@@ -103,7 +103,15 @@ def plot_learning_curves(history, fold_idx, out_dir="reports/learning_curves"):
     plt.close()
 
 def plot_parallel_per_mask_type(df, metric="avg_cost", out_dir="reports/grid_search/parallel_by_mask"):
+    import matplotlib.pyplot as plt
+    from pandas.plotting import parallel_coordinates
+    import os
+
     os.makedirs(out_dir, exist_ok=True)
+
+    # Fallback, falls mask_type nicht optimiert wurde
+    if "mask_type" not in df.columns:
+        df["mask_type"] = "all"
 
     for mt in df["mask_type"].unique():
         subset = df[df["mask_type"] == mt].copy()
@@ -113,15 +121,30 @@ def plot_parallel_per_mask_type(df, metric="avg_cost", out_dir="reports/grid_sea
             print(f"[!] Zu wenige Konfigurationen für mask_type = {mt} → übersprungen")
             continue
 
-        # Farbklassifizierung (Quartile)
-        subset["score_bin"] = pd.qcut(subset[metric], q=4, labels=["best", "good", "avg", "bad"])
+        try:
+            # Farbklassifizierung (Quartile)
+            subset["score_bin"] = pd.qcut(subset[metric], q=4, labels=["best", "good", "avg", "bad"])
+        except ValueError:
+            print(f"[!] Quartile für {mt} nicht berechenbar → übersprungen")
+            continue
 
-        axis_cols = ["n_d", "n_a", "lambda_sparse"]
+        # Wichtige Hyperparameterachsen (ggf. erweitern)
+        axis_cols = ["n_d", "n_a", "lambda_sparse", "n_steps"]
+        axis_cols = [col for col in axis_cols if col in subset.columns]
+
+        if len(axis_cols) < 2:
+            print(f"[!] Zu wenige gemeinsame Parameter für mask_type = {mt} → übersprungen")
+            continue
+
         plot_df = subset[axis_cols + ["score_bin"]].copy()
 
-        # Normierung der Achsenwerte
+        # Normierung der Achsenwerte (robust)
         for col in axis_cols:
-            plot_df[col] = (plot_df[col] - plot_df[col].min()) / (plot_df[col].max() - plot_df[col].min())
+            range_val = plot_df[col].max() - plot_df[col].min()
+            if range_val == 0:
+                plot_df[col] = 0.5  # alle Werte gleich → mittig
+            else:
+                plot_df[col] = (plot_df[col] - plot_df[col].min()) / range_val
 
         # Plot erstellen
         plt.figure(figsize=(10, 6))
@@ -188,34 +211,27 @@ def plot_final_metric_matrix(df, metrics, highlight_metric="avg_cost", out_path=
 
     print(f"[✓] Grid-Sreach Metrikplot gespeichert unter: {out_path}")
 
-def run_training():
+import optuna
+
+def run_training(n_trials=20):
     print("[✓] Lade Trainingsdaten...")
     trainval_df = load_pickle("data/processed/train_val_pool.pkl")
     X_full = trainval_df.drop(columns=["attack_detected"])
     y_full = trainval_df["attack_detected"]
 
-    search_space = {
-        "n_d": [8, 16],
-        "n_a": [8, 16],
-        "mask_type": ["sparsemax", "entmax"],
-        "lambda_sparse": [1e-3, 1e-4]
-    }
-
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
-    configs = list(product(*search_space.values()))
-    print(f"Starte Grid Search mit {len(configs)} Konfigurationen...")
 
-    best_config = None
-    lowest_avg_cost = float("inf")
-    best_fold_metrics = None
-    best_fold_models = None
-    grid_search_results = []
+    def objective(trial):
+        params = {
+            "n_d": trial.suggest_int("n_d", 8, 32, step=8),
+            "n_a": trial.suggest_int("n_a", 8, 32, step=8),
+            "mask_type": trial.suggest_categorical("mask_type", ["sparsemax", "entmax"]),
+            "lambda_sparse": trial.suggest_loguniform("lambda_sparse", 1e-5, 1e-3),
+            "n_steps": trial.suggest_int("n_steps", 3, 5),
+            "gamma": 1.5
+        }
 
-    for i, values in enumerate(configs):
-        params = dict(zip(search_space.keys(), values))
-        print(f"\n[{i+1}/{len(configs)}] Konfiguration: {params}")
-
-        fold_costs, fold_metrics, fold_models = [], [], []
+        fold_costs = []
 
         for fold_idx, (train_idx, val_idx) in enumerate(skf.split(X_full, y_full)):
             X_train, X_val = X_full.iloc[train_idx], X_full.iloc[val_idx]
@@ -226,67 +242,72 @@ def run_training():
 
             y_val_pred = clf.predict(X_val.values)
             y_val_proba = clf.predict_proba(X_val.values)[:, 1]
-
             val_cost = CostScore()(y_val.values, y_val_proba)
 
             fold_costs.append(val_cost)
-            fold_metrics.append({
-                "cost": val_cost,
-                "logloss": clf.history["val_logloss"][-1],
-                "f1": f1_score(y_val, y_val_pred),
-                "auc": roc_auc_score(y_val, y_val_proba),
-                "precision": precision_score(y_val, y_val_pred),
-                "recall": recall_score(y_val, y_val_pred),
-                "accuracy": accuracy_score(y_val, y_val_pred)
-            })
-            fold_models.append(clf)
 
-            print(f"  → Fold {fold_idx+1}: Val-Cost = {val_cost:.4f}")
+        avg_cost = np.mean(fold_costs)
+        return avg_cost
 
-        # Mittelwerte der Metriken über alle 5 Folds berechnen
-        avg_metrics = {
-            "avg_cost": np.mean([m["cost"] for m in fold_metrics]),
-            "std_cost": np.std([m["cost"] for m in fold_metrics]),
-            "f1": np.mean([m["f1"] for m in fold_metrics]),
-            "precision": np.mean([m["precision"] for m in fold_metrics]),
-            "recall": np.mean([m["recall"] for m in fold_metrics]),
-            "auc": np.mean([m["auc"] for m in fold_metrics]),
-            "accuracy": np.mean([m["accuracy"] for m in fold_metrics])
-        }
+    study = optuna.create_study(direction="minimize")
+    study.optimize(objective, n_trials=n_trials)
 
-        grid_search_results.append({
-            **params,
-            **avg_metrics
+    print("\n[✓] Bayesian Optimization abgeschlossen.")
+    print(f"Beste Konfiguration: {study.best_params}")
+    print(f"Bestwert (CostScore): {study.best_value:.4f}")
+
+    # Bestes Modell mit 5-Fold-CV trainieren und speichern
+    best_params = study.best_params
+    best_params["gamma"] = 1.5  # Fix setzen
+
+    fold_metrics = []
+    fold_models = []
+
+    for fold_idx, (train_idx, val_idx) in enumerate(skf.split(X_full, y_full)):
+        X_train, X_val = X_full.iloc[train_idx], X_full.iloc[val_idx]
+        y_train, y_val = y_full.iloc[train_idx], y_full.iloc[val_idx]
+
+        clf = train_tabnet(X_train, y_train, X_val, y_val, best_params)
+        plot_learning_curves(clf.history, fold_idx)
+
+        y_val_pred = clf.predict(X_val.values)
+        y_val_proba = clf.predict_proba(X_val.values)[:, 1]
+        val_cost = CostScore()(y_val.values, y_val_proba)
+
+        fold_metrics.append({
+            "cost": val_cost,
+            "logloss": clf.history["val_logloss"][-1],
+            "f1": f1_score(y_val, y_val_pred),
+            "auc": roc_auc_score(y_val, y_val_proba),
+            "precision": precision_score(y_val, y_val_pred),
+            "recall": recall_score(y_val, y_val_pred),
+            "accuracy": accuracy_score(y_val, y_val_pred)
         })
+        fold_models.append(clf)
 
-        avg_cost = avg_metrics["avg_cost"]
-
-        if avg_cost < lowest_avg_cost:
-            best_config = params
-            best_fold_metrics = fold_metrics
-            best_fold_models = fold_models
-            lowest_avg_cost = avg_cost
-            print("[✓] Neue beste Konfiguration gefunden.")
-
-    print("\nGrid Search abgeschlossen.")
-    print(f"Beste Konfiguration: {best_config}")
-    print(f"CustomCost: {lowest_avg_cost:.4f} (Durchschnitt über 5 Folds)")
-
-    df_results = pd.DataFrame(grid_search_results)
-    df_results.sort_values("avg_cost", inplace=True)
-    df_results.to_csv("reports/cv_summary/grid_search_results.csv", index=False)
-    print("[✓] Grid Search Ergebnisse gespeichert unter: reports/cv_summary/grid_search_results.csv")
-
+    df_results = pd.DataFrame([
+    {
+        **trial.params,
+        "avg_cost": trial.value
+    }
+    for trial in study.trials if trial.value is not None
+    ])
+    df_results.to_csv("reports/cv_summary/bayesopt_results.csv", index=False)
     plot_parallel_per_mask_type(df_results)
-    print("[✓] Parallel Coordinates Plot gespeichert unter: reports/grid_search/parallel_coordinates.png")
 
-    plot_final_metric_matrix(df_results, metrics=["avg_cost", "f1", "precision", "recall", "accuracy", "auc"], highlight_metric="avg_cost")
-    
+    metrics_to_plot = ["avg_cost"]
+    plot_final_metric_matrix(
+        df_results,
+        metrics=metrics_to_plot,
+        highlight_metric="avg_cost",
+        out_path="reports/grid_search/final_metric_matrix.png"
+    )
+
     save_fold_models(
-        fold_models=best_fold_models,
-        params=best_config,
-        fold_metrics=best_fold_metrics,
-        path_prefix="models/tabnet_cv"
+        fold_models=fold_models,
+        params=best_params,
+        fold_metrics=fold_metrics,
+        path_prefix="models/tabnet_bayesopt"
     )
 
     print("[✓] Finalmodelle gespeichert.")

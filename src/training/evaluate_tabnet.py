@@ -413,7 +413,11 @@ def run_final_test_model_ensemble(alpha=2, beta=1):
     X_test = df_test.drop(columns=["attack_detected"])
 
     print("[\u2713] Suche Ensemble-Metadaten...")
-    metadata_path = sorted(glob("models/tabnet_cv_*/metadata.json"))[-1]
+    metadata_paths = glob("models/tabnet_bayesopt_*/metadata.json")
+    if not metadata_paths:
+        raise FileNotFoundError("Kein Bayesopt-Modell gefunden. Wurde es gespeichert?")
+    metadata_path = sorted(metadata_paths)[-1]
+
     with open(metadata_path) as f:
         meta = json.load(f)
 
