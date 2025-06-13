@@ -433,10 +433,17 @@ def run_final_test_model_ensemble(alpha=2, beta=1):
 
     print(f"[\u2713] {len(models)} Fold-Modelle erfolgreich geladen.")
 
-    print("[\u2713] Ensemble-Inferenz...")
+    print("[✓] Ensemble-Inferenz mit Unsicherheitsgewichtung...")
+
     y_proba_matrix = np.array([model.predict_proba(X_test.values)[:, 1] for model in models])
-    y_proba = y_proba_matrix.mean(axis=0)
-    y_pred = (y_proba > 0.5).astype(int)
+    # Standard Soft Voting
+    y_proba_mean = y_proba_matrix.mean(axis=0)  # (n_samples,)
+    y_std_per_sample = y_proba_matrix.std(axis=0)  # (n_samples,)
+
+    uncertainty_threshold = 0.15  # z.B. 0.15 → Unsicher ab hier
+
+    # Wenn unsicher → 1 (Alarm), sonst normale Schwelle
+    y_pred = np.where(y_std_per_sample > uncertainty_threshold, 1, (y_proba_mean > 0.5).astype(int))
 
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
     fn_rate = fn / (tp + fn) if (tp + fn) > 0 else 0
@@ -449,7 +456,7 @@ def run_final_test_model_ensemble(alpha=2, beta=1):
         "precision": precision_score(y_test, y_pred),
         "recall": recall_score(y_test, y_pred),
         "accuracy": accuracy_score(y_test, y_pred),
-        "auc": roc_auc_score(y_test, y_proba)
+        "auc": roc_auc_score(y_test, y_proba_mean)
     }
 
     pd.DataFrame.from_dict({k: [round(v, 4)] for k, v in metrics.items()}).T.to_csv(
