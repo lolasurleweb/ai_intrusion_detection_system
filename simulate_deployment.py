@@ -105,6 +105,28 @@ def finetune_tabnet_model(model, X, y, max_epochs=20, patience=5):
     )
     return model
 
+from collections import deque
+from river.drift import ADWIN
+from pytorch_tabnet.tab_model import TabNetClassifier
+import numpy as np
+import pandas as pd
+
+def finetune_tabnet_model(model, X, y, max_epochs=20, patience=5):
+    model.fit(
+        X_train=X,
+        y_train=y,
+        eval_set=[(X, y)],
+        eval_name=["replay"],
+        eval_metric=["accuracy"],
+        max_epochs=max_epochs,
+        patience=patience,
+        batch_size=512,
+        virtual_batch_size=128,
+        drop_last=False,
+        from_unsupervised=None
+    )
+    return model
+
 def run_deployment_simulation_ensemble(threshold=0.5):
     print("[1] Lade Ensemble-Modelle...")
     models, model_paths = load_ensemble_models()
@@ -116,63 +138,62 @@ def run_deployment_simulation_ensemble(threshold=0.5):
 
     df_mid_drifted = inject_label_drift(df_mid, drift_fraction=0.4)
 
-    print("Angriffsrate vor Drift:", df_mid["attack_detected"].mean())
-    print("Angriffsrate nach Drift:", df_mid_drifted["attack_detected"].mean())
-
     df_stream = pd.concat([df_early, df_mid_drifted], ignore_index=True)
     feature_names = df_stream.drop(columns=["attack_detected"]).columns.tolist()
 
-    print("[3] Starte Inferenzloop mit Alarm- und Driftüberwachung...")
+    print("[3] Starte Inferenzloop mit Drift-Überwachung und Finetuning...")
     replay_buffer = deque(maxlen=10_000)
     adwin = ADWIN(delta=0.002)
     drift_detected_indices = []
-    drift_already_handled = False  # Sicherstellen, dass Finetuning nur einmal ausgeführt wird
+    drift_already_handled = False
 
     for idx, row in df_stream.iterrows():
         X_instance = row[feature_names].to_frame().T
         y_true = row["attack_detected"]
 
+        # Aktuelle Vorhersage mit (ggf. bereits feingetunten) Modellen
         y_pred, y_proba = ensemble_predict(models, X_instance, threshold=threshold)
         y_pred_label = y_pred[0]
 
-        # Fehlertracking für ADWIN
+        # Fehler berechnen und ADWIN-Update
         error = int(y_pred_label != y_true)
         adwin.update(error)
 
+        # Drift-Erkennung → einmaliges Finetuning starten
         if adwin.drift_detected and not drift_already_handled:
-            print(f"\n[DRIFT] Konzeptdrift erkannt bei Index {idx}")
+            print(f"\n⚠️ [DRIFT] Konzeptdrift erkannt bei Index {idx}")
             drift_detected_indices.append(idx)
-            drift_already_handled = True  # Nur einmal finetunen
+            drift_already_handled = True
 
-            # [5] Finetuning vorbereiten
-            print("[5] Finetuning des Ensembles auf Replay Buffer beginnt...")
+            # Replay Buffer in DataFrame umwandeln
             df_replay = pd.DataFrame(replay_buffer)
             if df_replay.empty:
-                print("    ⚠️ Replay Buffer ist leer – kein Finetuning durchgeführt.")
+                print("⚠️ Kein Finetuning durchgeführt – Replay Buffer ist leer.")
             else:
                 X_replay = df_replay.drop(columns=["attack_detected"]).values.astype(np.float32)
                 y_replay = df_replay["attack_detected"].values
 
+                print("[4] Finetuning startet...")
                 for i, model in enumerate(models):
-                    print(f"    → Finetune Modell {i+1}/5...")
+                    print(f"    → Modell {i+1}/5 wird angepasst...")
                     finetune_tabnet_model(model, X_replay, y_replay)
-                    model.save_model(f"models/finetuned_model_{i+1}.zip")
+                print("✅ Finetuning abgeschlossen – Modelle werden weiterverwendet.")
 
-        # Alarmfall
+        # Alarm bei Angriff
         if y_pred_label == 1:
             print(f"[ALARM] Angriff erkannt bei Index {idx}")
             print(f"         → Vorhersage-Wahrscheinlichkeit: {y_proba[0]:.4f}")
-
             explanation = get_ensemble_explanation(models, X_instance)
             top_features = sorted(explanation.items(), key=lambda x: -x[1])[:3]
             print("         → Wichtigste Features laut Ensemble:")
             for feat, score in top_features:
                 print(f"           {feat}: {score:.4f}")
 
+            # Speichere Instanz mit Label
             instance_for_buffer = row[feature_names + ["attack_detected"]].to_dict()
             replay_buffer.append(instance_for_buffer)
 
-    print(f"\n[6] Inferenz abgeschlossen. Größe des Replay Buffers: {len(replay_buffer)}")
+    print(f"\n[5] Inferenz abgeschlossen. Größe des Replay Buffers: {len(replay_buffer)}")
     print(f"    Anzahl erkannter Drifts: {len(drift_detected_indices)}")
     if drift_detected_indices:
         print(f"    Detektierte Driftpositionen: {drift_detected_indices}")
