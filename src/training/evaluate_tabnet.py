@@ -415,7 +415,7 @@ def run_final_test_model_ensemble(alpha=2, beta=1):
     print("[\u2713] Suche Ensemble-Metadaten...")
     metadata_paths = glob("models/tabnet_bayesopt_*/metadata.json")
     if not metadata_paths:
-        raise FileNotFoundError("Kein Bayesopt-Modell gefunden. Wurde es gespeichert?")
+        raise FileNotFoundError("Kein Bayesopt-Modell gefunden")
     metadata_path = sorted(metadata_paths)[-1]
 
     with open(metadata_path) as f:
@@ -437,10 +437,10 @@ def run_final_test_model_ensemble(alpha=2, beta=1):
 
     y_proba_matrix = np.array([model.predict_proba(X_test.values)[:, 1] for model in models])
     # Standard Soft Voting
-    y_proba_mean = y_proba_matrix.mean(axis=0)  # (n_samples,)
-    y_std_per_sample = y_proba_matrix.std(axis=0)  # (n_samples,)
+    y_proba_mean = y_proba_matrix.mean(axis=0)
+    y_std_per_sample = y_proba_matrix.std(axis=0)  
 
-    uncertainty_threshold = 0.15  # z.B. 0.15 → Unsicher ab hier
+    uncertainty_threshold = 0.15 
 
     # Wenn unsicher → 1 (Alarm), sonst normale Schwelle
     y_pred = np.where(y_std_per_sample > uncertainty_threshold, 1, (y_proba_mean > 0.5).astype(int))

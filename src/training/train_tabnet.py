@@ -12,12 +12,11 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score, accuracy_score
 from src.utils.io import load_pickle
 from pytorch_tabnet.metrics import Metric
-from pandas.plotting import parallel_coordinates
 import optuna
 import optuna.visualization as vis
 
 class CostScore(Metric):
-    def __init__(self, alpha=5.0, beta=1.0):
+    def __init__(self, alpha=2.0, beta=1.0):
         self.alpha = alpha
         self.beta = beta
         self._name = "custom_cost"
