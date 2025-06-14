@@ -137,7 +137,6 @@ def run_deployment_simulation_ensemble(threshold=0.5):
     df_late = load_pickle("data/processed/drift_sim_late.pkl")
 
     df_mid_drifted = inject_label_drift(df_mid, drift_fraction=0.4)
-
     df_stream = pd.concat([df_early, df_mid_drifted], ignore_index=True)
     feature_names = df_stream.drop(columns=["attack_detected"]).columns.tolist()
 
@@ -145,27 +144,24 @@ def run_deployment_simulation_ensemble(threshold=0.5):
     replay_buffer = deque(maxlen=10_000)
     adwin = ADWIN(delta=0.002)
     drift_detected_indices = []
-    drift_already_handled = False
 
     for idx, row in df_stream.iterrows():
         X_instance = row[feature_names].to_frame().T
         y_true = row["attack_detected"]
 
-        # Aktuelle Vorhersage mit (ggf. bereits feingetunten) Modellen
+        # Vorhersage
         y_pred, y_proba = ensemble_predict(models, X_instance, threshold=threshold)
         y_pred_label = y_pred[0]
 
-        # Fehler berechnen und ADWIN-Update
+        # Fehler an ADWIN weitergeben
         error = int(y_pred_label != y_true)
         adwin.update(error)
 
-        # Drift-Erkennung → einmaliges Finetuning starten
-        if adwin.drift_detected and not drift_already_handled:
+        # Wenn Drift erkannt: Finetuning durchführen
+        if adwin.drift_detected:
             print(f"\n⚠️ [DRIFT] Konzeptdrift erkannt bei Index {idx}")
             drift_detected_indices.append(idx)
-            drift_already_handled = True
 
-            # Replay Buffer in DataFrame umwandeln
             df_replay = pd.DataFrame(replay_buffer)
             if df_replay.empty:
                 print("⚠️ Kein Finetuning durchgeführt – Replay Buffer ist leer.")
@@ -179,7 +175,11 @@ def run_deployment_simulation_ensemble(threshold=0.5):
                     finetune_tabnet_model(model, X_replay, y_replay)
                 print("✅ Finetuning abgeschlossen – Modelle werden weiterverwendet.")
 
-        # Alarm bei Angriff
+                # ADWIN zurücksetzen für nächste Driftüberwachung
+                adwin = ADWIN(delta=0.002)
+                print("🔁 ADWIN wurde zurückgesetzt.")
+
+        # Alarmfall
         if y_pred_label == 1:
             print(f"[ALARM] Angriff erkannt bei Index {idx}")
             print(f"         → Vorhersage-Wahrscheinlichkeit: {y_proba[0]:.4f}")
@@ -189,7 +189,7 @@ def run_deployment_simulation_ensemble(threshold=0.5):
             for feat, score in top_features:
                 print(f"           {feat}: {score:.4f}")
 
-            # Speichere Instanz mit Label
+            # Speichern im Replay Buffer
             instance_for_buffer = row[feature_names + ["attack_detected"]].to_dict()
             replay_buffer.append(instance_for_buffer)
 
