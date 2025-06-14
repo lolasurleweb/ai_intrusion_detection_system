@@ -46,7 +46,7 @@ def get_ensemble_explanation(models, X_instance_df):
     avg_mask = np.mean(all_masks, axis=0)
 
     if avg_mask.ndim == 1:
-        feature_importance = avg_mask 
+        feature_importance = avg_mask
     elif avg_mask.ndim == 2:
         feature_importance = avg_mask[0]
     else:
@@ -54,115 +54,125 @@ def get_ensemble_explanation(models, X_instance_df):
 
     return dict(zip(X_instance_df.columns, feature_importance))
 
-def finetune_ensemble_models(models, buffer, save_paths, feature_names):
-    X_buffer, y_buffer = zip(*buffer)
-    X_df = pd.DataFrame(X_buffer, columns=feature_names).astype(np.float32)
-    y_buffer = np.array(y_buffer)
+def inject_label_drift(df, drift_fraction=0.4, random_state=42):
+    df = df.copy()
+    np.random.seed(random_state)
 
-    print(f"[→] Finetuning auf {len(buffer)} Instanzen...")
+    harmless_indices = df[df["attack_detected"] == 0].index
+    n_to_flip = int(len(harmless_indices) * drift_fraction)
 
-    for i, (model, path) in enumerate(zip(models, save_paths), start=1):
-        print(f"  • Modell {i} wird feinjustiert...")
-        model.fit(
-            X_train=X_df.values,
-            y_train=y_buffer,
-            max_epochs=10,
-            patience=3,
-            loss_fn="binary_focal_loss"
-        )
-        model.save_model(path)
-        print(f"    ↳ Gespeichert unter: {path}.zip")
+    indices_to_flip = np.random.choice(harmless_indices, size=n_to_flip, replace=False)
+    df.loc[indices_to_flip, "attack_detected"] = 1
 
-    print("[✓] Alle Ensemble-Modelle wurden feinjustiert.")
+    print(f"{n_to_flip} harmlose Instanzen wurden in Angriffe umetikettiert.")
+    return df
 
-def run_deployment_loop_ensemble(df, models, feature_names, adwin, replay_buffer,
-                                 drift_flag, min_samples_to_refit, model_paths, threshold, stats):
+def finetune_tabnet_model(model, X, y, max_epochs=20, patience=5):
+    model.fit(
+        X_train=X,
+        y_train=y,
+        eval_set=[(X, y)],
+        eval_name=["replay"],
+        eval_metric=["accuracy"],
+        max_epochs=max_epochs,
+        patience=patience,
+        batch_size=512,
+        virtual_batch_size=128,
+        drop_last=False,
+        from_unsupervised=False
+    )
+    return model
 
-    X_all = df.drop(columns=["attack_detected"])
-    y_true = df["attack_detected"].values
+from collections import deque
+from river.drift import ADWIN
+from pytorch_tabnet.tab_model import TabNetClassifier
+import numpy as np
+import pandas as pd
 
-    y_pred, y_proba = ensemble_predict(models, X_all, threshold=threshold)
-
-    for i in range(len(df)):
-        x_instance = X_all.iloc[i]
-        true_label = y_true[i]
-
-        # Update ADWIN mit dem absoluten Fehler zwischen der Prädiktionswahrscheinlichkeit und dem tatsächlichen Label
-        error = abs(y_proba[i] - true_label)
-        adwin.update(error)
-
-        # Bonus: Drift-Erkennung nur einmal pro Detektion
-        if adwin.drift_detected and not drift_flag[0]:
-            print(f"[!] Drift erkannt bei Instanz {i}")
-            print(f"↳ ADWIN-Fehlerschätzer: {adwin.estimation:.3f}")
-            drift_flag[0] = True
-            stats["drift_detected_count"] += 1
-
-        if y_pred[i] == 1:
-            x_instance_df = X_all.iloc[[i]]  # Als DataFrame für explain
-            explanation = get_ensemble_explanation(models, x_instance_df)
-
-            print(f"\n[ALARM] Angriff erkannt bei Instanz {i}")
-            print("↳ Erklärung (Top-Features):")
-            top_k = sorted(explanation.items(), key=lambda x: -x[1])[:5]
-            for feat, val in top_k:
-                print(f"  • {feat}: {val:.4f}")
-
-            replay_buffer.append((x_instance_df.values.flatten(), true_label))
-            stats["total_replay_samples"] += 1
-
-        if drift_flag[0] and len(replay_buffer) >= min_samples_to_refit:
-            finetune_ensemble_models(models, replay_buffer, model_paths, feature_names)
-            drift_flag[0] = False
-            replay_buffer.clear()
-            stats["finetune_count"] += 1
-
-def flip_labels(path: str, flip_ratio: float):
-    with open(path, "rb") as f:
-        df = pickle.load(f)
-    np.random.seed(42)
-    n_flip = int(flip_ratio * len(df))
-    flip_indices = np.random.choice(df.index, size=n_flip, replace=False)
-    df.loc[flip_indices, "attack_detected"] = 1 - df.loc[flip_indices, "attack_detected"]
-    with open(path, "wb") as f:
-        pickle.dump(df, f)
-    print(f"[✓] {n_flip} Labels in '{path}' wurden erfolgreich geflippt.")
+def finetune_tabnet_model(model, X, y, max_epochs=20, patience=5):
+    model.fit(
+        X_train=X,
+        y_train=y,
+        eval_set=[(X, y)],
+        eval_name=["replay"],
+        eval_metric=["accuracy"],
+        max_epochs=max_epochs,
+        patience=patience,
+        batch_size=512,
+        virtual_batch_size=128,
+        drop_last=False,
+        from_unsupervised=None
+    )
+    return model
 
 def run_deployment_simulation_ensemble(threshold=0.5):
     print("[1] Lade Ensemble-Modelle...")
     models, model_paths = load_ensemble_models()
 
-    print("[2] Lade Drift-Simulationsdaten...")
+    print("[2] Bereite Drift-Simulationsdaten vor...")
     df_early = load_pickle("data/processed/drift_sim_early.pkl")
-
-    flip_labels("data/processed/drift_sim_mid.pkl", flip_ratio=0.4)
     df_mid = load_pickle("data/processed/drift_sim_mid.pkl")
-
-    flip_labels("data/processed/drift_sim_late.pkl", flip_ratio=0.8)
     df_late = load_pickle("data/processed/drift_sim_late.pkl")
 
-    df_stream = pd.concat([df_early, df_mid, df_late], ignore_index=True)
+    df_mid_drifted = inject_label_drift(df_mid, drift_fraction=0.4)
 
+    print("Angriffsrate vor Drift:", df_mid["attack_detected"].mean())
+    print("Angriffsrate nach Drift:", df_mid_drifted["attack_detected"].mean())
+
+    df_stream = pd.concat([df_early, df_mid_drifted], ignore_index=True)
     feature_names = df_stream.drop(columns=["attack_detected"]).columns.tolist()
 
-    adwin = ADWIN(delta=0.005)
-    replay_buffer = []
-    drift_flag = [False]
-    min_samples_to_refit = 50
+    print("[3] Starte Inferenzloop mit Alarm- und Driftüberwachung...")
+    replay_buffer = deque(maxlen=10_000)
+    adwin = ADWIN(delta=0.002)
+    drift_detected_indices = []
+    drift_already_handled = False  # Sicherstellen, dass Finetuning nur einmal ausgeführt wird
 
-    stats = {
-        "drift_detected_count": 0,
-        "finetune_count": 0,
-        "total_replay_samples": 0
-    }
+    for idx, row in df_stream.iterrows():
+        X_instance = row[feature_names].to_frame().T
+        y_true = row["attack_detected"]
 
-    print("\n[3] Simuliere Deployment über gesamten Datenstrom")
-    run_deployment_loop_ensemble(df_stream, models, feature_names,
-                                 adwin, replay_buffer, drift_flag,
-                                 min_samples_to_refit, model_paths, threshold,
-                                 stats)
+        y_pred, y_proba = ensemble_predict(models, X_instance, threshold=threshold)
+        y_pred_label = y_pred[0]
 
-    print("\n[📊] Zusammenfassung der Deployment-Simulation:")
-    print(f"    ↳ Drift erkannt:           {stats['drift_detected_count']}x")
-    print(f"    ↳ Finetuning durchgeführt: {stats['finetune_count']}x")
-    print(f"    ↳ Gesammelte SOC-Feedbacks im Replay Buffer: {stats['total_replay_samples']}")
+        # Fehlertracking für ADWIN
+        error = int(y_pred_label != y_true)
+        adwin.update(error)
+
+        if adwin.drift_detected and not drift_already_handled:
+            print(f"\n[DRIFT] Konzeptdrift erkannt bei Index {idx}")
+            drift_detected_indices.append(idx)
+            drift_already_handled = True  # Nur einmal finetunen
+
+            # [5] Finetuning vorbereiten
+            print("[5] Finetuning des Ensembles auf Replay Buffer beginnt...")
+            df_replay = pd.DataFrame(replay_buffer)
+            if df_replay.empty:
+                print("    ⚠️ Replay Buffer ist leer – kein Finetuning durchgeführt.")
+            else:
+                X_replay = df_replay.drop(columns=["attack_detected"]).values.astype(np.float32)
+                y_replay = df_replay["attack_detected"].values
+
+                for i, model in enumerate(models):
+                    print(f"    → Finetune Modell {i+1}/5...")
+                    finetune_tabnet_model(model, X_replay, y_replay)
+                    model.save_model(f"models/finetuned_model_{i+1}.zip")
+
+        # Alarmfall
+        if y_pred_label == 1:
+            print(f"[ALARM] Angriff erkannt bei Index {idx}")
+            print(f"         → Vorhersage-Wahrscheinlichkeit: {y_proba[0]:.4f}")
+
+            explanation = get_ensemble_explanation(models, X_instance)
+            top_features = sorted(explanation.items(), key=lambda x: -x[1])[:3]
+            print("         → Wichtigste Features laut Ensemble:")
+            for feat, score in top_features:
+                print(f"           {feat}: {score:.4f}")
+
+            instance_for_buffer = row[feature_names + ["attack_detected"]].to_dict()
+            replay_buffer.append(instance_for_buffer)
+
+    print(f"\n[6] Inferenz abgeschlossen. Größe des Replay Buffers: {len(replay_buffer)}")
+    print(f"    Anzahl erkannter Drifts: {len(drift_detected_indices)}")
+    if drift_detected_indices:
+        print(f"    Detektierte Driftpositionen: {drift_detected_indices}")
