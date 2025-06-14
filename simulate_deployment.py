@@ -105,12 +105,6 @@ def finetune_tabnet_model(model, X, y, max_epochs=20, patience=5):
     )
     return model
 
-from collections import deque
-from river.drift import ADWIN
-from pytorch_tabnet.tab_model import TabNetClassifier
-import numpy as np
-import pandas as pd
-
 def finetune_tabnet_model(model, X, y, max_epochs=20, patience=5):
     model.fit(
         X_train=X,
@@ -145,6 +139,8 @@ def run_deployment_simulation_ensemble(threshold=0.5):
     adwin = ADWIN(delta=0.002)
     drift_detected_indices = []
 
+    low_threshold = 0.2  # Schwelle für "sehr sicher kein Angriff"
+
     for idx, row in df_stream.iterrows():
         X_instance = row[feature_names].to_frame().T
         y_true = row["attack_detected"]
@@ -174,22 +170,32 @@ def run_deployment_simulation_ensemble(threshold=0.5):
                     print(f"    → Modell {i+1}/5 wird angepasst...")
                     finetune_tabnet_model(model, X_replay, y_replay)
                 print("✅ Finetuning abgeschlossen – Modelle werden weiterverwendet.")
-
-                # ADWIN zurücksetzen für nächste Driftüberwachung
                 adwin = ADWIN(delta=0.002)
                 print("🔁 ADWIN wurde zurückgesetzt.")
 
-        # Alarmfall
-        if y_pred_label == 1:
+        # === Feedback-Simulation ===
+        if y_pred_label == 1 and y_true == 1:
             print(f"[ALARM] Angriff erkannt bei Index {idx}")
             print(f"         → Vorhersage-Wahrscheinlichkeit: {y_proba[0]:.4f}")
+        elif y_pred_label == 0 and y_true == 1:
+            print(f"[MISS] Angriff wurde übersehen bei Index {idx}")
+            print(f"        → Vorhersage-Wahrscheinlichkeit: {y_proba[0]:.4f}")
+
+        # Erklärung nur für Angriffe
+        if y_true == 1:
             explanation = get_ensemble_explanation(models, X_instance)
             top_features = sorted(explanation.items(), key=lambda x: -x[1])[:3]
             print("         → Wichtigste Features laut Ensemble:")
             for feat, score in top_features:
                 print(f"           {feat}: {score:.4f}")
 
-            # Speichern im Replay Buffer
+        # === Replay-Logik ===
+        if y_true == 1:
+            # (Erkannter oder verpasster Angriff)
+            instance_for_buffer = row[feature_names + ["attack_detected"]].to_dict()
+            replay_buffer.append(instance_for_buffer)
+        elif y_true == 0 and y_pred_label == 0 and y_proba[0] < low_threshold:
+            # Sehr sicheres True Negative
             instance_for_buffer = row[feature_names + ["attack_detected"]].to_dict()
             replay_buffer.append(instance_for_buffer)
 
