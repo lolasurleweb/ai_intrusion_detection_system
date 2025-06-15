@@ -57,26 +57,33 @@ def split_for_training_and_drift(df: pd.DataFrame, target_col: str, seed: int = 
 
     y_drift = df_drift[target_col]
 
-    df_temp, df_early = train_test_split(
-        df_drift, test_size=1/3, stratify=y_drift, random_state=seed
-    )
-    y_temp = df_temp[target_col]
-
-    df_mid, df_late = train_test_split(
-        df_temp, test_size=0.5, stratify=y_temp, random_state=seed
+    # Neu: Nur zwei Splits
+    df_early, df_late = train_test_split(
+        df_drift, test_size=0.5, stratify=y_drift, random_state=seed
     )
 
     drift_splits = {
         "early": df_early.reset_index(drop=True),
-        "mid": df_mid.reset_index(drop=True),
         "late": df_late.reset_index(drop=True)
     }
 
     return df_trainvaltest.reset_index(drop=True), drift_splits
 
 def split_train_val_test_holdout(df: pd.DataFrame, target_col: str, test_size: float = 0.2, seed: int = 42):
-    y = df[target_col]
-    X = df.drop(columns=[target_col])
+    df_class_0 = df[df[target_col] == 0]
+    df_class_1 = df[df[target_col] == 1]
+    
+    n_min = min(len(df_class_0), len(df_class_1))
+    
+    df_balanced = pd.concat([
+        df_class_0.sample(n=n_min, random_state=seed),
+        df_class_1.sample(n=n_min, random_state=seed)
+    ]).reset_index(drop=True)
+
+    df_balanced = shuffle(df_balanced, random_state=seed).reset_index(drop=True)
+
+    y = df_balanced[target_col]
+    X = df_balanced.drop(columns=[target_col])
 
     X_pool, X_test, y_pool, y_test = train_test_split(
         X, y, test_size=test_size, stratify=y, random_state=seed
