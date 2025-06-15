@@ -117,7 +117,7 @@ def finetune_tabnet_model(model, X, y, max_epochs=20, patience=5):
         y_train=y,
         eval_set=[(X, y)],
         eval_name=["replay"],
-        eval_metric=["accuracy"],
+        eval_metric=["logloss"],
         max_epochs=max_epochs,
         patience=patience,
         batch_size=512,
@@ -157,8 +157,9 @@ def run_deployment_simulation_ensemble(threshold=0.5):
         y_pred_label = y_pred[0]
 
         # Fehler an ADWIN weitergeben
-        error = int(y_pred_label != y_true)
-        adwin.update(error)
+        if (y_pred_label == 1 and y_true in [0, 1]) or (y_pred_label == 0 and y_true == 1):
+            error = int(y_pred_label != y_true)
+            adwin.update(error)
 
         # Wenn Drift erkannt: Finetuning durchführen
         if adwin.drift_detected:
@@ -200,25 +201,28 @@ def run_deployment_simulation_ensemble(threshold=0.5):
                     print("ADWIN wurde zurückgesetzt.")
 
         # === Feedback-Simulation ===
-        if y_pred_label == 1 and y_true == 1:
-            print(f"[ALARM] Angriff erkannt bei Index {idx}")
+        if y_pred_label == 1:
+            print(f"[ALARM] Alarm bei Index {idx}")
             print(f"         → Vorhersage-Wahrscheinlichkeit: {y_proba[0]:.4f}")
-        elif y_pred_label == 0 and y_true == 1:
-            print(f"[MISS] Angriff wurde übersehen bei Index {idx}")
-            print(f"        → Vorhersage-Wahrscheinlichkeit: {y_proba[0]:.4f}")
 
-        if y_true == 1:
             explanation = get_ensemble_explanation(models, X_instance)
             top_features = sorted(explanation.items(), key=lambda x: -x[1])[:3]
             print("         → Wichtigste Features laut Ensemble:")
             for feat, score in top_features:
                 print(f"           {feat}: {score:.4f}")
 
+        elif y_pred_label == 0 and y_true == 1:
+            print(f"[MISS] Angriff wurde übersehen bei Index {idx}")
+            print(f"        → Vorhersage-Wahrscheinlichkeit: {y_proba[0]:.4f}")
+
         # === Replay-Logik ===
-        if y_true == 1:
+        if y_pred_label == 1:
             instance_for_buffer = row[feature_names + ["attack_detected"]].to_dict()
             replay_buffer.append(instance_for_buffer)
-        elif y_true == 0 and y_pred_label == 0 and y_proba[0] < low_threshold:
+        elif y_pred_label == 0 and y_true == 1:
+            instance_for_buffer = row[feature_names + ["attack_detected"]].to_dict()
+            replay_buffer.append(instance_for_buffer)
+        elif y_pred_label == 0 and y_proba[0] < low_threshold:
             instance_for_buffer = row[feature_names + ["attack_detected"]].to_dict()
             replay_buffer.append(instance_for_buffer)
 
