@@ -1,5 +1,5 @@
 import argparse
-from data.preprocessing import preprocess
+from src.data.preprocessing import preprocess
 from src.training.train_tabnet import run_training
 from src.utils.seeding import set_seed
 from simulate_deployment import run_deployment_simulation_ensemble
