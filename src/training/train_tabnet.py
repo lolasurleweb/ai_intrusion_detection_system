@@ -95,7 +95,6 @@ def plot_learning_curves(history, fold_idx, out_dir="reports/learning_curves"):
     plt.plot(epochs, history["val_logloss"], label="Val Logloss")
     plt.xlabel("Epoch")
     plt.ylabel("Logloss")
-    plt.title(f"Logloss Fold {fold_idx+1}")
     plt.legend()
     plt.grid(True)
 
@@ -140,7 +139,6 @@ def plot_final_metric_matrix(df, metrics, highlight_metric="avg_cost", out_path=
     plt.xticks(x, labels, rotation=45, ha="right", fontsize=8)
     plt.xlabel("Konfiguration (n_d - n_a - mask_type - lambda_sparse)")
     plt.ylabel("Wert")
-    plt.title("Metriken über alle Konfigurationen")
     plt.grid(True, axis="y", linestyle="--", alpha=0.5)
 
     plt.legend(

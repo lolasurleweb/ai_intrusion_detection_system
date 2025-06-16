@@ -22,6 +22,7 @@ import umap.umap_ as umap
 
 from pytorch_tabnet.tab_model import TabNetClassifier
 from src.utils.io import load_pickle
+from sklearn.dummy import DummyClassifier
 
 def save_confusion_matrix(y_true, y_pred, save_path):
     disp = ConfusionMatrixDisplay.from_predictions(y_true, y_pred, cmap="Blues")
@@ -32,6 +33,52 @@ def save_confusion_matrix(y_true, y_pred, save_path):
     fig.savefig(save_path)
     print(f"[✓] Confusion Matrix gespeichert unter: {save_path}")
     plt.close(fig)
+
+def run_dummy_baseline(save_path="reports/dummy_metrics.csv",
+                       matrix_path="reports/figures/dummy_confusion_matrix.png",
+                       strategy="stratified",
+                       alpha=2, beta=1):
+    
+    print(f"[✓] Starte Dummy-Baseline mit Strategie: {strategy}")
+
+    df_test = load_pickle("data/processed/test_holdout.pkl")
+    y_test = df_test["attack_detected"]
+    X_test = df_test.drop(columns=["attack_detected"])
+
+    dummy = DummyClassifier(strategy=strategy, random_state=42)
+    dummy.fit(X_test, y_test)
+    y_pred = dummy.predict(X_test)
+
+    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+    pos_total = tp + fn
+    neg_total = tn + fp
+
+    fn_rate = fn / pos_total if pos_total > 0 else 0
+    fp_rate = fp / neg_total if neg_total > 0 else 0
+
+    cost = alpha * fn_rate + beta * fp_rate
+
+    y_proba = dummy.predict_proba(X_test)[:, 1]
+
+    # Metriken berechnen
+    metrics = {
+        "strategy": strategy,
+        "cost": round(cost, 4),
+        "f1": round(f1_score(y_test, y_pred), 4),
+        "precision": round(precision_score(y_test, y_pred), 4),
+        "recall": round(recall_score(y_test, y_pred), 4),
+        "accuracy": round(accuracy_score(y_test, y_pred), 4),
+        "auc": round(roc_auc_score(y_test, y_proba), 4)
+    }
+
+    df_metrics = pd.DataFrame([metrics])
+    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+    df_metrics.to_csv(save_path, index=False)
+    print(f"[✓] Dummy-Ergebnisse gespeichert unter: {save_path}")
+    print(df_metrics.to_string(index=False))
+    
+    save_confusion_matrix(y_test, y_pred, matrix_path)
+
 
 def compute_null_distribution(mean_mask, labels, n_iter=1000, seed=42):
     np.random.seed(seed)
@@ -236,7 +283,6 @@ def plot_3d_interactive(data_3d, y_true, y_pred, save_path="tsne_3d_interactive.
         opacity=0.7
     )
     fig.update_traces(marker=dict(size=4))
-    fig.update_layout(title="Interaktives t-SNE 3D Embedding")
 
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     fig.write_html(save_path)
@@ -280,7 +326,6 @@ def visualize_embeddings_3d(mean_mask, y_true, y_pred, save_dir="reports/figures
                 c=color
             )
 
-        ax.set_title(title)
         ax.set_xlabel("Dim 1")
         ax.set_ylabel("Dim 2")
         ax.set_zlabel("Dim 3")
@@ -291,20 +336,20 @@ def visualize_embeddings_3d(mean_mask, y_true, y_pred, save_dir="reports/figures
 
     print("[✓] Starte PCA 3D...")
     pca_3d = PCA(n_components=3).fit_transform(mean_mask)
-    plot_3d(pca_3d, "PCA 3D Embedding", "pca")
+    plot_3d(pca_3d, "pca")
 
     print("[✓] Starte t-SNE 3D...")
     tsne_3d = TSNE(n_components=3, random_state=42, perplexity=30).fit_transform(mean_mask)
-    plot_3d(tsne_3d, "t-SNE 3D Embedding", "tsne")
+    plot_3d(tsne_3d, "tsne")
 
     print("[✓] Starte UMAP 3D...")
     reducer = umap.UMAP(n_components=3, random_state=42)
     umap_3d = reducer.fit_transform(mean_mask)
-    plot_3d(umap_3d, "UMAP 3D Embedding", "umap")
+    plot_3d(umap_3d, "umap")
 
     print("[✓] Starte t-SNE 3D (Interaktive Version)...")
     tsne_3d = TSNE(n_components=3, random_state=42, perplexity=30).fit_transform(mean_mask)
-    plot_3d(tsne_3d, "t-SNE 3D Embedding", "tsne")
+    plot_3d(tsne_3d, "tsne")
     plot_3d_interactive(tsne_3d, y_true, y_pred, save_path=os.path.join(save_dir, "tsne_3d_interactive.html"))
 
     print(f"[✓] 3D-Visualisierungen gespeichert unter: {save_dir}")
@@ -407,6 +452,15 @@ def analyze_tp_clusters(tsne_3d, y_true, y_pred, X_test, save_path=None):
     plt.close()
 
 def run_final_test_model_ensemble(alpha=2, beta=1):
+
+    run_dummy_baseline(
+        save_path="reports/dummy_metrics.csv",
+        matrix_path="reports/figures/dummy_confusion_matrix.png",
+        strategy="stratified",
+        alpha=alpha,
+        beta=beta
+    )
+
     print("[\u2713] Lade Holdout-Testdaten...")
     df_test = load_pickle("data/processed/test_holdout.pkl")
     y_test = df_test["attack_detected"]

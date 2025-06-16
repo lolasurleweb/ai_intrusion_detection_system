@@ -127,7 +127,7 @@ def finetune_tabnet_model(model, X, y, max_epochs=20, patience=5):
     )
     return model
 
-def run_deployment_simulation_ensemble(threshold=0.5):
+def run_deployment_simulation_ensemble(threshold=0.5, uncertainty_threshold = 0.15):
     print("[1] Lade Ensemble-Modelle...")
     models, model_paths = load_ensemble_models()
 
@@ -135,7 +135,7 @@ def run_deployment_simulation_ensemble(threshold=0.5):
     df_early = load_pickle("data/processed/drift_sim_early.pkl")
     df_late = load_pickle("data/processed/drift_sim_late.pkl")
 
-    df_late_drifted = inject_label_drift(df_late, drift_fraction=0.4)
+    df_late_drifted = inject_label_drift(df_late, bidirectional=False, drift_fraction=0.2)
     df_stream = pd.concat([df_early, df_late_drifted], ignore_index=True)
     feature_names = df_stream.drop(columns=["attack_detected"]).columns.tolist()
 
@@ -144,7 +144,7 @@ def run_deployment_simulation_ensemble(threshold=0.5):
     adwin = ADWIN(delta=0.002)
     drift_detected_indices = []
 
-    low_threshold = 0.35  # Schwelle für "sehr sicher kein Angriff"
+    low_threshold = 0.20  # Schwelle für "sehr sicher kein Angriff"
     finetuned_at = []
 
 
@@ -153,7 +153,7 @@ def run_deployment_simulation_ensemble(threshold=0.5):
         y_true = row["attack_detected"]
 
         # Vorhersage
-        y_pred, y_proba = ensemble_predict(models, X_instance, threshold=threshold)
+        y_pred, y_proba = ensemble_predict(models, X_instance, threshold=threshold, uncertainty_threshold=uncertainty_threshold)
         y_pred_label = y_pred[0]
 
         # Fehler an ADWIN weitergeben
